@@ -1,11 +1,22 @@
 #include "logs.h"
 
-#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 
-#include "strings.h"
+#include "StringUtils.h"
+
+
+
+void (*log_printer)(LogLevel, char*) = NULL;
+
+LogLevel current_level = LVL_INFO;
+
+int count_warnings = 0;
+int count_severe   = 0;
+int count_fatal    = 0;
 
 
 
@@ -21,44 +32,6 @@
 
 
 
-int count_warnings = 0;
-int count_severe   = 0;
-int count_fatal    = 0;
-
-
-
-int get_warning_count() {
-	int count = count_warnings;
-	count_warnings = 0;
-	return count;
-}
-
-int get_severe_count() {
-	int count = count_severe;
-	count_severe = 0;
-	return count;
-}
-
-int get_fatal_count() {
-	int count = count_fatal;
-	count_fatal = 0;
-	return count;
-}
-
-bool has_warnings() {
-	return (count_warnings > 0);
-}
-
-bool has_severe() {
-	return (count_severe > 0);
-}
-
-bool has_fatal() {
-	return (count_fatal > 0);
-}
-
-
-
 void log_lines(void (*callback)(char *msg, ...), char *text) {
 	if (text == NULL) {
 		(*callback) ("<null>");
@@ -66,8 +39,8 @@ void log_lines(void (*callback)(char *msg, ...), char *text) {
 	}
 	size_t len = strlen(text) + 1;
 	char *txt = malloc(len * sizeof(char));
-	char *ptr = txt;
 	strlcpy(txt, text, len);
+	char *ptr = txt;
 	size_t pos;
 	while (true) {
 		pos = chrpos(ptr, '\n');
@@ -85,60 +58,54 @@ void log_lines(void (*callback)(char *msg, ...), char *text) {
 
 void log_line(char *msg, ...) {
 LOG_PRINT_PRE
-	log_print(LVL_OFF, buf);
+	log_printer(LVL_OFF, buf);
 LOG_PRINT_POST
 }
 
-void log_title(char *msg, ...) {
-LOG_PRINT_PRE
-	log_print(LVL_TITLE, buf);
-LOG_PRINT_POST
-}
+
 
 void log_detail(char *msg, ...) {
-#ifdef DEBUG
 LOG_PRINT_PRE
-	log_print(LVL_DETAIL, buf);
+	log_printer(LVL_DETAIL, buf);
 LOG_PRINT_POST
-#endif
 }
 
 void log_info(char *msg, ...) {
 LOG_PRINT_PRE
-	log_print(LVL_INFO, buf);
+	log_printer(LVL_INFO, buf);
 LOG_PRINT_POST
 }
 
 void log_notice(char *msg, ...) {
 LOG_PRINT_PRE
-	log_print(LVL_NOTICE, buf);
+	log_printer(LVL_NOTICE, buf);
 LOG_PRINT_POST
 }
 
 void log_warning(char *msg, ...) {
-	count_warnings++;
 LOG_PRINT_PRE
-	log_print(LVL_WARNING, buf);
+	count_warnings++;
+	log_printer(LVL_WARNING, buf);
 LOG_PRINT_POST
 }
 
 void log_severe(char *msg, ...) {
-	count_severe++;
 LOG_PRINT_PRE
-	log_print(LVL_SEVERE, buf);
+	count_severe++;
+	log_printer(LVL_SEVERE, buf);
 LOG_PRINT_POST
 }
 
 void log_fatal(char *msg, ...) {
-	count_fatal++;
 LOG_PRINT_PRE
-	log_print(LVL_FATAL, buf);
+	count_fatal++;
+	log_printer(LVL_FATAL, buf);
 LOG_PRINT_POST
 }
 
 
 
-void log_print(Log_Level level, char *msg) {
+void log_print(LogLevel level, char *msg) {
 	// title
 	if (level == LVL_TITLE) {
 		size_t len = strlen(msg) + 6;
@@ -162,16 +129,16 @@ void log_print(Log_Level level, char *msg) {
 		log_write(bufA);
 		return;
 	}
-	// level name
-	char lvlName[LOG_LEVEL_NAME_MAX+1];
-	log_level_to_name(level, lvlName);
-	// plain line
-	if (strlen(lvlName) == 0) {
-		log_write(msg);
-		return;
-	}
-	// message with level
-	{
+	if (level >= current_level) {
+		// level name
+		char lvlName[LOG_LEVEL_NAME_MAX+1];
+		log_level_to_name(level, lvlName);
+		// plain line
+		if (strlen(lvlName) == 0) {
+			log_write(msg);
+			return;
+		}
+		// message with level
 		for (char *c=lvlName; (*c=toupper(*c)); ++c);
 		pad_center(lvlName, LOG_LEVEL_NAME_MAX);
 		size_t msg_len = strlen(msg);
@@ -188,7 +155,21 @@ void log_print(Log_Level level, char *msg) {
 	}
 }
 
-void log_level_to_name(Log_Level level, char *name) {
+void log_write(char *line) {
+	printf(line);
+	if (line[strlen(line)-1] != '\n') {
+		printf("\n");
+	}
+//TODO: log to file
+}
+
+
+
+void log_level_set(LogLevel lvl) {
+	current_level = lvl;
+}
+
+void log_level_to_name(LogLevel level, char *name) {
 	switch (level) {
 	case LVL_OFF:     break;
 	case LVL_ALL:     break;
@@ -206,10 +187,34 @@ void log_level_to_name(Log_Level level, char *name) {
 
 
 
-void log_write(char *line) {
-	printf(line);
-	if (line[strlen(line)-1] != '\n') {
-		printf("\n");
-	}
-	//TODO: log to file
+int get_warning_count() {
+	int count = count_warnings;
+	count_warnings = 0;
+	return count;
+}
+
+int get_severe_count() {
+	int count = count_severe;
+	count_severe = 0;
+	return count;
+}
+
+int get_fatal_count() {
+	int count = count_fatal;
+	count_fatal = 0;
+	return count;
+}
+
+
+
+bool has_warnings() {
+	return (count_warnings > 0);
+}
+
+bool has_severe() {
+	return (count_severe > 0);
+}
+
+bool has_fatal() {
+	return (count_fatal > 0);
 }
