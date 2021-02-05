@@ -25,9 +25,9 @@ size_t test_points_size = 0;
 
 
 void test_main(int argc, char *argv[]) {
-	ProgFlag *flag_abort  = progflag_add('a', 1, "abort",  "Abort on failed asserts [default]");
-	progflag_add_spacer();
-	ProgFlag *flag_help  = progflag_add('h', 1, "help",   "Display this help message and exit");
+	ProgFlag *flag_abort  = progflags_add('a', 1, "abort",  "Abort on failed asserts [default]");
+	progflags_add_spacer();
+	ProgFlag *flag_help  = progflags_add('h', 1, "help",   "Display this help message and exit");
 	progflags_process(argc, argv);
 	abort_on_fail = flag_abort->value_bool;
 	// --help

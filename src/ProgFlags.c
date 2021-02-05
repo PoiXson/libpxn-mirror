@@ -70,7 +70,7 @@ void progflag_init(const size_t index) {
 
 
 
-ProgFlag* progflag_add(const char flag_short, const size_t flags_long_count, ...) {
+ProgFlag* progflags_add(const char flag_short, const size_t flags_long_count, ...) {
 	size_t index = progflag_allocate();
 	progflags[index].flag_short = flag_short;
 	va_list flags_long;
@@ -92,7 +92,7 @@ ProgFlag* progflag_add(const char flag_short, const size_t flags_long_count, ...
 	return &(progflags[index]);
 }
 
-ProgFlag* progflag_add_spacer() {
+ProgFlag* progflags_add_spacer() {
 	size_t index = progflag_allocate();
 	progflags[index].flag_short = '-';
 	return &(progflags[index]);
