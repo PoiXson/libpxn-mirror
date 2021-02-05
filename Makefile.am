@@ -5,12 +5,14 @@ libpxn_la_SOURCES = \
 	src/FileUtils.c \
 	src/logs.c \
 	src/ProgFlags.c \
+	src/run.c \
 	src/Testing.c
 pkginclude_HEADERS = \
 	src/StringUtils.h \
 	src/FileUtils.h \
 	src/logs.h \
 	src/ProgFlags.h \
+	src/run.h \
 	src/defines.h \
 	src/Testing.h
 libpxn_la_LDFLAGS = -static
