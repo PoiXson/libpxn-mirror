@@ -6,9 +6,12 @@
 #include <time.h>
 
 #include "StringUtils.h"
+#include "ProgFlags.h"
 #include "defines.h"
 
 
+
+bool abort_on_fail;
 
 int count_tests   = 0;
 int count_success = 0;
@@ -21,13 +24,27 @@ size_t test_points_size = 0;
 
 
 
-int test_main(int argc, char *argv[]) {
+void test_main(int argc, char *argv[]) {
+	ProgFlag *flag_abort  = progflag_add('a', 1, "abort",  "Abort on failed asserts [default]");
+	progflag_add_spacer();
+	ProgFlag *flag_help  = progflag_add('h', 1, "help",   "Display this help message and exit");
+	progflags_process(argc, argv);
+	abort_on_fail = flag_abort->value_bool;
+	// --help
+	if (flag_help->value_bool) {
+		display_help();
+		exit(1);
+	}
 	time_start = clock();
 	// run tests
 	printf("\n");
 	tests();
 	printf("\n");
 	// results
+	test_results_display();
+}
+
+void test_results_display() {
 	clock_t time_end = clock();
 	double elapsed = ( ((double)time_end) - ((double)time_start) ) / CLOCKS_PER_SEC;
 	{
@@ -70,8 +87,8 @@ int test_main(int argc, char *argv[]) {
 	}
 	printf("\n");
 	if (count_failed > 0)
-		return 1;
-	return 0;
+		exit(1);
+	exit(0);
 }
 
 
@@ -153,6 +170,10 @@ void assert(char *file, const int line, const bool test) {
 	} else {
 		count_failed++;
 		printf("x");
+		if (abort_on_fail) {
+			test_results_display();
+			exit(1);
+		}
 	}
 }
 
@@ -176,6 +197,10 @@ void assert_strcmp(char *file, const int line, char *expected, char *actual) {
 			expected,
 		   actual
 		);
+		if (abort_on_fail) {
+			test_results_display();
+			exit(1);
+		}
 	}
 }
 
@@ -198,5 +223,9 @@ void assert_intcmp(char *file, const int line, int expected, int actual) {
 			expected,
 		   actual
 		);
+		if (abort_on_fail) {
+			test_results_display();
+			exit(1);
+		}
 	}
 }

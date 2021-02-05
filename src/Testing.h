@@ -24,6 +24,8 @@ void NAME##_init() { \
 
 
 
+extern bool abort_on_fail;
+
 extern int count_tests;
 extern int count_success;
 extern int count_failed;
@@ -48,7 +50,8 @@ extern size_t test_points_size;
 
 
 
-int test_main(int argc, char *argv[]);
+void test_main(int argc, char *argv[]);
+void test_results_display();
 void tests();
 
 size_t test_point_allocate();
