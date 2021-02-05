@@ -59,7 +59,7 @@ void test_results_display() {
 			}
 			duration = ( ((double)test_points[index].timestamp) - last ) / CLOCKS_PER_SEC;
 			printf(
-				" [%c] %.3f %s %s:%i\n",
+				" [%c] %.3f %s %s:%i",
 				(test_points[index].success ? ' ' : 'X'),
 				(duration > 0.001 ? duration : duration * 1000.0),
 				(duration > 0.001 ? "s" : "ms"),
@@ -67,8 +67,9 @@ void test_results_display() {
 				test_points[index].line
 			);
 			if (strlen(test_points[index].msg) > 0) {
-				printf("   %s", test_points[index].msg);
+				printf("%s", test_points[index].msg);
 			}
+			printf("\n");
 			last = test_points[index].timestamp;
 		}
 	}
@@ -192,10 +193,10 @@ void assert_strcmp(char *file, const int line, char *expected, char *actual) {
 		printf("x");
 		snprintf(
 			test_points[index].msg,
-		   TEST_MSG_SIZE,
-		   "expected: %s actual: %s",
+			TEST_MSG_SIZE,
+			"\n   expected: '%s'\n   actual: '%s'",
 			expected,
-		   actual
+			actual
 		);
 		if (abort_on_fail) {
 			test_results_display();
@@ -218,10 +219,10 @@ void assert_intcmp(char *file, const int line, int expected, int actual) {
 		printf("x");
 		snprintf(
 			test_points[index].msg,
-		   TEST_MSG_SIZE,
-		   "expected: %i actual: %i",
+			TEST_MSG_SIZE,
+			"\n   expected: %i actual: %i",
 			expected,
-		   actual
+			actual
 		);
 		if (abort_on_fail) {
 			test_results_display();
