@@ -26,20 +26,6 @@ void set_log_printer( void (*printer)(LogLevel, char*) ) {
 
 
 
-#define LOG_PRINT_PRE \
-	va_list args; \
-	va_start(args, msg); \
-	size_t buf_size = strlen(msg) + LOG_ARGS_LEN_MAX; \
-	char buf[buf_size+1]; \
-	vsnprintf(buf, buf_size, msg, args); \
-	if (log_printer == NULL) \
-		set_log_printer(log_print);
-
-#define LOG_PRINT_POST \
-	va_end(args);
-
-
-
 void log_lines(void (*callback)(char *msg, ...), char *text) {
 	if (text == NULL) {
 		(*callback) ("<null>");
@@ -64,51 +50,48 @@ void log_lines(void (*callback)(char *msg, ...), char *text) {
 	free(txt);
 }
 
+
+
+#define LOG_PRINT(LVL) \
+	va_list args; \
+	va_start(args, msg); \
+	size_t buf_size = strlen(msg) + LOG_ARGS_LEN_MAX + 1; \
+	char buf[buf_size]; \
+	vsnprintf(buf, buf_size, msg, args); \
+	if (log_printer == NULL) \
+		set_log_printer(log_print); \
+	log_printer(LVL, buf); \
+	va_end(args);
+
 void log_line(char *msg, ...) {
-LOG_PRINT_PRE
-	log_printer(LVL_OFF, buf);
-LOG_PRINT_POST
+	LOG_PRINT(LVL_OFF);
 }
 
-
-
 void log_detail(char *msg, ...) {
-LOG_PRINT_PRE
-	log_printer(LVL_DETAIL, buf);
-LOG_PRINT_POST
+	LOG_PRINT(LVL_DETAIL);
 }
 
 void log_info(char *msg, ...) {
-LOG_PRINT_PRE
-	log_printer(LVL_INFO, buf);
-LOG_PRINT_POST
+	LOG_PRINT(LVL_INFO);
 }
 
 void log_notice(char *msg, ...) {
-LOG_PRINT_PRE
-	log_printer(LVL_NOTICE, buf);
-LOG_PRINT_POST
+	LOG_PRINT(LVL_NOTICE);
 }
 
 void log_warning(char *msg, ...) {
-LOG_PRINT_PRE
 	count_warnings++;
-	log_printer(LVL_WARNING, buf);
-LOG_PRINT_POST
+	LOG_PRINT(LVL_WARNING)
 }
 
 void log_severe(char *msg, ...) {
-LOG_PRINT_PRE
 	count_severe++;
-	log_printer(LVL_SEVERE, buf);
-LOG_PRINT_POST
+	LOG_PRINT(LVL_SEVERE);
 }
 
 void log_fatal(char *msg, ...) {
-LOG_PRINT_PRE
 	count_fatal++;
-	log_printer(LVL_FATAL, buf);
-LOG_PRINT_POST
+	LOG_PRINT(LVL_FATAL);
 }
 
 
