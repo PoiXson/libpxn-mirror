@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdarg.h>
 #include <string.h>
+#include <limits.h>
 #include <unistd.h>   // getpid
 #include <dirent.h>   // DIR
 #include <sys/file.h> // open
@@ -35,6 +37,67 @@ char* basename(char *file) {
 		pos--;
 	}
 	return file;
+}
+
+char* build_path(const size_t num, ...) {
+	if (num == 0)
+		return NULL;
+	char *result = calloc(PATH_MAX, sizeof(char));
+	va_list args;
+	va_start(args, num);
+	bool is_abs = false;
+	bool is_dir = false;
+	char *arg;
+	size_t len;
+	for (size_t arg_index=0; arg_index<num; arg_index++) {
+		arg = va_arg(args, char*);
+		// first part
+		if (arg_index == 0) {
+			if (arg[0] == '/') {
+				is_abs = true;
+			}
+		}
+		// trim / from front
+		while (true) {
+			if (arg[0] == '\0')
+				break;
+			if(arg[0] != '/')
+				break;
+			arg++;
+		}
+		// append to result
+		if (arg_index == 0) {
+			if (is_abs) {
+				result[0] = '/';
+				result[1] = '\0';
+			}
+		} else {
+			len = strlen(result);
+			if (len >= PATH_MAX)
+				len = PATH_MAX - 1;
+			result[len  ] = '/';
+			result[len+1] = '\0';
+		}
+		strlcat(result, arg, PATH_MAX);
+		// trim / from end
+		while (true) {
+			len = strlen(result);
+			if (len == 0)
+				break;
+			if (result[len-1] != '/')
+				break;
+			result[len-1] = '\0';
+		}
+	}
+	if (is_dir) {
+		len = strlen(result);
+		if (len >= PATH_MAX)
+			len = PATH_MAX - 1;
+		result[len  ] = '/';
+		result[len+1] = '\0';
+	}
+	va_end(args);
+	return result;
 }
 
 
