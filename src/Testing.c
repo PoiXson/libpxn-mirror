@@ -42,6 +42,9 @@ void test_main(int argc, char *argv[]) {
 	printf("\n");
 	// results
 	test_results_display();
+	if (count_failed > 0)
+		exit(1);
+	exit(0);
 }
 
 void test_results_display() {
@@ -87,9 +90,6 @@ void test_results_display() {
 		}
 	}
 	printf("\n");
-	if (count_failed > 0)
-		exit(1);
-	exit(0);
 }
 
 
