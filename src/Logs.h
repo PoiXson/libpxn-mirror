@@ -35,6 +35,8 @@ extern int count_fatal;
 
 
 
+void set_log_printer( void (*printer)(LogLevel, char*) );
+
 void log_lines(void (*callback)(char *msg, ...), char *text);
 void log_line   (char *msg, ...);
 

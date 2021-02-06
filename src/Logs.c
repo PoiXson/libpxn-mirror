@@ -20,12 +20,20 @@ int count_fatal    = 0;
 
 
 
+void set_log_printer( void (*printer)(LogLevel, char*) ) {
+	log_printer = printer;
+}
+
+
+
 #define LOG_PRINT_PRE \
 	va_list args; \
 	va_start(args, msg); \
 	size_t buf_size = strlen(msg) + LOG_ARGS_LEN_MAX; \
 	char buf[buf_size+1]; \
-	vsnprintf(buf, buf_size, msg, args);
+	vsnprintf(buf, buf_size, msg, args); \
+	if (log_printer == NULL) \
+		set_log_printer(log_print);
 
 #define LOG_PRINT_POST \
 	va_end(args);
