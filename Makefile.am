@@ -1,19 +1,19 @@
 lib_LTLIBRARIES = libpxn.la
 libpxn_la_SOURCES = \
-	src/libpxn.c \
+	src/libpxn.c      \
 	src/StringUtils.c \
-	src/FileUtils.c \
-	src/logs.c \
-	src/ProgFlags.c \
-	src/run.c \
+	src/FileUtils.c   \
+	src/Logs.c        \
+	src/ProgFlags.c   \
+	src/Run.c         \
 	src/Testing.c
 pkginclude_HEADERS = \
 	src/StringUtils.h \
-	src/FileUtils.h \
-	src/logs.h \
-	src/ProgFlags.h \
-	src/run.h \
-	src/defines.h \
+	src/FileUtils.h   \
+	src/Logs.h        \
+	src/ProgFlags.h   \
+	src/Run.h         \
+	src/pxnDefines.h  \
 	src/Testing.h
 libpxn_la_LDFLAGS = -static
 

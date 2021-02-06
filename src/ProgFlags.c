@@ -7,7 +7,7 @@
 
 #include "StringUtils.h"
 #include "FileUtils.h"
-#include "logs.h"
+#include "Logs.h"
 
 
 

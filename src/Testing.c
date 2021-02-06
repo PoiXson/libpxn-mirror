@@ -7,7 +7,7 @@
 
 #include "StringUtils.h"
 #include "ProgFlags.h"
-#include "defines.h"
+#include "pxnDefines.h"
 
 
 

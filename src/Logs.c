@@ -1,4 +1,4 @@
-#include "logs.h"
+#include "Logs.h"
 
 #include <stdbool.h>
 #include <stdlib.h>
