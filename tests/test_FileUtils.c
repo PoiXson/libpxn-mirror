@@ -19,13 +19,14 @@ void test_FileUtils() {
 
 	// test path_merge()
 	{
-		char *path;
-		path = build_path(2, "/etc/", "///redhat-release");
-			assert_strcmp(__FILE__, __LINE__, "/etc/redhat-release", path); free(path);
-		path = build_path(3, "/var/log/", "cups", "error_log");
-			assert_strcmp(__FILE__, __LINE__, "/var/log/cups/error_log", path); free(path);
-		path = build_path(2, "data", "file.txt");
-			assert_strcmp(__FILE__, __LINE__, "data/file.txt", path); free(path);
+		char *path = calloc(PATH_MAX, sizeof(char));
+		build_path(path, 2, "/etc/", "///redhat-release");
+			assert_strcmp(__FILE__, __LINE__, "/etc/redhat-release", path);
+		build_path(path, 3, "/var/log/", "cups", "error_log");
+			assert_strcmp(__FILE__, __LINE__, "/var/log/cups/error_log", path);
+		build_path(path, 2, "data", "file.txt");
+			assert_strcmp(__FILE__, __LINE__, "data/file.txt", path);
+		free(path);
 	}
 
 	// test get_lock() and free_lock()
