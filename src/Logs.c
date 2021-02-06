@@ -128,7 +128,7 @@ void log_print(LogLevel level, char *mod_name, char *msg) {
 	}
 	if (level >= current_level) {
 		// level name
-		char lvlName[LOG_LEVEL_NAME_MAX+1];
+		char lvlName[LOG_NAME_MAX+1];
 		log_level_to_name(level, lvlName);
 		// plain line
 		if (strlen(lvlName) == 0) {
@@ -144,9 +144,9 @@ void log_print(LogLevel level, char *mod_name, char *msg) {
 		}
 		// message with level
 		for (char *c=lvlName; (*c=toupper(*c)); ++c);
-		pad_center(lvlName, LOG_LEVEL_NAME_MAX);
+		pad_center(lvlName, 7);
 		size_t msg_len = strlen(msg);
-		size_t buf_size = msg_len + LOG_LEVEL_NAME_MAX+5;
+		size_t buf_size = msg_len + LOG_NAME_MAX+5;
 		char buf[buf_size+1];
 		snprintf(buf, buf_size, " [%s%s] %s", lvlName, modName, msg);
 		if (msg_len-1 == LOG_ARGS_LEN_MAX) {

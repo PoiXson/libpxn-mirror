@@ -6,7 +6,7 @@
 
 
 
-#define LOG_LEVEL_NAME_MAX 7
+#define LOG_NAME_MAX 12
 #define LOG_ARGS_LEN_MAX 200
 
 
