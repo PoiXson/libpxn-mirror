@@ -4,13 +4,14 @@
 #include <string.h>
 
 #include "StringUtils.h"
+#include "Logs.h"
 
 
 
 Run_Result* run_cmd(char *cmd) {
 	FILE *handle = popen(cmd, "r");
 	if (handle == NULL) {
-//		log_severe("Failed to execute: %s", cmd);
+		log_severe("Failed to execute: %s", cmd);
 		return NULL;
 	}
 	Run_Result *result = calloc(1, sizeof(Run_Result));

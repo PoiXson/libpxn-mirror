@@ -12,6 +12,7 @@
 #include <errno.h>    // errno
 
 #include "StringUtils.h"
+#include "Logs.h"
 
 
 
@@ -106,38 +107,38 @@ int get_lock(char *lock_file, const bool blocking) {
 	int handle = open(lock_file, O_CREAT | O_RDWR, 0666);
 	if (handle < 0) {
 		if (EACCES == errno) {
-//			log_fatal("Permission denied to lock file: %s", lock_file);
+			log_fatal("Permission denied to lock file: %s", lock_file);
 		} else
 		if (EIO == errno) {
-//			log_fatal("IO Error accessing file: %s", lock_file);
+			log_fatal("IO Error accessing file: %s", lock_file);
 		} else
 		if (ENOSPC == errno) {
-//			log_fatal("No space left on device for file: %s", lock_file);
+			log_fatal("No space left on device for file: %s", lock_file);
 		} else {
-//			log_fatal("Failed to open lock file: %s errno: %i", lock_file, errno);
+			log_fatal("Failed to open lock file: %s errno: %i", lock_file, errno);
 		}
 		exit(1);
 	}
 	if (flock(handle, LOCK_EX | (blocking ? 0 : LOCK_NB) )) {
 		if (EWOULDBLOCK == errno) {
-//			log_fatal("Concurrent instance, already running");
+			log_fatal("Concurrent instance, already running");
 		} else {
-//			log_fatal("Failed to lock file: %s errno: %i", lock_file, errno);
+			log_fatal("Failed to lock file: %s errno: %i", lock_file, errno);
 		}
 		exit(1);
 	}
 	int pid = getpid();
 	dprintf(handle, "%i", pid);
-//	log_detail("Got instance lock for pid: %i", pid);
+	log_detail("Got instance lock for pid: %i", pid);
 	return handle;
 }
 
 void free_lock(char *lock_file, const int handle) {
 	close(handle);
 	if (remove(lock_file)) {
-//		log_warning("Failed to remove lock file: %s", lock_file);
+		log_warning("Failed to remove lock file: %s", lock_file);
 	} else {
-//		log_detail("Released lock file: %s", lock_file);
+		log_detail("Released lock file: %s", lock_file);
 	}
 }
 
@@ -161,7 +162,7 @@ int read_text_file(FILE *handle, char **out) {
 	*out = malloc(size + 1);
 	size_t len = fread(*out, 1, size, handle);
 	if (len != size) {
-//		log_warning("read size different from file seek size: %i, %lu", size, len);
+		log_warning("read size different from file seek size: %i, %lu", size, len);
 	}
 	out[size] = '\0';
 	return size;
@@ -183,7 +184,7 @@ bool copy_file(char *file_path, char *dest_path) {
 		File_Type type = get_file_type(dest_path);
 		switch (type) {
 		case is_file:
-//			log_notice("Dest file already exists: %s", dest_path);
+			log_notice("Dest file already exists: %s", dest_path);
 			return false;
 		case is_dir: {
 			char path[PATH_MAX+1];
@@ -202,12 +203,12 @@ bool copy_file(char *file_path, char *dest_path) {
 	}
 	int handle_source = open(file_path, O_RDONLY);
 	if (handle_source < 0) {
-//		log_notice("Failed to open source file: %s", file_path);
+		log_notice("Failed to open source file: %s", file_path);
 		return false;
 	}
 	int handle_dest = open(dest_path, O_WRONLY | O_CREAT | O_EXCL, 0600);
 	if (handle_dest < 0) {
-//		log_notice("Failed to write file: %s", dest_path);
+		log_notice("Failed to write file: %s", dest_path);
 		close(handle_source);
 		return false;
 	}
@@ -224,7 +225,7 @@ bool copy_file(char *file_path, char *dest_path) {
 			if (written < 0) {
 				if (errno == EINTR)
 					continue;
-//				log_notice("Failed to write file: %s", dest_path);
+				log_notice("Failed to write file: %s", dest_path);
 				return false;
 			}
 			len -= written;
@@ -234,7 +235,7 @@ bool copy_file(char *file_path, char *dest_path) {
 	if (len == 0) {
 		close(handle_source);
 		if (close(handle_dest) < 0) {
-//			log_notice("Failed closing written file: %s", dest_path);
+			log_notice("Failed closing written file: %s", dest_path);
 			return false;
 		}
 	}
