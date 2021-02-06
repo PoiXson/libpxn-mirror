@@ -25,11 +25,12 @@ typedef enum LogLevel {
 
 
 
-#define LOG_PRINTER_ARGS LogLevel, char*
+#define LOG_PRINTER_ARGS LogLevel, char*, char*
 
 extern void (*log_printer)(LOG_PRINTER_ARGS);
 
 extern LogLevel current_level;
+extern char log_module[LOG_NAME_MAX];
 
 extern int count_warnings;
 extern int count_severe;
@@ -38,6 +39,7 @@ extern int count_fatal;
 
 
 void set_log_printer( void (*printer)(LOG_PRINTER_ARGS) );
+void set_log_module(char *name);
 
 void log_lines(void (*callback)(char *msg, ...), char *text);
 void log_line   (char *msg, ...);

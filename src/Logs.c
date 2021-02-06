@@ -13,6 +13,7 @@
 void (*log_printer)(LOG_PRINTER_ARGS) = NULL;
 
 LogLevel current_level = LVL_INFO;
+char log_module[] = {0};
 
 int count_warnings = 0;
 int count_severe   = 0;
@@ -22,6 +23,10 @@ int count_fatal    = 0;
 
 void set_log_printer( void (*printer)(LOG_PRINTER_ARGS) ) {
 	log_printer = printer;
+}
+
+void set_log_module(char *name) {
+	strlcpy(log_module, name, LOG_NAME_MAX);
 }
 
 
@@ -60,7 +65,7 @@ void log_lines(void (*callback)(char *msg, ...), char *text) {
 	vsnprintf(buf, buf_size, msg, args); \
 	if (log_printer == NULL) \
 		set_log_printer(log_print); \
-	log_printer(LVL, buf); \
+	log_printer(LVL, log_module, buf); \
 	va_end(args);
 
 void log_line(char *msg, ...) {
@@ -97,7 +102,7 @@ void log_fatal(char *msg, ...) {
 
 
 // LOG_PRINTER_ARGS
-void log_print(LogLevel level, char *msg) {
+void log_print(LogLevel level, char *mod_name, char *msg) {
 	// title
 	if (level == LVL_TITLE) {
 		size_t len = strlen(msg) + 6;
@@ -130,13 +135,20 @@ void log_print(LogLevel level, char *msg) {
 			log_write(msg);
 			return;
 		}
+		// module name
+		char modName[LOG_NAME_MAX+4];
+		if (mod_name[0] == '\0') {
+			modName[0] = '\0';
+		} else {
+			snprintf(modName, LOG_NAME_MAX+4, "] [%s", mod_name);
+		}
 		// message with level
 		for (char *c=lvlName; (*c=toupper(*c)); ++c);
 		pad_center(lvlName, LOG_LEVEL_NAME_MAX);
 		size_t msg_len = strlen(msg);
 		size_t buf_size = msg_len + LOG_LEVEL_NAME_MAX+5;
 		char buf[buf_size+1];
-		snprintf(buf, buf_size, " [%s] %s", lvlName, msg);
+		snprintf(buf, buf_size, " [%s%s] %s", lvlName, modName, msg);
 		if (msg_len-1 == LOG_ARGS_LEN_MAX) {
 			buf[buf_size-4] = '.';
 			buf[buf_size-3] = '.';
