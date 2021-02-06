@@ -10,7 +10,7 @@
 
 
 
-void (*log_printer)(LogLevel, char*) = NULL;
+void (*log_printer)(LOG_PRINTER_ARGS) = NULL;
 
 LogLevel current_level = LVL_INFO;
 
@@ -20,7 +20,7 @@ int count_fatal    = 0;
 
 
 
-void set_log_printer( void (*printer)(LogLevel, char*) ) {
+void set_log_printer( void (*printer)(LOG_PRINTER_ARGS) ) {
 	log_printer = printer;
 }
 
@@ -96,6 +96,7 @@ void log_fatal(char *msg, ...) {
 
 
 
+// LOG_PRINTER_ARGS
 void log_print(LogLevel level, char *msg) {
 	// title
 	if (level == LVL_TITLE) {
