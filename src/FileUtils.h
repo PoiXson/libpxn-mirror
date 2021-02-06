@@ -16,7 +16,7 @@ File_Type get_file_type(const char *path);
 
 
 char* basename(char *file);
-char* build_path(const size_t num, ...);
+void build_path(char *path, const size_t num, ...);
 
 int get_lock(char *lock_file, const bool blocking);
 void free_lock(char *lock_file, const int handle);

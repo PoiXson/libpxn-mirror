@@ -39,10 +39,10 @@ char* basename(char *file) {
 	return file;
 }
 
-char* build_path(const size_t num, ...) {
+void build_path(char *path, const size_t num, ...) {
+	memset(path, '\0', PATH_MAX);
 	if (num == 0)
-		return NULL;
-	char *result = calloc(PATH_MAX, sizeof(char));
+		return;
 	va_list args;
 	va_start(args, num);
 	bool is_abs = false;
@@ -68,36 +68,35 @@ char* build_path(const size_t num, ...) {
 		// append to result
 		if (arg_index == 0) {
 			if (is_abs) {
-				result[0] = '/';
-				result[1] = '\0';
+				path[0] = '/';
+				path[1] = '\0';
 			}
 		} else {
-			len = strlen(result);
+			len = strlen(path);
 			if (len >= PATH_MAX)
 				len = PATH_MAX - 1;
-			result[len  ] = '/';
-			result[len+1] = '\0';
+			path[len  ] = '/';
+			path[len+1] = '\0';
 		}
-		strlcat(result, arg, PATH_MAX);
+		strlcat(path, arg, PATH_MAX);
 		// trim / from end
 		while (true) {
-			len = strlen(result);
+			len = strlen(path);
 			if (len == 0)
 				break;
-			if (result[len-1] != '/')
+			if (path[len-1] != '/')
 				break;
-			result[len-1] = '\0';
+			path[len-1] = '\0';
 		}
 	}
 	if (is_dir) {
-		len = strlen(result);
+		len = strlen(path);
 		if (len >= PATH_MAX)
 			len = PATH_MAX - 1;
-		result[len  ] = '/';
-		result[len+1] = '\0';
+		path[len  ] = '/';
+		path[len+1] = '\0';
 	}
 	va_end(args);
-	return result;
 }
 
 
