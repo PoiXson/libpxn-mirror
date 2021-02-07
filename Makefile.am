@@ -18,6 +18,7 @@ pkginclude_HEADERS = \
 	src/pxnDefines.h  \
 	src/Testing.h
 libpxn_la_LDFLAGS = -static
+libpxn_la_CFLAGS = -fPIC
 
 check_PROGRAMS = pxntest
 pxntest_LDADD = -lpxn
