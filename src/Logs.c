@@ -12,7 +12,12 @@
 
 void (*log_printer)(LOG_PRINTER_ARGS) = NULL;
 
+#ifdef DEBUG
+LogLevel current_level = LVL_ALL;
+#else
 LogLevel current_level = LVL_INFO;
+#endif
+
 char log_module[] = {0};
 
 int count_warnings = 0;
@@ -140,7 +145,7 @@ void log_print(LogLevel level, char *mod_name, char *msg) {
 		if (mod_name[0] == '\0') {
 			modName[0] = '\0';
 		} else {
-			snprintf(modName, LOG_NAME_MAX+4, "] [%s", mod_name);
+			snprintf(modName, LOG_NAME_MAX+4, "][%s", mod_name);
 		}
 		// message with level
 		for (char *c=lvlName; (*c=toupper(*c)); ++c);
