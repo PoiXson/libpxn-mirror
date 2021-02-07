@@ -1,6 +1,7 @@
 lib_LTLIBRARIES = libpxn.la
 libpxn_la_SOURCES = \
 	src/libpxn.c      \
+	src/Debug.c       \
 	src/StringUtils.c \
 	src/NumberUtils.c \
 	src/FileUtils.c   \
@@ -9,6 +10,7 @@ libpxn_la_SOURCES = \
 	src/Run.c         \
 	src/Testing.c
 pkginclude_HEADERS = \
+	src/Debug.h       \
 	src/StringUtils.h \
 	src/NumberUtils.h \
 	src/FileUtils.h   \
