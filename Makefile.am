@@ -10,6 +10,7 @@ libpxn_la_SOURCES = \
 	src/Run.c         \
 	src/Testing.c
 pkginclude_HEADERS = \
+	src/Defines.h     \
 	src/Debug.h       \
 	src/StringUtils.h \
 	src/NumberUtils.h \
