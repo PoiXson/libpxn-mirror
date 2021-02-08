@@ -275,8 +275,8 @@ size_t progflags_find_flag(const char *flag) {
 
 
 
-int prog_flags_count() {
-	int count = 0;
+size_t prog_flags_count() {
+	size_t count = 0;
 	for (size_t index=0; index<progflags_size; index++) {
 		if (progflags[index].used == true)
 			count++;
@@ -284,7 +284,7 @@ int prog_flags_count() {
 	return count;
 }
 
-int prog_actions_count() {
+size_t prog_actions_count() {
 //TODO
 return 0;
 }

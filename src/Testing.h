@@ -26,9 +26,9 @@ void NAME##_init() { \
 
 extern bool abort_on_fail;
 
-extern int count_tests;
-extern int count_success;
-extern int count_failed;
+extern size_t count_tests;
+extern size_t count_success;
+extern size_t count_failed;
 
 extern clock_t time_start;
 

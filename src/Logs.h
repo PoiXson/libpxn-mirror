@@ -32,9 +32,9 @@ extern void (*log_printer)(LOG_PRINTER_ARGS);
 extern LogLevel current_level;
 extern char log_module[LOG_NAME_MAX];
 
-extern int count_warnings;
-extern int count_severe;
-extern int count_fatal;
+extern size_t count_warnings;
+extern size_t count_severe;
+extern size_t count_fatal;
 
 
 
@@ -58,9 +58,9 @@ void log_write(char *line);
 void log_level_set(LogLevel lvl);
 void log_level_to_name(LogLevel level, char *name);
 
-int get_warning_count();
-int get_severe_count();
-int get_fatal_count();
+size_t get_warning_count();
+size_t get_severe_count();
+size_t get_fatal_count();
 
 bool has_warnings();
 bool has_severe();

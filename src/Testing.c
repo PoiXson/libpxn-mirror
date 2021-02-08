@@ -13,9 +13,9 @@
 
 bool abort_on_fail;
 
-int count_tests   = 0;
-int count_success = 0;
-int count_failed  = 0;
+size_t count_tests   = 0;
+size_t count_success = 0;
+size_t count_failed  = 0;
 
 clock_t time_start;
 
@@ -54,7 +54,7 @@ void test_results_display() {
 		double last = time_start;
 		double duration;
 		for (size_t index=0; index<test_points_size; index++) {
-			if (!test_points[index].used)
+			if (test_points[index].used != true)
 				continue;
 			if (test_points[index].line == -1) {
 				last = test_points[index].timestamp;
@@ -78,15 +78,15 @@ void test_results_display() {
 	}
 	{
 		printf(
-			"\nRan %i test%s in %.3f %s\n",
+			"\nRan %lu test%s in %.3f %s\n",
 			count_tests,
 			(count_tests == 1 ? "" : "s"),
 			(elapsed > 0.001 ? elapsed : elapsed * 1000.0),
 			(elapsed > 0.001 ? "seconds" : "milliseconds")
 		);
-		printf(" "ANSI_COLOR_GREEN"%i passing asserts"ANSI_COLOR_RESET"\n", count_success);
+		printf(" "ANSI_COLOR_GREEN"%lu passing asserts"ANSI_COLOR_RESET"\n", count_success);
 		if (count_failed > 0) {
-			printf(" "ANSI_COLOR_RED"%i failed asserts!"ANSI_COLOR_RESET"\n", count_failed);
+			printf(" "ANSI_COLOR_RED"%lu failed asserts!"ANSI_COLOR_RESET"\n", count_failed);
 		}
 	}
 	printf("\n");

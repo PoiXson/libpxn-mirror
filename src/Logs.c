@@ -20,9 +20,9 @@ LogLevel current_level = LVL_INFO;
 
 char log_module[] = {0};
 
-int count_warnings = 0;
-int count_severe   = 0;
-int count_fatal    = 0;
+size_t count_warnings = 0;
+size_t count_severe   = 0;
+size_t count_fatal    = 0;
 
 
 
@@ -208,20 +208,20 @@ void log_level_to_name(LogLevel level, char *name) {
 
 
 
-int get_warning_count() {
-	int count = count_warnings;
+size_t get_warning_count() {
+	size_t count = count_warnings;
 	count_warnings = 0;
 	return count;
 }
 
-int get_severe_count() {
-	int count = count_severe;
+size_t get_severe_count() {
+	size_t count = count_severe;
 	count_severe = 0;
 	return count;
 }
 
-int get_fatal_count() {
-	int count = count_fatal;
+size_t get_fatal_count() {
+	size_t count = count_fatal;
 	count_fatal = 0;
 	return count;
 }

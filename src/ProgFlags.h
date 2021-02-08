@@ -56,7 +56,7 @@ void progflags_process(const int argc, char *argv[]);
 void progflags_process_value(const size_t flag_index, char *str);
 size_t progflags_find_flag(const char *flag);
 
-int prog_flags_count();
-int prog_actions_count();
+size_t prog_flags_count();
+size_t prog_actions_count();
 
 void display_help();
