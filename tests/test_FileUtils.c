@@ -1,6 +1,7 @@
 
-#include "src/FileUtils.h"
 #include "src/Testing.h"
+
+#include "src/FileUtils.h"
 
 #include <string.h>
 
