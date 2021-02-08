@@ -62,6 +62,14 @@ void log_lines(void (*callback)(char *msg, ...), char *text) {
 
 
 
+void log_dash() {
+	if (log_printer == NULL) \
+		set_log_printer(log_print); \
+	log_printer(LVL_ALL, log_module, ""); \
+}
+
+
+
 #define LOG_PRINT(LVL) \
 	va_list args; \
 	va_start(args, msg); \
@@ -129,6 +137,10 @@ void log_print(LogLevel level, char *mod_name, char *msg) {
 		log_write(bufA);
 		log_write(bufB);
 		log_write(bufA);
+		return;
+	}
+	if (level == LVL_ALL && strlen(msg) == 0) {
+		log_write(" [ - - - ] ");
 		return;
 	}
 	if (level >= current_level) {

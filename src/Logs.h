@@ -43,6 +43,7 @@ void set_log_module(char *name);
 
 void log_lines(void (*callback)(char *msg, ...), char *text);
 void log_line   (char *msg, ...);
+void log_dash();
 
 void log_detail (char *msg, ...);
 void log_info   (char *msg, ...);
