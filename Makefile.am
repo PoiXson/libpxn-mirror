@@ -8,6 +8,7 @@ libpxn_la_SOURCES = \
 	src/Logs.c        \
 	src/ProgFlags.c   \
 	src/Run.c         \
+	src/tpl-engine.c  \
 	src/Testing.c
 pkginclude_HEADERS = \
 	src/Defines.h     \
@@ -18,6 +19,7 @@ pkginclude_HEADERS = \
 	src/Logs.h        \
 	src/ProgFlags.h   \
 	src/Run.h         \
+	src/tpl-engine.h  \
 	src/pxnDefines.h  \
 	src/Testing.h
 libpxn_la_LDFLAGS = -static
