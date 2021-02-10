@@ -10,6 +10,8 @@ size_t strlcat(char *dest, char *src, const size_t size);
 
 int strlcmp(const char *strA, const char *strB);
 
+char* str_trim(char *str);
+
 size_t chrpos(const char *haystack, const char needle);
 size_t chrposs(const char *haystack, const char needle, const size_t start);
 

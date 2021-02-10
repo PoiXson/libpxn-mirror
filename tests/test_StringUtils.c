@@ -24,7 +24,17 @@ void test_StringUtils() {
 	strlcat(str, "ghijkl", size);
 		assert_strcmp(__FILE__, __LINE__, "abcdefghi", str);
 
+	// test str_trim()
+	char *result;
+	strlcpy(str, "Abc", size);
+	result = str_trim(str);
+		assert_strcmp(__FILE__, __LINE__, "Abc", result);
+	strlcpy(str, "   \t Abc \t   ", size);
+	result = str_trim(str);
+		assert_strcmp(__FILE__, __LINE__, "Abc", result);
+
 	// test chrpos()
+	strlcpy(str, "abcdefg", size);
 	pos = chrpos(str, 'd');
 		assert_intcmp(__FILE__, __LINE__, 3, pos);
 	pos = chrpos(str, 'z');
