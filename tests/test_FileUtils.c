@@ -11,9 +11,9 @@ TEST_INIT(test_FileUtils);
 void test_FileUtils() {
 
 	// test get_file_type()
-	assert_intcmp(__FILE__, __LINE__, is_dir,  get_file_type("/etc"));
-	assert_intcmp(__FILE__, __LINE__, is_file, get_file_type("/etc/redhat-release"));
-	assert_intcmp(__FILE__, __LINE__, not_found, get_file_type("/abcdefg12345gfedcba"));
+	assert_intcmp(__FILE__, __LINE__, IS_DIR,  get_file_type("/etc"));
+	assert_intcmp(__FILE__, __LINE__, IS_FILE, get_file_type("/etc/redhat-release"));
+	assert_intcmp(__FILE__, __LINE__, NOT_FOUND, get_file_type("/abcdefg12345gfedcba"));
 
 	// test basename()
 //TODO
