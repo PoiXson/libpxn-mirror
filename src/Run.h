@@ -9,12 +9,12 @@
 
 
 
-typedef struct Run_Result {
+typedef struct RunResult {
 	size_t out_size;
 	char *out;
 	int exit_code;
-} Run_Result;
+} RunResult;
 
 
 
-Run_Result* run_cmd(char *cmd);
+RunResult* run_cmd(char *cmd);

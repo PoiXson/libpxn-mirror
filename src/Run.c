@@ -8,13 +8,13 @@
 
 
 
-Run_Result* run_cmd(char *cmd) {
+RunResult* run_cmd(char *cmd) {
 	FILE *handle = popen(cmd, "r");
 	if (handle == NULL) {
 		log_severe("Failed to execute: %s", cmd);
 		return NULL;
 	}
-	Run_Result *result = calloc(1, sizeof(Run_Result));
+	RunResult *result = calloc(1, sizeof(RunResult));
 	size_t chunk_len;
 	size_t chunk_size = 2;
 	char chunk[chunk_size];
