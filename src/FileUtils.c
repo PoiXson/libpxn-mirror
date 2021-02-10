@@ -19,9 +19,9 @@
 File_Type get_file_type(const char *path) {
 	DIR *dir = opendir(path);
 	if (dir == NULL)
-		return (errno == ENOTDIR ? is_file : not_found);
+		return (errno == ENOTDIR ? IS_FILE : NOT_FOUND);
 	closedir(dir);
-	return is_dir;
+	return IS_DIR;
 }
 
 
@@ -183,10 +183,10 @@ bool copy_file(char *file_path, char *dest_path) {
 	{
 		File_Type type = get_file_type(dest_path);
 		switch (type) {
-		case is_file:
+		case IS_FILE:
 			log_notice("Dest file already exists: %s", dest_path);
 			return false;
-		case is_dir: {
+		case IS_DIR: {
 			char path[PATH_MAX+1];
 			strlcpy(path, dest_path, PATH_MAX);
 			size_t len = strlen(path);

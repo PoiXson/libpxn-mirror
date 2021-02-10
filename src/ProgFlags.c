@@ -64,7 +64,7 @@ void progflag_init(const size_t index) {
 	for (size_t i=0; i<PROGFLAGS_LONG_MAX; i++)
 		memset(progflags[index].flags_long[i], '\0', PROGFLAGS_LONG_SIZE);
 	memset(progflags[index].desc, '\0', PROGFLAGS_DESC_SIZE);
-	progflags[index].type = type_bool;
+	progflags[index].type = FLAGTYPE_BOOL;
 	progflags[index].value_text = NULL;
 }
 
@@ -133,10 +133,10 @@ void progflags_process(const int argc, char *argv[]) {
 					log_severe("Unknown argument: %s", argv[arg_index]);
 					exit(1);
 				}
-				if (progflags[flag_index].type == type_bool
+				if (progflags[flag_index].type == FLAGTYPE_BOOL
 				|| arg_index == argc - 1
 				|| argv[arg_index+1][0] == '-') {
-					progflags[flag_index].type = type_bool;
+					progflags[flag_index].type = FLAGTYPE_BOOL;
 					progflags[flag_index].value_bool = true;
 				} else {
 					arg_index++;
@@ -157,10 +157,10 @@ void progflags_process(const int argc, char *argv[]) {
 						log_severe("Unknown argument: %s", argv[arg_index]);
 						exit(1);
 					}
-					if (progflags[flag_index].type == type_bool
+					if (progflags[flag_index].type == FLAGTYPE_BOOL
 					|| arg_index == argc - 1
 					|| argv[arg_index+1][0] == '-') {
-						progflags[flag_index].type = type_bool;
+						progflags[flag_index].type = FLAGTYPE_BOOL;
 						progflags[flag_index].value_bool = true;
 					} else {
 						arg_index++;
@@ -196,11 +196,11 @@ void progflags_process(const int argc, char *argv[]) {
 							log_severe("Unknown argument: -%c", argv[arg_index][i]);
 							exit(1);
 						}
-						if (progflags[flag_index].type == type_bool
+						if (progflags[flag_index].type == FLAGTYPE_BOOL
 						|| arg_index == argc - 1
 						|| argv[arg_index+1][0] == '-') {
 							progflags[flag_index].value_bool = true;
-							progflags[flag_index].type = type_bool;
+							progflags[flag_index].type = FLAGTYPE_BOOL;
 						} else {
 							progflags_process_value(flag_index, argv[arg_index+1]);
 						}
@@ -216,7 +216,7 @@ void progflags_process(const int argc, char *argv[]) {
 
 void progflags_process_value(const size_t flag_index, char *str) {
 	switch (progflags[flag_index].type) {
-	case type_bool:
+	case FLAGTYPE_BOOL:
 		if (strlcmp(str, "yes") == 0 || strlcmp(str, "true") == 0) {
 			progflags[flag_index].value_bool = true;
 			return;
@@ -227,10 +227,10 @@ void progflags_process_value(const size_t flag_index, char *str) {
 		}
 		log_warning("Unknown argument value: %s", str);
 		exit(1);
-	case type_int:
+	case FLAGTYPE_INT:
 		progflags[flag_index].value_int = atoi(str);
 		return;
-	case type_text: {
+	case FLAGTYPE_TEXT: {
 		size_t len = strlen(str) + 1;
 		progflags[flag_index].value_text = calloc(len, sizeof(char));
 		strlcpy(progflags[flag_index].value_text, str, len);

@@ -6,9 +6,9 @@
 
 
 typedef enum File_Type {
-	not_found = 0x0,
-	is_file   = 0x1,
-	is_dir    = 0x2
+	NOT_FOUND = 0x0,
+	IS_FILE   = 0x1,
+	IS_DIR    = 0x2
 } File_Type;
 
 File_Type get_file_type(const char *path);

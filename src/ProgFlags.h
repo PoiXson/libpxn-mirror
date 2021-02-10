@@ -17,9 +17,9 @@ extern char *progflags_exec_name;
 
 
 typedef enum ProgFlag_Type {
-	type_bool = 0x0,
-	type_int  = 0x1,
-	type_text = 0x2
+	FLAGTYPE_BOOL = 0x0,
+	FLAGTYPE_INT  = 0x1,
+	FLAGTYPE_TEXT = 0x2
 } ProgFlag_Type;
 
 typedef struct ProgFlag {
