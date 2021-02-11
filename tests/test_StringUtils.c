@@ -21,8 +21,46 @@ void test_StringUtils() {
 	// test strlcat()
 	strlcat(str, "def", size);
 		assert(__FILE__, __LINE__, strcmp(str, "abcdef") == 0);
-	strlcat(str, "ghijkl", size);
+	strlcat(str, "ghijklmnopqrstuvwxyz", size);
 		assert_strcmp(__FILE__, __LINE__, "abcdefghi", str);
+
+	// test strlrcpy() strlrcat()
+	{
+		size_t sizeB = 3;
+		char *strB = calloc(sizeB, sizeof(char));
+		strlrcpy(&strB, "Ab", &sizeB);
+			assert_intcmp(__FILE__, __LINE__, 3, sizeB);
+			assert_strcmp(__FILE__, __LINE__, "Ab", strB);
+		strlrcat(&strB, "cd", &sizeB);
+			assert_intcmp(__FILE__, __LINE__, 5, sizeB);
+			assert_strcmp(__FILE__, __LINE__, "Abcd", strB);
+		free(strB);
+		sizeB = 4;
+		strB = calloc(sizeB, sizeof(char));
+		strlrcpy(&strB, "Abcd", &sizeB);
+			assert_intcmp(__FILE__, __LINE__, 5, sizeB);
+			assert_strcmp(__FILE__, __LINE__, "Abcd", strB);
+		strlrcat(&strB, "efghijklmnopqrstuvwxyz", &sizeB);
+			assert_intcmp(__FILE__, __LINE__, 27, sizeB);
+			assert_strcmp(__FILE__, __LINE__, "Abcdefghijklmnopqrstuvwxyz", strB);
+		free(strB);
+		sizeB = 1;
+		strB = calloc(sizeB, sizeof(char));
+		strlrcpy(
+			&strB,
+			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
+			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
+			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
+			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
+			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
+		   &sizeB
+		);
+			assert_intcmp(__FILE__, __LINE__, 261, sizeB);
+		strlrcat(&strB, "1234", &sizeB);
+			assert_intcmp(__FILE__, __LINE__, 522, sizeB);
+			assert_intcmp(__FILE__, __LINE__, 264, strlen(strB));
+		free(strB);
+	}
 
 	// test strlcmp()
 	strlcpy(str, "Abc", size);
