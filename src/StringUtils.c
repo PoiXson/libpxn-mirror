@@ -36,7 +36,9 @@ size_t strlcat(char *dest, char *src, const size_t size) {
 
 
 
-int strlcmp(const char *strA, const char *strB) {
+int strlcmp(const char *strA, const char *strB, const size_t size) {
+	if (size == -1 || size == 0)
+		return INT_MIN;
 	if (strA == NULL) {
 		if (strB == NULL)
 			return 0;
@@ -44,8 +46,11 @@ int strlcmp(const char *strA, const char *strB) {
 	}
 	if (strB == NULL)
 		return INT_MAX;
+	size_t index = 0;
 	int cmp;
 	while (true) {
+		if (++index > size)
+			return 0;
 		if (*strA == '\0') {
 			if (*strB == '\0')
 				return 0;

@@ -8,7 +8,7 @@
 size_t strlcpy(char *dest, char *src, const size_t size);
 size_t strlcat(char *dest, char *src, const size_t size);
 
-int strlcmp(const char *strA, const char *strB);
+int strlcmp(const char *strA, const char *strB, const size_t size);
 
 char* str_trim(char *str);
 
