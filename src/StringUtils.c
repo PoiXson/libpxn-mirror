@@ -54,11 +54,11 @@ int strlcmp(const char *strA, const char *strB, const size_t size) {
 		if (*strA == '\0') {
 			if (*strB == '\0')
 				return 0;
-			return 0 - (int)(*strB);
+			return (int)(*strB);
 		}
 		if (*strB == '\0')
-			return (int)(*strA);
-		cmp = tolower( (int)(*strA) ) - tolower( (int)(*strB) );
+			return 0 - (int)(*strA);
+		cmp = tolower( (int)(*strB) ) - tolower( (int)(*strA) );
 		if (cmp != 0)
 			return cmp;
 		strA++;
