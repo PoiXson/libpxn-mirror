@@ -50,7 +50,7 @@ void test_main(int argc, char *argv[]) {
 void test_results_display() {
 	clock_t time_end = clock();
 	double elapsed = ( ((double)time_end) - ((double)time_start) ) / CLOCKS_PER_SEC;
-	{
+	if (count_failed > 0) {
 		double last = time_start;
 		double duration;
 		for (size_t index=0; index<test_points_size; index++) {
