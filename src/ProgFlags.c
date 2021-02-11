@@ -217,11 +217,11 @@ void progflags_process(const int argc, char *argv[]) {
 void progflags_process_value(const size_t flag_index, char *str) {
 	switch (progflags[flag_index].type) {
 	case FLAGTYPE_BOOL:
-		if (strlcmp(str, "yes") == 0 || strlcmp(str, "true") == 0) {
+		if (strlcmp(str, "yes", 4) == 0 || strlcmp(str, "true", 5) == 0) {
 			progflags[flag_index].value_bool = true;
 			return;
 		}
-		if (strlcmp(str, "no") == 0 || strlcmp(str, "false") == 0) {
+		if (strlcmp(str, "no", 3) == 0 || strlcmp(str, "false", 6) == 0) {
 			progflags[flag_index].value_bool = false;
 			return;
 		}
