@@ -2,6 +2,10 @@
 
 
 
+#define VERSION_MAX 16
+
+
+
 //TODO
 #define IS_COLOR_SUPPORTED true
 

@@ -11,7 +11,7 @@ libpxn_la_SOURCES = \
 	src/tpl-engine.c  \
 	src/Testing.c
 pkginclude_HEADERS = \
-	src/Defines.h     \
+	src/pxnDefines.h  \
 	src/Debug.h       \
 	src/StringUtils.h \
 	src/NumberUtils.h \
@@ -20,7 +20,6 @@ pkginclude_HEADERS = \
 	src/ProgFlags.h   \
 	src/Run.h         \
 	src/tpl-engine.h  \
-	src/pxnDefines.h  \
 	src/Testing.h
 libpxn_la_LDFLAGS = -static
 libpxn_la_CFLAGS = -fPIC
