@@ -3,6 +3,7 @@
 
 #include "src/FileUtils.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 

@@ -11,7 +11,6 @@ TEST_INIT(test_StringUtils);
 void test_StringUtils() {
 	size_t size = 10;
 	char str[size];
-	size_t pos;
 
 	// test strlcpy()
 	strlcpy(str, "qwerty", size);
@@ -84,16 +83,12 @@ void test_StringUtils() {
 
 	// test chrpos()
 	strlcpy(str, "abcdefg", size);
-	pos = chrpos(str, 'd');
-		assert_intcmp(__FILE__, __LINE__, 3, pos);
-	pos = chrpos(str, 'z');
-		assert_intcmp(__FILE__, __LINE__, -1, pos);
+		assert_intcmp(__FILE__, __LINE__,  3, chrpos(str, 'd'));
+		assert_intcmp(__FILE__, __LINE__, -1, chrpos(str, 'z'));
 	// test chrposs()
 	strlcpy(str, "abcdefg", size);
-	pos = chrposs(str, 'd', 3);
-		assert_intcmp(__FILE__, __LINE__, 3, pos);
-	pos = chrposs(str, 'd', 4);
-		assert_intcmp(__FILE__, __LINE__, -1, pos);
+		assert_intcmp(__FILE__, __LINE__,  3, chrposs(str, 'd', 3));
+		assert_intcmp(__FILE__, __LINE__, -1, chrposs(str, 'd', 4));
 
 	// test pad_front()
 	strlcpy(str, "abc", size);
