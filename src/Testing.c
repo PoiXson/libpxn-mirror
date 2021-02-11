@@ -85,8 +85,11 @@ void test_results_display() {
 			(elapsed > 0.001 ? "seconds" : "milliseconds")
 		);
 		printf(" "ANSI_COLOR_GREEN"%lu passing asserts"ANSI_COLOR_RESET"\n", count_success);
-		if (count_failed > 0) {
+		if (count_failed == 0) {
+			printf(ANSI_COLOR_GREEN"<PASS>"ANSI_COLOR_RESET"\n");
+		} else {
 			printf(" "ANSI_COLOR_RED"%lu failed asserts!"ANSI_COLOR_RESET"\n", count_failed);
+			printf(ANSI_COLOR_RED"<FAIL>"ANSI_COLOR_RESET"\n");
 		}
 	}
 	printf("\n");
