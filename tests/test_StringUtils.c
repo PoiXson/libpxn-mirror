@@ -24,9 +24,20 @@ void test_StringUtils() {
 	strlcat(str, "ghijkl", size);
 		assert_strcmp(__FILE__, __LINE__, "abcdefghi", str);
 
+	// test strlcmp()
+	strlcpy(str, "Abc", size);
+		assert_intcmp(__FILE__, __LINE__, -65, strlcmp(str, "", size));
+		assert_intcmp(__FILE__, __LINE__,   0, strlcmp(str, "Abc", size));
+		assert_intcmp(__FILE__, __LINE__,  -1, strlcmp(str, "Abb", size));
+		assert_intcmp(__FILE__, __LINE__,   1, strlcmp(str, "Abd", size));
+		assert_intcmp(__FILE__, __LINE__, -99, strlcmp(str, "Ab",  size));
+		assert_intcmp(__FILE__, __LINE__, 100, strlcmp(str, "Abcd", size));
+		assert_intcmp(__FILE__, __LINE__,   0, strlcmp(str, "Abcxyz", 3));
+		assert_intcmp(__FILE__, __LINE__, 120, strlcmp(str, "Abcxyz", 4));
+		assert_intcmp(__FILE__, __LINE__, 120, strlcmp(str, "Abcxyz", 6));
+
 	// test str_trim()
 	char *result;
-	strlcpy(str, "Abc", size);
 	result = str_trim(str);
 		assert_strcmp(__FILE__, __LINE__, "Abc", result);
 	strlcpy(str, "   \t Abc \t   ", size);
@@ -38,6 +49,12 @@ void test_StringUtils() {
 	pos = chrpos(str, 'd');
 		assert_intcmp(__FILE__, __LINE__, 3, pos);
 	pos = chrpos(str, 'z');
+		assert_intcmp(__FILE__, __LINE__, -1, pos);
+	// test chrposs()
+	strlcpy(str, "abcdefg", size);
+	pos = chrposs(str, 'd', 3);
+		assert_intcmp(__FILE__, __LINE__, 3, pos);
+	pos = chrposs(str, 'd', 4);
 		assert_intcmp(__FILE__, __LINE__, -1, pos);
 
 	// test pad_front()
