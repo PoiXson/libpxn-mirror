@@ -143,7 +143,7 @@ void log_print(LogLevel level, char *mod_name, char *msg) {
 		log_write(" [ - - - ] ");
 		return;
 	}
-	if (level >= current_level) {
+	if (is_level_loggable(level)) {
 		// level name
 		char lvlName[LOG_NAME_MAX+1];
 		log_level_to_name(level, lvlName);
@@ -186,11 +186,19 @@ void log_write(char *line) {
 
 
 
-void log_level_set(LogLevel lvl) {
-	current_level = lvl;
+bool is_level_loggable(const LogLevel level) {
+	if (level == LVL_ALL)
+		return true;
+	if (level >= current_level)
+		return true;
+	return false;
 }
 
-void log_level_to_name(LogLevel level, char *name) {
+void log_level_set(const LogLevel level) {
+	current_level = level;
+}
+
+void log_level_to_name(const LogLevel level, char *name) {
 	switch (level) {
 	case LVL_OFF:     break;
 	case LVL_ALL:     break;

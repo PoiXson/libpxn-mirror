@@ -55,8 +55,9 @@ void log_fatal  (char *msg, ...);
 void log_print(LOG_PRINTER_ARGS);
 void log_write(char *line);
 
-void log_level_set(LogLevel lvl);
-void log_level_to_name(LogLevel level, char *name);
+bool is_level_loggable(const LogLevel level);
+void log_level_set(const LogLevel level);
+void log_level_to_name(const LogLevel level, char *name);
 
 size_t get_warning_count();
 size_t get_severe_count();
