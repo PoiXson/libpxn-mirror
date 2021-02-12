@@ -14,7 +14,7 @@ TEST_MAIN;
 
 
 void tests() {
-	RUN_TEST(test_StringUtils);
-	RUN_TEST(test_NumberUtils);
-	RUN_TEST(test_FileUtils);
+	RUN_TEST(test_StringUtils, "StringUtils");
+	RUN_TEST(test_NumberUtils, "NumberUtils");
+	RUN_TEST(test_FileUtils,   "FileUtils");
 }

@@ -6,6 +6,10 @@
 
 
 
+#define TEST_NAME_MAX 16
+
+
+
 #define TEST_MAIN \
 int main(int argc, char *argv[]) { \
 	test_main(argc, argv); \
@@ -16,11 +20,16 @@ void NAME##_init() { \
 	test_init(__##FILE__); \
 }
 
-#define RUN_TEST(NAME) \
-	NAME##_init(); \
-	printf(" ["); \
-	NAME(); \
-	printf("]\n");
+#define RUN_TEST(NAME_FUNC,NAME_STR) \
+	{ \
+		NAME_FUNC##_init(); \
+		char name_padded[TEST_NAME_MAX]; \
+		strlcpy(name_padded, NAME_STR, TEST_NAME_MAX); \
+		str_pad_front(name_padded, TEST_NAME_MAX); \
+		printf("%s [", name_padded); \
+		NAME_FUNC(); \
+		printf("]\n"); \
+	}
 
 
 
