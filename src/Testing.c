@@ -7,6 +7,7 @@
 
 #include "StringUtils.h"
 #include "ProgFlags.h"
+#include "Logs.h"
 #include "pxnDefines.h"
 
 
@@ -27,9 +28,13 @@ size_t test_points_size = 0;
 void test_main(int argc, char *argv[]) {
 	ProgFlag *flag_abort  = progflags_add('a', 1, "abort",  "Abort on failed asserts [default]");
 	progflags_add_spacer();
-	ProgFlag *flag_help  = progflags_add('h', 1, "help",   "Display this help message and exit");
+	ProgFlag *flag_verbose = progflags_add('v', 1, "verbose", "Detailed logging");
+	ProgFlag *flag_help    = progflags_add('h', 1, "help",   "Display this help message and exit");
 	progflags_process(argc, argv);
 	abort_on_fail = flag_abort->value_bool;
+	if (flag_verbose->value_bool) {
+		log_level_set(LVL_ALL);
+	}
 	// --help
 	if (flag_help->value_bool) {
 		display_help();
@@ -50,7 +55,7 @@ void test_main(int argc, char *argv[]) {
 void test_results_display() {
 	clock_t time_end = clock();
 	double elapsed = ( ((double)time_end) - ((double)time_start) ) / CLOCKS_PER_SEC;
-	if (count_failed > 0) {
+	if (count_failed > 0 || is_level_loggable(LVL_DETAIL)) {
 		double last = time_start;
 		double duration;
 		for (size_t index=0; index<test_points_size; index++) {
