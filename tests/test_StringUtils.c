@@ -83,10 +83,14 @@ void test_StringUtils() {
 
 	// test chrpos()
 	strlcpy(str, "abcdefg", size);
+		assert_intcmp(__FILE__, __LINE__,  0, chrpos(str, 'a'));
 		assert_intcmp(__FILE__, __LINE__,  3, chrpos(str, 'd'));
+		assert_intcmp(__FILE__, __LINE__,  6, chrpos(str, 'g'));
 		assert_intcmp(__FILE__, __LINE__, -1, chrpos(str, 'z'));
 	// test chrposs()
 	strlcpy(str, "abcdefg", size);
+		assert_intcmp(__FILE__, __LINE__,  0, chrposs(str, 'a', 0));
+		assert_intcmp(__FILE__, __LINE__, -1, chrposs(str, 'a', 1));
 		assert_intcmp(__FILE__, __LINE__,  3, chrposs(str, 'd', 3));
 		assert_intcmp(__FILE__, __LINE__, -1, chrposs(str, 'd', 4));
 
