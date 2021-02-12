@@ -144,7 +144,7 @@ void free_lock(char *lock_file, const int handle) {
 
 
 
-int load_text_file(char *file, char **out) {
+int load_text_file(const char *file, char **out) {
 	FILE *handle = fopen(file, "r");
 	if (handle == NULL)
 		return -1;
@@ -168,7 +168,7 @@ int read_text_file(FILE *handle, char **out) {
 	return size;
 }
 
-bool save_text_file(char *file, char *data, size_t size) {
+bool save_text_file(const char *file, char *data, size_t size) {
 	FILE *handle = fopen(file, "w");
 	if (handle == NULL)
 		return false;

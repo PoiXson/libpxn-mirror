@@ -21,8 +21,8 @@ void build_path(char *path, const size_t num, ...);
 int get_lock(char *lock_file, const bool blocking);
 void free_lock(char *lock_file, const int handle);
 
-int load_text_file(char *file, char **out);
+int load_text_file(const char *file, char **out);
 int read_text_file(FILE *handle, char **out);
-bool save_text_file(char *file, char *data, size_t size);
+bool save_text_file(const char *file, char *data, size_t size);
 
 bool copy_file(char *file_path, char *dest_path);
