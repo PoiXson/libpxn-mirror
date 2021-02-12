@@ -261,7 +261,7 @@ size_t tpl_parse(TPL_Doc *doc, TPL_Node **nodes, char *data) {
 size_t tpl_node_allocate(TPL_Node **nodes, size_t *nodes_size) {
 	// allocate first block
 	if (*nodes_size == 0) {
-		*nodes_size = 2;
+		*nodes_size = 1;
 		*nodes = malloc((*nodes_size) * sizeof(TPL_Node));
 		if (*nodes == NULL) {
 			log_fatal("Failed to allocate nodes array");
@@ -314,7 +314,7 @@ size_t tpl_var_allocate(TPL_Doc *doc) {
 		}
 	}
 	// expand array
-	doc->vars = realloc(doc->vars, sizeof(TPL_Var) * doc->vars_size);
+	doc->vars = realloc(doc->vars, sizeof(TPL_Var) * doc->vars_size * 2);
 	if (doc->vars == NULL) {
 		log_fatal("Failed to reallocate tpl document vars array");
 		exit(1);
