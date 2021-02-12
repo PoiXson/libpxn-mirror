@@ -161,7 +161,7 @@ void log_print(LogLevel level, char *mod_name, char *msg) {
 		}
 		// message with level
 		for (char *c=lvlName; (*c=toupper(*c)); ++c);
-		pad_center(lvlName, 7);
+		str_pad_center(lvlName, 7);
 		size_t msg_len = strlen(msg);
 		size_t buf_size = msg_len + LOG_NAME_MAX+5;
 		char buf[buf_size+1];

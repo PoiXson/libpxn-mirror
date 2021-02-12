@@ -340,7 +340,7 @@ void display_help() {
 			// no flags
 			if (line[3] == '\0')
 				continue;
-			pad_end(line, 24);
+			str_pad_end(line, 24);
 			line[24] = ' ';
 			line[25] = '\0';
 			// description

@@ -92,24 +92,24 @@ void test_StringUtils() {
 
 	// test pad_front()
 	strlcpy(str, "abc", size);
-	pad_front(str, 9);
+	str_pad_front(str, 9);
 		assert_strcmp(__FILE__, __LINE__, "      abc", str);
 	strlcpy(str, "abc", size);
-	pad_front(str, 2);
+	str_pad_front(str, 2);
 		assert_strcmp(__FILE__, __LINE__, "abc", str);
 	// test pad_end()
 	strlcpy(str, "abc", size);
-	pad_end(str, 9);
+	str_pad_end(str, 9);
 		assert_strcmp(__FILE__, __LINE__, "abc      ", str);
 	strlcpy(str, "abc", size);
-	pad_end(str, 2);
+	str_pad_end(str, 2);
 		assert_strcmp(__FILE__, __LINE__, "abc", str);
 	// test pad_center()
 	strlcpy(str, "abc", size);
-	pad_center(str, 9);
+	str_pad_center(str, 9);
 		assert_strcmp(__FILE__, __LINE__, "   abc   ", str);
 	strlcpy(str, "abc", size);
-	pad_center(str, 2);
+	str_pad_center(str, 2);
 		assert_strcmp(__FILE__, __LINE__, "abc", str);
 
 	// test str_starts_with()

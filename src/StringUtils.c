@@ -144,7 +144,7 @@ size_t chrposs(const char *haystack, const char needle, const size_t start) {
 
 
 
-void pad_front(char *line, const size_t size) {
+void str_pad_front(char *line, const size_t size) {
 	if (size < 1) return;
 	size_t len = strlen(line);
 	if (len >= size) return;
@@ -160,7 +160,7 @@ void pad_front(char *line, const size_t size) {
 	strcpy(line, result);
 }
 
-void pad_end(char *line, const size_t size) {
+void str_pad_end(char *line, const size_t size) {
 	if (size < 1) return;
 	size_t len = strlen(line);
 	if (len >= size) return;
@@ -173,7 +173,7 @@ void pad_end(char *line, const size_t size) {
 	strcat(line, pad);
 }
 
-void pad_center(char *line, const size_t size) {
+void str_pad_center(char *line, const size_t size) {
 	if (size < 1) return;
 	size_t len = strlen(line);
 	if (len >= size) return;
