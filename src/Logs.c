@@ -7,6 +7,7 @@
 #include <ctype.h>
 
 #include "StringUtils.h"
+#include "pxnDefines.h"
 
 
 
@@ -122,25 +123,11 @@ void log_fatal(char *msg, ...) {
 void log_print(LogLevel level, char *mod_name, char *msg) {
 	// title
 	if (level == LVL_TITLE) {
-		size_t len = strlen(msg) + 6;
-		char bufA[len+1];
-		char bufB[len+1];
-		for (size_t i=0; i<len-1; i++) {
-			if (i < 1) {
-				bufA[i] = ' ';
-			} else {
-				bufA[i] = '*';
-			}
-		}
-		bufA[len-1] = ' ';
-		bufA[len]   = '\0';
-		bufB[0] = '\0';
-		strcpy(bufB, " * ");
-		strcat(bufB, msg);
-		strcat(bufB, " * ");
-		log_write(bufA);
-		log_write(bufB);
-		log_write(bufA);
+		size_t len = strlen(msg) + 30;
+		char buf[len];
+		buf[0] = '\0';
+		snprintf(buf, len, "  %s[[ %s ]]%s ", ANSI_COLOR_CYAN, msg, ANSI_COLOR_RESET);
+		log_write(buf);
 		return;
 	}
 	if (level == LVL_ALL && strlen(msg) == 0) {
