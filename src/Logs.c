@@ -61,8 +61,6 @@ void log_lines(void (*callback)(char *msg, ...), char *text) {
 	free(txt);
 }
 
-
-
 void log_dash() {
 	if (log_printer == NULL) \
 		set_log_printer(log_print); \
