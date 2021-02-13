@@ -124,4 +124,16 @@ void test_StringUtils() {
 	assert(__FILE__, __LINE__,  str_ends_with(str, "bc"));
 	assert(__FILE__, __LINE__, !str_ends_with(str, "ab"));
 
+	// test str_make_safe()
+	strlcpy(str, "a b\tc!d@efg", size);
+	str_make_safe(str, size);
+		assert_strcmp(__FILE__, __LINE__, "a_b_c_d_e", str);
+	strlcpy(str, "abc", size);
+	str[5]      = 'A';
+	str[size-1] = 'B';
+	str_make_safe(str, size);
+		assert_strcmp(__FILE__, __LINE__, "abc", str);
+		assert(__FILE__, __LINE__, str[5]      == '\0');
+		assert(__FILE__, __LINE__, str[size-1] == '\0');
+
 }

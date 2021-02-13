@@ -24,3 +24,5 @@ void str_pad_center(char *line, const size_t size);
 
 bool str_starts_with(const char *haystack, const char *needle);
 bool str_ends_with(const char *haystack, const char *needle);
+
+void str_make_safe(char *str, const size_t size);

@@ -211,3 +211,23 @@ bool str_ends_with(const char *haystack, const char *needle) {
 	size_t len = strlen(haystack) - strlen(needle);
 	return (strcmp(&haystack[len], needle) == 0);
 }
+
+
+
+void str_make_safe(char *str, const size_t size) {
+	char c;
+	for (size_t i=0; i<size; i++) {
+		c = str[i];
+		if (c == '\0') {
+			for (;i<size; i++)
+				str[i] = '\0';
+			return;
+		}
+		if (c == '_' || c == '-') continue;
+		if (c >= 'a' && c <= 'z') continue;
+		if (c >= 'A' && c <= 'Z') continue;
+		if (c >= '0' && c <= '9') continue;
+		str[i] = '_';
+	}
+	str[size-1] = '\0';
+}
