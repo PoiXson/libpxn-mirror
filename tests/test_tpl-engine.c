@@ -5,7 +5,7 @@
 
 
 
-TEST_INIT(test_tpl_engine);
+TEST_INIT(test_tpl_engine)
 void test_tpl_engine() {
 	assert(__FILE__, __LINE__, true);
 	char *data =

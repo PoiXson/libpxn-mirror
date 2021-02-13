@@ -5,7 +5,7 @@
 
 
 
-TEST_INIT(test_NumberUtils);
+TEST_INIT(test_NumberUtils)
 void test_NumberUtils() {
 	int len;
 	// test len_int()

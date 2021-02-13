@@ -8,7 +8,7 @@
 
 
 
-TEST_INIT(test_FileUtils);
+TEST_INIT(test_FileUtils)
 void test_FileUtils() {
 
 	// test get_file_type()

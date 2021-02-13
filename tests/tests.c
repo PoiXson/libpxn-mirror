@@ -10,7 +10,7 @@
 
 
 
-TEST_MAIN;
+TEST_MAIN
 
 
 

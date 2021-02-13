@@ -7,7 +7,7 @@
 
 
 
-TEST_INIT(test_StringUtils);
+TEST_INIT(test_StringUtils)
 void test_StringUtils() {
 	size_t size = 10;
 	char str[size];
