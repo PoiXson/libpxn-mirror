@@ -1,4 +1,11 @@
 lib_LTLIBRARIES = libpxn.la
+libpxn_la_LDFLAGS = -static
+libpxn_la_CFLAGS = -fPIC
+
+check_PROGRAMS = pxntest
+pxntest_LDADD = -lpxn
+pxntest_SOURCES = tests/tests.c
+
 libpxn_la_SOURCES = \
 	src/libpxn.c      \
 	src/Debug.c       \
@@ -21,10 +28,3 @@ pkginclude_HEADERS = \
 	src/Run.h         \
 	src/tpl-engine.h  \
 	src/Testing.h
-libpxn_la_LDFLAGS = -static
-libpxn_la_CFLAGS = -fPIC
-
-check_PROGRAMS = pxntest
-pxntest_LDADD = -lpxn
-pxntest_SOURCES = \
-	tests/tests.c
