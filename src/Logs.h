@@ -45,6 +45,7 @@ void log_lines(void (*callback)(char *msg, ...), char *text);
 void log_line   (char *msg, ...);
 void log_dash();
 
+void log_title  (char *msg, ...);
 void log_detail (char *msg, ...);
 void log_info   (char *msg, ...);
 void log_notice (char *msg, ...);

@@ -85,6 +85,10 @@ void log_line(char *msg, ...) {
 	LOG_PRINT(LVL_OFF);
 }
 
+void log_title(char *msg, ...) {
+	LOG_PRINT(LVL_TITLE);
+}
+
 void log_detail(char *msg, ...) {
 	LOG_PRINT(LVL_DETAIL);
 }
