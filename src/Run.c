@@ -9,6 +9,7 @@
 
 
 RunResult* run_cmd(char *cmd) {
+	log_detail("Running cmd: %s", cmd);
 	FILE *handle = popen(cmd, "r");
 	if (handle == NULL) {
 		log_severe("Failed to execute: %s", cmd);
@@ -37,5 +38,10 @@ RunResult* run_cmd(char *cmd) {
 			break;
 	}
 	result->exit_code = pclose(handle) / 256;
+	if (result->exit_code == 1
+	|| is_level_loggable(LVL_DETAIL)) {
+		log_line("out:");
+		log_lines(log_line, result->out);
+	}
 	return result;
 }
