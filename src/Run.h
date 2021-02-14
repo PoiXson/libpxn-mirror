@@ -18,3 +18,4 @@ typedef struct RunResult {
 
 
 RunResult* run_cmd(char *cmd);
+RunResult* run_script(char *script);

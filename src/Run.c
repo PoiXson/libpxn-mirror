@@ -45,3 +45,9 @@ RunResult* run_cmd(char *cmd) {
 	}
 	return result;
 }
+
+RunResult* run_script(char *script) {
+	char cmd[PATH_MAX];
+	snprintf(cmd, PATH_MAX, "sh %s", script);
+	return run_cmd(cmd);
+}
