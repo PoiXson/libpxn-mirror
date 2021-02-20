@@ -38,6 +38,8 @@ void set_log_module(char *name) {
 
 
 void log_lines(void (*callback)(char *msg, ...), char *text) {
+	if (callback == NULL)
+		return;
 	if (text == NULL) {
 		(*callback) ("<null>");
 		return;
