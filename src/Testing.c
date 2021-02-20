@@ -168,7 +168,7 @@ void test_init(char *file) {
 	test_points[index].timestamp = clock();
 }
 
-void assert(char *file, const int line, const bool test) {
+void _assert(char *file, const int line, const bool test) {
 	size_t index = test_point_allocate();
 	strlcpy(test_points[index].file, file, PATH_MAX);
 	test_points[index].line = line;
@@ -186,7 +186,7 @@ void assert(char *file, const int line, const bool test) {
 	}
 }
 
-void assert_strcmp(char *file, const int line, char *expected, char *actual) {
+void _assert_strcmp(char *file, const int line, char *expected, char *actual) {
 	size_t index = test_point_allocate();
 	strlcpy(test_points[index].file, file, PATH_MAX);
 	test_points[index].line = line;
@@ -213,7 +213,7 @@ void assert_strcmp(char *file, const int line, char *expected, char *actual) {
 	}
 }
 
-void assert_intcmp(char *file, const int line, int expected, int actual) {
+void _assert_intcmp(char *file, const int line, int expected, int actual) {
 	size_t index = test_point_allocate();
 	strlcpy(test_points[index].file, file, PATH_MAX);
 	test_points[index].line = line;
