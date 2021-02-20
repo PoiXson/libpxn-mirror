@@ -4,9 +4,11 @@
 #include <time.h>
 #include <limits.h>
 
+#include "StringUtils.h"
 
 
-#define TEST_NAME_MAX 16
+
+#define TEST_NAME_MAX 20
 
 
 
