@@ -47,6 +47,8 @@ void test_main(int argc, char *argv[]) {
 	printf("\n");
 	// results
 	test_results_display();
+	if (count_success == 0 && count_failed == 0)
+		exit(1);
 	if (count_failed > 0)
 		exit(1);
 	exit(0);
@@ -89,6 +91,9 @@ void test_results_display() {
 			(elapsed > 0.001 ? elapsed : elapsed * 1000.0),
 			(elapsed > 0.001 ? "seconds" : "milliseconds")
 		);
+		if (count_success == 0 && count_failed == 0) {
+			printf(" "ANSI_COLOR_RED"No test asserts to run!"ANSI_COLOR_RESET"\n", count_failed);
+		} else
 		printf(" "ANSI_COLOR_GREEN"%lu passing asserts"ANSI_COLOR_RESET"\n", count_success);
 		if (count_failed == 0) {
 			printf(ANSI_COLOR_GREEN"<PASS>"ANSI_COLOR_RESET"\n");
