@@ -7,7 +7,6 @@
 
 TEST_INIT(test_tpl_engine)
 void test_tpl_engine() {
-	assert(__FILE__, __LINE__, true);
 	char *data =
 		"This is a te{*  first comment  *}st\n"
 		"{%  set  letters = \"cd\"  %}"
@@ -23,5 +22,5 @@ void test_tpl_engine() {
 	char *out;
 	doc->render_comments = true;
 	tpl_render(&out, doc);
-	assert_strcmp(__FILE__, __LINE__, result, out);
+	assert_strcmp(result, out);
 }
