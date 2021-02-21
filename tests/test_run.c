@@ -51,7 +51,7 @@ void test_run() {
 	RunResult *result;
 	LogLevel save_level;
 	// test stdout and stderr
-	strlcpy(cmd, "sh tests/test_run.sh", PATH_MAX);
+	strlcpy(cmd, "tests/test_run.sh", PATH_MAX);
 	save_level = current_level;
 	current_level = LVL_WARNING;
 	result = run_cmd_live(cmd);
@@ -60,7 +60,7 @@ void test_run() {
 		assert_intcmp(42, result->status);
 		assert_strcmp("Test works\nError works too\n", result->out);
 	// test args
-	strlcpy(cmd, "sh tests/test_run.sh abc 123", PATH_MAX);
+	strlcpy(cmd, "tests/test_run.sh abc 123", PATH_MAX);
 	save_level = current_level;
 	current_level = LVL_WARNING;
 	result = run_cmd_live(cmd);
