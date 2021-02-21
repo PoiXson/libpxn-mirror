@@ -8,8 +8,11 @@
 size_t strlcpy(char *dest, char *src, const size_t size);
 size_t strlcat(char *dest, char *src, const size_t size);
 
-size_t strlrcpy(char **dest, char *src, size_t *size);
-size_t strlrcat(char **dest, char *src, size_t *size);
+size_t strrcpy(char **dest, size_t *size, char *src);
+size_t strrcat(char **dest, size_t *size, char *src);
+
+size_t strlrcpy(char **dest, size_t *size, char *src, size_t len_src);
+size_t strlrcat(char **dest, size_t *size, char *src, size_t len_src);
 
 int strlcmp(const char *strA, const char *strB, const size_t size);
 

@@ -36,33 +36,60 @@ size_t strlcat(char *dest, char *src, const size_t size) {
 
 
 
-size_t strlrcpy(char **dest, char *src, size_t *size) {
+size_t strrcpy(char **dest, size_t *size, char *src) {
+	return strlrcpy(dest, size, src, strlen(src));
+}
+
+size_t strrcat(char **dest, size_t *size, char *src) {
+	return strlrcat(dest, size, src, strlen(src));
+}
+
+
+
+size_t strlrcpy(char **dest, size_t *size, char *src, size_t len_src) {
+	{
+		size_t ln = strlen(src);
+		if (len_src > ln)
+			len_src = ln;
+	}
+	// allocate first block
+	if (*size == 0) {
+		*size = len_src + 1;
+		*dest = calloc(*size, sizeof(char));
+		return strlcpy(*dest, src, *size);
+	}
 	size_t len_dest = strlen(*dest);
-	size_t len_src  = strlen(src);
-	if (len_dest + len_src + 1 > *size) {
+	// reallocate more space
+	if (len_dest + len_src + 1 > (*size)) {
 		*size = len_dest + len_src + 1;
 		*dest = realloc(*dest, (*size) * sizeof(char));
 		memset((*dest)+len_dest, '\0', len_src + 1);
 	}
-	strlcpy(*dest, src, *size);
+	return strlcpy(*dest, src, len_dest + len_src + 1);
 }
 
-size_t strlrcat(char **dest, char *src, size_t *size) {
+size_t strlrcat(char **dest, size_t *size, char *src, size_t len_src) {
+	{
+		size_t ln = strlen(src);
+		if (len_src > ln)
+			len_src = ln;
+	}
+	// allocate first block
+	if (*size == 0) {
+		*size = len_src + 1;
+		*dest = calloc(*size, sizeof(char));
+		return strlcpy(*dest, src, *size);
+	}
 	size_t len_dest = strlen(*dest);
-	size_t len_src  = strlen(src);
 	// reallocate more space
-	if (len_dest + len_src + 1 > *size) {
-		if (len_dest > 256) {
-			while (len_dest + len_src + 1 > *size) {
-				(*size) *= 2;
-			}
-		} else {
-			*size = len_dest + len_src + 1;
+	if (len_dest + len_src + 1 > (*size)) {
+		while (len_dest + len_src + 1 > *size) {
+			(*size) *= 2;
 		}
 		*dest = realloc(*dest, (*size) * sizeof(char));
 		memset((*dest)+len_dest, '\0', len_src + 1);
 	}
-	strlcat(*dest, src, *size);
+	return strlcat(*dest, src, len_dest + len_src + 1);
 }
 
 
