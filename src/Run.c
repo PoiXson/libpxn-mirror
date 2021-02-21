@@ -5,14 +5,13 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <errno.h>
-#include <stdio.h>
-#include <string.h>
 
 #include "StringUtils.h"
 #include "Logs.h"
 
 
 
+/*
 RunResult* run_cmd(char *cmd) {
 	log_detail("Running cmd: %s", cmd);
 	FILE *handle = popen(cmd, "r");
@@ -56,6 +55,7 @@ RunResult* run_script(char *script) {
 	snprintf(cmd, PATH_MAX, "sh %s", script);
 	return run_cmd(cmd);
 }
+*/
 
 
 
