@@ -102,7 +102,7 @@ void build_path(char *path, const size_t num, ...) {
 
 
 
-// error codes found at: /usr/include/asm-generic/errno-base.h
+// note: error codes found at: /usr/include/asm-generic/errno-base.h
 int get_lock(char *lock_file, const bool blocking) {
 	int handle = open(lock_file, O_CREAT | O_RDWR, 0666);
 	if (handle < 0) {
@@ -155,17 +155,53 @@ size_t load_text_file(const char *file, char **out) {
 
 size_t read_text_file(FILE *handle, char **out) {
 	if (handle == NULL)
-		return -1;
-	fseek(handle, 0, SEEK_END);
-	int size = ftell(handle);
-	fseek(handle, 0, SEEK_SET);
-	*out = malloc(size + 1);
-	size_t len = fread(*out, 1, size, handle);
+		return -1L;
+	size_t chunk_size = 256L;
+	size_t size = 0L;
+	char chunk[chunk_size];
+	int len;
+	size_t pos = 0;
+	while (!feof(handle)) {
+		len = fread(&chunk, 1L, chunk_size, handle);
+		if (len <= 0)
+			break;
+		if (size == 0L) {
+			size = len + 1;
+			*out = malloc(size);
+			memcpy(*out, chunk, len);
+			pos += len;
+			(*out)[pos] = '\0';
+		} else {
+			if (pos + len + 1 > size) {
+				size *= 2;
+				*out = realloc(*out, size);
+			}
+			memcpy( (*out)+pos, chunk, len);
+			pos += len;
+			(*out)[pos] = '\0';
+		}
+	}
+	return size;
+/*
+	fseek(handle, 0L, SEEK_END);
+	long size = ftell(handle);
+	if (size > (long)INT_MAX) {
+		log_severe("File size out of range");
+		return -1L;
+	}
+	fseek(handle, 0L, SEEK_SET);
+	*out = malloc(size + 1L);
+	for (long index=0L; index<size; index++)
+		out[index] = '\0';
+	size_t len = fread(out, 1L, size, handle);
 	if (len != size) {
-		log_warning("read size different from file seek size: %i, %lu", size, len);
+		log_severe("read size different from file seek size: %lu, %lu", size, len);
+		free(out);
+		return -1L;
 	}
 	out[size] = '\0';
 	return size;
+*/
 }
 
 bool save_text_file(const char *file, char *data, size_t size) {
