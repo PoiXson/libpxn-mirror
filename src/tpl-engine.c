@@ -364,7 +364,7 @@ void tpl_set_var(TPL_Doc *doc, char *name, char* value) {
 		if (doc->vars[index].name_size == 0)
 			continue;
 		if (strlcmp(doc->vars[index].name, name, doc->vars[index].name_size) == 0) {
-			strlrcpy( &(doc->vars[index].value), value, &(doc->vars[index].value_size) );
+			strrcpy( &(doc->vars[index].value), &(doc->vars[index].value_size), value );
 			#if defined(DEBUG) && defined(TPL_DETAIL_LOG)
 			log_line("  Changed variable: [%lu] %s = `%s`", index, name, value);
 			#endif
@@ -427,14 +427,14 @@ void tpl_render_nodes(TPL_Doc *doc, char **result, size_t *result_size, TPL_Node
 		// {* comment *}
 		case NODE_TYPE_COMMENT:
 			if (doc->render_comments) {
-				strlrcat(result, "/* ", result_size);
-				strlrcat(result, nodes[index].var.value, result_size);
-				strlrcat(result, " */", result_size);
+				strrcat(result, result_size, "/* ");
+				strrcat(result, result_size, nodes[index].var.value);
+				strrcat(result, result_size, " */");
 			}
 			break;
 		// text
 		case NODE_TYPE_TEXT:
-			strlrcat(result, nodes[index].var.value, result_size);
+			strrcat(result, result_size, nodes[index].var.value);
 			break;
 		// {{ variable }}
 		case NODE_TYPE_VAR: {
@@ -443,7 +443,7 @@ void tpl_render_nodes(TPL_Doc *doc, char **result, size_t *result_size, TPL_Node
 				log_warning("Rendering Node [%lu] Unknown variable: %s", index, nodes[index].var.name);
 				break;
 			}
-			strlrcat(result, value, result_size);
+			strrcat(result, result_size, value);
 			break;
 		}
 		// {% set var=value %}
