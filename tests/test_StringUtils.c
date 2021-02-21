@@ -23,41 +23,47 @@ void test_StringUtils() {
 	strlcat(str, "ghijklmnopqrstuvwxyz", size);
 		assert_strcmp("abcdefghi", str);
 
-	// test strlrcpy() strlrcat()
+	// test str reallocate functions
 	{
-		size_t sizeB = 3;
-		char *strB = calloc(sizeB, sizeof(char));
-		strrcpy(&strB, &sizeB, "Ab");
-			assert_intcmp(3, sizeB);
-			assert_strcmp("Ab", strB);
-		strrcat(&strB, &sizeB, "cd");
-			assert_intcmp(5, sizeB);
-			assert_strcmp("Abcd", strB);
-		free(strB);
-		sizeB = 4;
+		size_t sizeB;
+		char *strB;
+		// test strrcpy() strrcat()
+		sizeB = 2;
 		strB = calloc(sizeB, sizeof(char));
-		strrcpy(&strB, &sizeB, "Abcd");
+		strrcpy(&strB, &sizeB, "abcd");
 			assert_intcmp(5, sizeB);
-			assert_strcmp("Abcd", strB);
-		strrcat(&strB, &sizeB, "efghijklmnopqrstuvwxyz");
-			assert_intcmp(27, sizeB);
-			assert_strcmp("Abcdefghijklmnopqrstuvwxyz", strB);
+			assert_strcmp("abcd", strB);
 		free(strB);
-		sizeB = 1;
+		sizeB = 2;
 		strB = calloc(sizeB, sizeof(char));
-		strrcpy(
-			&strB,
-			&sizeB,
-			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
-			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
-			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
-			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
-			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
-		);
-			assert_intcmp(261, sizeB);
-		strrcat(&strB, &sizeB, "1234");
-			assert_intcmp(522, sizeB);
-			assert_intcmp(264, strlen(strB));
+		strrcat(&strB, &sizeB, "abcd");
+			assert_intcmp(8, sizeB);
+			assert_strcmp("abcd", strB);
+		strrcat(&strB, &sizeB, "efg");
+			assert_intcmp(8, sizeB);
+			assert_strcmp("abcdefg", strB);
+		strrcat(&strB, &sizeB, "hijklmnopqrstuvwxyz");
+			assert_intcmp(32, sizeB);
+			assert_strcmp("abcdefghijklmnopqrstuvwxyz", strB);
+		free(strB);
+		// test strlrcpy() strlrcat()
+		sizeB = 2;
+		strB = calloc(sizeB, sizeof(char));
+		strlrcpy(&strB, &sizeB, "abc", 3);
+			assert_intcmp(4, sizeB);
+			assert_strcmp("abc", strB);
+		free(strB);
+		sizeB = 2;
+		strB = calloc(sizeB, sizeof(char));
+		strlrcat(&strB, &sizeB, "abc", 3);
+			assert_intcmp(4, sizeB);
+			assert_strcmp("abc", strB);
+		strlrcat(&strB, &sizeB, "def", 1);
+			assert_intcmp(8, sizeB);
+			assert_strcmp("abcd", strB);
+		strlrcat(&strB, &sizeB, "ef", 20);
+			assert_intcmp(8, sizeB);
+			assert_strcmp("abcdef", strB);
 		free(strB);
 	}
 
@@ -93,6 +99,12 @@ void test_StringUtils() {
 		assert_intcmp(-1, chrposs(str, 'a', 1));
 		assert_intcmp( 3, chrposs(str, 'd', 3));
 		assert_intcmp(-1, chrposs(str, 'd', 4));
+	strlcpy(str, "abc\n\n\n", size);
+	size_t pos;
+		assert_intcmp( 3, pos = chrposs(str, '\n', 0));
+		assert_intcmp( 4, pos = chrposs(str, '\n', pos+1));
+		assert_intcmp( 5, pos = chrposs(str, '\n', pos+1));
+		assert_intcmp(-1, pos = chrposs(str, '\n', pos+1));
 
 	// test pad_front()
 	strlcpy(str, "abc", size);
