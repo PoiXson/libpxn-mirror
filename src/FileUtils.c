@@ -144,16 +144,16 @@ void free_lock(char *lock_file, const int handle) {
 
 
 
-int load_text_file(const char *file, char **out) {
+size_t load_text_file(const char *file, char **out) {
 	FILE *handle = fopen(file, "r");
 	if (handle == NULL)
-		return -1;
-	int len = read_text_file(handle, out);
+		return -1L;
+	size_t size = read_text_file(handle, out);
 	fclose(handle);
-	return len;
+	return size;
 }
 
-int read_text_file(FILE *handle, char **out) {
+size_t read_text_file(FILE *handle, char **out) {
 	if (handle == NULL)
 		return -1;
 	fseek(handle, 0, SEEK_END);
@@ -172,9 +172,9 @@ bool save_text_file(const char *file, char *data, size_t size) {
 	FILE *handle = fopen(file, "w");
 	if (handle == NULL)
 		return false;
-	size_t len = fwrite(data, size, 1, handle);
+	int len = fwrite(data, size, 1, handle);
 	fclose(handle);
-	return (len ==1);
+	return (len == 1);
 }
 
 
