@@ -19,7 +19,7 @@ void test_FileUtils() {
 	// test basename()
 //TODO
 
-	// test path_merge()
+	// test build_path()
 	{
 		char *path = calloc(PATH_MAX, sizeof(char));
 		build_path(path, 2, "/etc/", "///redhat-release");
