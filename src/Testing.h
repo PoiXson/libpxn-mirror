@@ -62,7 +62,7 @@ extern size_t test_points_size;
 
 
 void test_main(int argc, char *argv[]);
-void test_results_display();
+void test_results_display(bool display_detail);
 void tests();
 
 size_t test_point_allocate();

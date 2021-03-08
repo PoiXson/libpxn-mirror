@@ -46,7 +46,7 @@ void test_main(int argc, char *argv[]) {
 	tests();
 	printf("\n");
 	// results
-	test_results_display();
+	test_results_display( flag_verbose->value_bool || count_failed > 0 );
 	if (count_success == 0 && count_failed == 0)
 		exit(1);
 	if (count_failed > 0)
@@ -54,10 +54,10 @@ void test_main(int argc, char *argv[]) {
 	exit(0);
 }
 
-void test_results_display() {
+void test_results_display(bool display_detail) {
 	clock_t time_end = clock();
 	double elapsed = ( ((double)time_end) - ((double)time_start) ) / CLOCKS_PER_SEC;
-	if (count_failed > 0 || is_level_loggable(LVL_DETAIL)) {
+	if (display_detail) {
 		double last = time_start;
 		double duration;
 		for (size_t index=0; index<test_points_size; index++) {
@@ -186,7 +186,7 @@ void _assert(char *file, const int line, const bool test) {
 		count_failed++;
 		printf("x");
 		if (abort_on_fail) {
-			test_results_display();
+			test_results_display(true);
 			exit(1);
 		}
 	}
@@ -213,7 +213,7 @@ void _assert_strcmp(char *file, const int line, char *expected, char *actual) {
 			actual
 		);
 		if (abort_on_fail) {
-			test_results_display();
+			test_results_display(true);
 			exit(1);
 		}
 	}
@@ -239,7 +239,7 @@ void _assert_intcmp(char *file, const int line, int expected, int actual) {
 			actual
 		);
 		if (abort_on_fail) {
-			test_results_display();
+			test_results_display(true);
 			exit(1);
 		}
 	}
