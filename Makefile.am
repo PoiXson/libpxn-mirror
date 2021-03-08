@@ -13,6 +13,7 @@ libpxn_la_SOURCES = \
 	src/NumberUtils.c \
 	src/FileUtils.c   \
 	src/ConfigUtils.c \
+	src/SystemUtils.c \
 	src/Logs.c        \
 	src/ProgFlags.c   \
 	src/Run.c         \
@@ -25,6 +26,7 @@ pkginclude_HEADERS = \
 	src/NumberUtils.h \
 	src/FileUtils.h   \
 	src/ConfigUtils.h \
+	src/SystemUtils.h \
 	src/Logs.h        \
 	src/ProgFlags.h   \
 	src/Run.h         \
