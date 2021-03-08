@@ -100,9 +100,13 @@ ProgFlag* progflags_add_spacer() {
 
 
 
-void progflags_process(const int argc, char *argv[]) {
+void progflags_process(const int argc, char *argv[], char *exec_name) {
 	// program file name
-	{
+	if (exec_name != NULL && strlen(exec_name) > 0) {
+		size_t len = strlen(exec_name) + 1;
+		progflags_exec_name = malloc(len * sizeof(char));
+		strlcpy(progflags_exec_name, exec_name, len);
+	} else {
 		size_t len = strlen(argv[0]) + 1;
 		progflags_exec_name = malloc(len * sizeof(char));
 		strlcpy(progflags_exec_name, basename(argv[0]), len);
