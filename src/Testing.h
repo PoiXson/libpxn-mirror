@@ -12,9 +12,9 @@
 
 
 
-#define TEST_MAIN \
+#define TEST_MAIN(exec_name) \
 int main(int argc, char *argv[]) { \
-	test_main(argc, argv); \
+	test_main(argc, argv, exec_name); \
 }
 
 #define TEST_INIT(NAME) \
@@ -61,7 +61,7 @@ extern size_t test_points_size;
 
 
 
-void test_main(int argc, char *argv[]);
+void test_main(int argc, char *argv[], char *exec_name);
 void test_results_display(bool display_detail);
 void tests();
 

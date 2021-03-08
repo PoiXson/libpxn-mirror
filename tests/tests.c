@@ -11,7 +11,7 @@
 
 
 
-TEST_MAIN
+TEST_MAIN("libpxn-test")
 
 
 
