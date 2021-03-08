@@ -2,9 +2,9 @@ lib_LTLIBRARIES = libpxn.la
 libpxn_la_LDFLAGS = -static
 libpxn_la_CFLAGS = -fPIC
 
-check_PROGRAMS = pxntest
-pxntest_LDADD = -lpxn
-pxntest_SOURCES = tests/tests.c
+check_PROGRAMS = libpxn-test
+libpxn_test_LDADD = -lpxn
+libpxn_test_SOURCES = tests/tests.c
 
 libpxn_la_SOURCES = \
 	src/libpxn.c      \
