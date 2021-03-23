@@ -317,6 +317,7 @@ void display_help() {
 		log_line("Options:");
 		size_t len = PROGFLAGS_DESC_SIZE + 30;
 		char line[len];
+		size_t f_index;
 		for (size_t index=0; index<progflags_size; index++) {
 			// spacer
 			if (progflags[index].flag_short == '-') {
@@ -324,22 +325,27 @@ void display_help() {
 				continue;
 			}
 			// -x short flag
-			strlcpy(line, "  -", len);
+			f_index = 0;
+			strlcpy(line, "  ", len);
 			if (progflags[index].flag_short != '\0') {
+				line[2] = '-';
 				line[3] = progflags[index].flag_short;
 				line[4] = '\0';
+				f_index++;
 			}
 			// --long flags
 			for (size_t i=0; i<PROGFLAGS_LONG_MAX; i++) {
 				if (progflags[index].flags_long[i][0] == '\0')
 					continue;
-				if (line[3] == '\0') {
-					line[3] = '-';
-					line[4] = '\0';
+				if (f_index >= 3)
+					break;
+				if (f_index == 0) {
+					strlcat(line, "--", len);
 				} else {
 					strlcat(line, ", --", len);
 				}
 				strlcat(line, progflags[index].flags_long[i], len);
+				f_index++;
 			}
 			// no flags
 			if (line[3] == '\0')
