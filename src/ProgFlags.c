@@ -319,6 +319,8 @@ void display_help() {
 		char line[len];
 		size_t f_index;
 		for (size_t index=0; index<progflags_size; index++) {
+			if (progflags[index].used != true)
+				continue;
 			// spacer
 			if (progflags[index].flag_short == '-') {
 				log_line("");
@@ -348,7 +350,7 @@ void display_help() {
 				f_index++;
 			}
 			// no flags
-			if (line[3] == '\0')
+			if (line[2] == '\0')
 				continue;
 			str_pad_end(line, 24);
 			line[24] = ' ';
