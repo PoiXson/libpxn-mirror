@@ -322,7 +322,7 @@ void display_help() {
 			(color ? COLOR_YELLOW : ""),
 			(color ? COLOR_RESET  : "")
 		);
-		size_t len = PROGFLAGS_DESC_SIZE + 30 + (color ? 8 : 0);
+		size_t len = PROGFLAGS_DESC_SIZE + PROGFLAGS_FLAGS_SPACE + 16;
 		char line[len];
 		size_t f_index;
 		for (size_t index=0; index<progflags_size; index++) {
@@ -359,9 +359,9 @@ void display_help() {
 			// no flags
 			if (f_index == 0)
 				continue;
-			str_pad_end(line, 24);
-			line[24] = ' ';
-			line[25] = '\0';
+			str_pad_end(line, PROGFLAGS_FLAGS_SPACE - 1);
+			line[PROGFLAGS_FLAGS_SPACE-1] = ' ';
+			line[PROGFLAGS_FLAGS_SPACE  ] = '\0';
 			if (color) {
 				strlcatfront(line, COLOR_GREEN, len);
 				strlcat     (line, COLOR_RESET, len);
@@ -383,9 +383,9 @@ void display_help() {
 					if (strlen(desc) == 0)
 						break;
 					log_line(line);
-					for (int i=0; i<27; i++)
+					for (int i=0; i<PROGFLAGS_FLAGS_SPACE+2; i++)
 						line[i] = ' ';
-					line[27] = '\0';
+					line[PROGFLAGS_FLAGS_SPACE+2] = '\0';
 				}
 			}
 			log_line(line);
