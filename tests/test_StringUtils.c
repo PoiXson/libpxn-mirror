@@ -9,7 +9,7 @@
 
 TEST_INIT(test_StringUtils)
 void test_StringUtils() {
-	size_t size = 10;
+	size_t size = 11;
 	char str[size];
 
 	// test strlcpy()
@@ -21,7 +21,7 @@ void test_StringUtils() {
 	strlcat(str, "def", size);
 		assert(strcmp(str, "abcdef") == 0);
 	strlcat(str, "ghijklmnopqrstuvwxyz", size);
-		assert_strcmp("abcdefghi", str);
+		assert_strcmp("abcdefghij", str);
 	// test strlcatfront
 	strlcpy(str, "def", size);
 	strlcatfront(str, "abc", size);
@@ -147,7 +147,7 @@ void test_StringUtils() {
 	// test str_make_safe()
 	strlcpy(str, "a b\tc!d@efg", size);
 	str_make_safe(str, size);
-		assert_strcmp("a_b_c_d_e", str);
+		assert_strcmp("a_b_c_d_ef", str);
 	strlcpy(str, "abc", size);
 	str[5]      = 'A';
 	str[size-1] = 'B';

@@ -10,21 +10,21 @@
 
 TEST_INIT(test_parse_cmd_args)
 void test_parse_cmd_args() {
-	size_t size = 10;
+	size_t size = 11;
 	char cmd[size];
-	strcpy(cmd, "ls /etc");
+	strlcpy(cmd, "ls /etc", size);
 	char *argv[CMD_ARGS_MAX];
 	parse_cmd_args(cmd, argv);
-		assert_strcmp("ls", cmd);
+		assert_strcmp("ls",   cmd);
 		assert_strcmp("ls",   argv[0]);
 		assert_strcmp("/etc", argv[1]);
 		assert       (argv[2] == NULL);
-	strcpy(cmd, "w");
+	strlcpy(cmd, "w", size);
 	parse_cmd_args(cmd, argv);
 		assert_strcmp("w", cmd);
 		assert_strcmp("w", argv[0]);
 		assert       (argv[1] == NULL);
-	strcpy(cmd, "echo 1 2 3");
+	strlcpy(cmd, "echo 1 2 3", size);
 	parse_cmd_args(cmd, argv);
 		assert_strcmp("echo", cmd);
 		assert_strcmp("echo", argv[0]);
