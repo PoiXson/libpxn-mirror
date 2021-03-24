@@ -34,6 +34,29 @@ size_t strlcat(char *dest, char *src, const size_t size) {
 	return len;
 }
 
+size_t strlcatfront(char *dest, char *src, const size_t size) {
+	size_t len_dest = strlen(dest);
+	size_t len_src  = strlen(src);
+	size_t len = len_dest + len_src;
+	if (len_dest > size-1) len_dest = size-1;
+	if (len_src  > size-1) len_src  = size-1;
+	// shorten dest if needed
+	if (size-1 < len) {
+		len_dest = (size-1) - len_src;
+		len = len_dest + len_src;
+	}
+	// shift chars right
+	for (size_t i=0; i<len_dest; i++) {
+		dest[(len_dest-i)+(len_src-1)] = dest[(len_dest-i)-1];
+	}
+	// prepend source string
+	for (size_t i=0; i<len_src; i++) {
+		dest[i] = src[i];
+	}
+	dest[len] = '\0';
+	return len;
+}
+
 
 
 size_t strrcpy(char **dest, size_t *size, char *src) {

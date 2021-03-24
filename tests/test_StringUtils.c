@@ -22,6 +22,14 @@ void test_StringUtils() {
 		assert(strcmp(str, "abcdef") == 0);
 	strlcat(str, "ghijklmnopqrstuvwxyz", size);
 		assert_strcmp("abcdefghi", str);
+	// test strlcatfront
+	strlcpy(str, "def", size);
+	strlcatfront(str, "abc", size);
+		assert_strcmp("abcdef", str);
+	strlcatfront(str, "123456", size);
+		assert_strcmp("123456abcd", str);
+	strlcatfront(str, "ABCD", 5);
+		assert_strcmp("ABCD", str);
 
 	// test str reallocate functions
 	{

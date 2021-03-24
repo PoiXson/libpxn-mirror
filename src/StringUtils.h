@@ -7,6 +7,7 @@
 
 size_t strlcpy(char *dest, char *src, const size_t size);
 size_t strlcat(char *dest, char *src, const size_t size);
+size_t strlcatfront(char *dest, char *src, const size_t size);
 
 size_t strrcpy(char **dest, size_t *size, char *src);
 size_t strrcat(char **dest, size_t *size, char *src);
