@@ -348,11 +348,14 @@ void display_help() {
 					continue;
 				if (f_index >= 3)
 					break;
-				if (f_index == 0) {
-					strlcat(line,   "--", line_size);
-				} else {
-					strlcat(line, ", --", line_size);
-				}
+				// flag doesn't fit on line
+				if (strlen(line) + strlen(progflags[index].flags_long[i]) > PROGFLAGS_FLAGS_SPACE-5)
+					continue;
+				strlcat(
+					line,
+					(f_index == 0 ? "--" : ", --"),
+					line_size
+				);
 				strlcat(line, progflags[index].flags_long[i], line_size);
 				f_index++;
 			}
