@@ -322,8 +322,8 @@ void display_help() {
 			(color ? COLOR_YELLOW : ""),
 			(color ? COLOR_RESET  : "")
 		);
-		size_t len = PROGFLAGS_DESC_SIZE + PROGFLAGS_FLAGS_SPACE + 16;
-		char line[len];
+		size_t line_size = PROGFLAGS_DESC_SIZE + PROGFLAGS_FLAGS_SPACE + 16;
+		char line[line_size];
 		size_t f_index;
 		for (size_t index=0; index<progflags_size; index++) {
 			if (progflags[index].used != true)
@@ -335,7 +335,7 @@ void display_help() {
 			}
 			// -x short flag
 			f_index = 0;
-			strlcpy(line, "  ", len);
+			strlcpy(line, "  ", line_size);
 			if (progflags[index].flag_short != '\0') {
 				line[2] = '-';
 				line[3] = progflags[index].flag_short;
@@ -349,11 +349,11 @@ void display_help() {
 				if (f_index >= 3)
 					break;
 				if (f_index == 0) {
-					strlcat(line, "--", len);
+					strlcat(line,   "--", line_size);
 				} else {
-					strlcat(line, ", --", len);
+					strlcat(line, ", --", line_size);
 				}
-				strlcat(line, progflags[index].flags_long[i], len);
+				strlcat(line, progflags[index].flags_long[i], line_size);
 				f_index++;
 			}
 			// no flags
@@ -363,8 +363,8 @@ void display_help() {
 			line[PROGFLAGS_FLAGS_SPACE-1] = ' ';
 			line[PROGFLAGS_FLAGS_SPACE  ] = '\0';
 			if (color) {
-				strlcatfront(line, COLOR_GREEN, len);
-				strlcat     (line, COLOR_RESET, len);
+				strlcatfront(line, COLOR_GREEN, line_size);
+				strlcat     (line, COLOR_RESET, line_size);
 			}
 			// description
 			{
@@ -373,12 +373,12 @@ void display_help() {
 				while (true) {
 					pos = chrpos(desc, '\n');
 					if (pos == -1) {
-						strlcat(line, desc, len);
+						strlcat(line, desc, line_size);
 						break;
 					}
 					// multi-line description
 					desc[pos] = '\0';
-					strlcat(line, desc, len);
+					strlcat(line, desc, line_size);
 					desc += pos+1;
 					if (strlen(desc) == 0)
 						break;
