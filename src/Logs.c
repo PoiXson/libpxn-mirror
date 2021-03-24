@@ -25,6 +25,8 @@ size_t count_warnings = 0;
 size_t count_severe   = 0;
 size_t count_fatal    = 0;
 
+bool console_color_enabled = DEFAULT_CONSOLE_COLOR;
+
 
 
 void set_log_printer( void (*printer)(LOG_PRINTER_ARGS) ) {
@@ -237,4 +239,14 @@ bool has_severe() {
 
 bool has_fatal() {
 	return (count_fatal > 0);
+}
+
+
+
+bool set_color_enabled(bool enabled) {
+	console_color_enabled = enabled;
+}
+
+bool has_color_enabled() {
+	return console_color_enabled;
 }
