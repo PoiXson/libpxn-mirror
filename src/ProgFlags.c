@@ -298,8 +298,12 @@ return 0;
 void display_help() {
 	size_t options_count = prog_flags_count();
 	size_t actions_count = prog_actions_count();
+	bool color = has_color_enabled();
 	log_line("");
-	log_line("Usage: ");
+	log_line("%sUsage:%s",
+		(color ? COLOR_YELLOW : ""),
+		(color ? COLOR_RESET  : "")
+	);
 	{
 		log_line(
 			"  %s%s%s",
@@ -314,8 +318,11 @@ void display_help() {
 //TODO: display available actions
 	}
 	if (options_count > 0) {
-		log_line("Options:");
-		size_t len = PROGFLAGS_DESC_SIZE + 30;
+		log_line("%sOptions:%s",
+			(color ? COLOR_YELLOW : ""),
+			(color ? COLOR_RESET  : "")
+		);
+		size_t len = PROGFLAGS_DESC_SIZE + 30 + (color ? 8 : 0);
 		char line[len];
 		size_t f_index;
 		for (size_t index=0; index<progflags_size; index++) {
@@ -350,11 +357,15 @@ void display_help() {
 				f_index++;
 			}
 			// no flags
-			if (line[2] == '\0')
+			if (f_index == 0)
 				continue;
 			str_pad_end(line, 24);
 			line[24] = ' ';
 			line[25] = '\0';
+			if (color) {
+				strlcatfront(line, COLOR_GREEN, len);
+				strlcat     (line, COLOR_RESET, len);
+			}
 			// description
 			{
 				char *desc = progflags[index].desc;
