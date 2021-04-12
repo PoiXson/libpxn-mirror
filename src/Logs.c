@@ -121,14 +121,16 @@ void log_fatal(char *msg, ...) {
 
 
 
-// LOG_PRINTER_ARGS
 void log_print(LogLevel level, char *mod_name, char *msg) {
 	// title
 	if (level == LVL_TITLE) {
 		size_t len = strlen(msg) + 30;
 		char buf[len];
 		buf[0] = '\0';
-		snprintf(buf, len, "  %s[[ %s ]]%s ", ANSI_COLOR_CYAN, msg, ANSI_COLOR_RESET);
+		bool color = has_color_enabled();
+		char *color_title = (color ? ANSI_COLOR_CYAN  : "");
+		char *color_reset = (color ? ANSI_COLOR_RESET : "");
+		snprintf(buf, len, "  %s[[ %s ]]%s ", color_title, msg, color_reset);
 		log_write(buf);
 		return;
 	}
