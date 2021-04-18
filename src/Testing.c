@@ -26,17 +26,17 @@ size_t test_points_size = 0;
 
 
 void test_main(int argc, char *argv[], char *exec_name) {
-	ProgFlag *flag_abort   = progflags_add('a', 1, "abort",   "Abort on failed asserts [default]");
+	size_t flag_abort   = progflags_add('a', 1, "abort",   "Abort on failed asserts [default]");
 	progflags_add_spacer();
-	ProgFlag *flag_verbose = progflags_add('v', 1, "verbose", "Detailed logging");
-	ProgFlag *flag_help    = progflags_add('h', 1, "help",    "Display this help message and exit");
+	size_t flag_verbose = progflags_add('v', 1, "verbose", "Detailed logging");
+	size_t flag_help    = progflags_add('h', 1, "help",    "Display this help message and exit");
 	progflags_process(argc, argv, exec_name);
-	abort_on_fail = flag_abort->value_bool;
-	if (flag_verbose->value_bool) {
+	abort_on_fail = progflags_get_bool(flag_abort);
+	if (progflags_get_bool(flag_verbose)) {
 		log_level_set(LVL_ALL);
 	}
 	// --help
-	if (flag_help->value_bool) {
+	if (progflags_get_bool(flag_help)) {
 		display_help();
 		exit(1);
 	}
@@ -46,7 +46,7 @@ void test_main(int argc, char *argv[], char *exec_name) {
 	tests();
 	printf("\n");
 	// results
-	test_results_display( flag_verbose->value_bool || count_failed > 0 );
+	test_results_display( progflags_get_bool(flag_verbose) || count_failed > 0 );
 	if (count_success == 0 && count_failed == 0)
 		exit(1);
 	if (count_failed > 0)
