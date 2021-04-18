@@ -13,6 +13,8 @@ AC_LANG(C)
 # expected files
 AC_CONFIG_SRCDIR([src/StringUtils.c])
 AC_CONFIG_SRCDIR([src/StringUtils.h])
+AC_CONFIG_SRCDIR([src/cjson/cJSON.c])
+AC_CONFIG_SRCDIR([src/cjson/cJSON.h])
 
 AC_DISABLE_SHARED
 AC_ENABLE_STATIC

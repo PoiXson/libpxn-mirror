@@ -18,7 +18,8 @@ libpxn_la_SOURCES = \
 	src/ProgFlags.c   \
 	src/Run.c         \
 	src/tpl-engine.c  \
-	src/Testing.c
+	src/Testing.c     \
+	src/cjson/cJSON.c
 pkginclude_HEADERS = \
 	src/pxnDefines.h  \
 	src/Debug.h       \
@@ -31,4 +32,5 @@ pkginclude_HEADERS = \
 	src/ProgFlags.h   \
 	src/Run.h         \
 	src/tpl-engine.h  \
-	src/Testing.h
+	src/Testing.h     \
+	src/cjson/cJSON.h
