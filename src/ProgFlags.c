@@ -254,22 +254,18 @@ size_t progflags_find_flag(const char *flag) {
 	if (flag[0] == '-') {
 		flag++;
 		for (size_t index=0; index<progflags_size; index++) {
-			if (progflags[index].used != true)
-				continue;
+			if (progflags[index].used != true) continue;
 			for (size_t i=0; i<PROGFLAGS_LONG_MAX; i++) {
-				if (progflags[index].flags_long[i][0] == '\0')
-					continue;
-				if (strcmp(flag, progflags[index].flags_long[i]) == 0)
-					return index;
+				if (progflags[index].flags_long[i][0] == '\0')         continue;
+				if (strcmp(flag, progflags[index].flags_long[i]) == 0) return index;
 			}
 		}
 	// -x flag
 	} else {
 		for (size_t index=0; index<progflags_size; index++) {
-			if (progflags[index].used != true)
-				continue;
-			if (progflags[index].flag_short == '-')
-				continue;
+			if (progflags[index].used != true)       continue;
+			if (progflags[index].flag_short == '\0') continue;
+			if (progflags[index].flag_short == '-')  continue;
 			if (progflags[index].flag_short == flag[0])
 				return index;
 		}
