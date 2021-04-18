@@ -50,8 +50,8 @@ extern size_t prog_actions_size;
 size_t progflag_allocate();
 void progflag_init(const size_t index);
 
-ProgFlag* progflags_add(const char flag_short, const size_t flags_long_count, ...);
-ProgFlag* progflags_add_spacer();
+size_t progflags_add(const char flag_short, const size_t flags_long_count, ...);
+size_t progflags_add_spacer();
 
 void progflags_process(const int argc, char *argv[], char *exec_name);
 void progflags_process_value(const size_t flag_index, char *str);
