@@ -279,6 +279,18 @@ size_t progflags_find_flag(const char *flag) {
 
 
 
+bool progflags_get_bool(size_t index) {
+	switch (progflags[index].type) {
+	case FLAGTYPE_BOOL: return   progflags[index].value_bool;
+	case FLAGTYPE_INT:  return  (progflags[index].value_int != 0);
+	case FLAGTYPE_TEXT: return ((progflags[index].value_text)[0]) != '\0';
+	default: break;
+	}
+	return false;
+}
+
+
+
 size_t prog_flags_count() {
 	size_t count = 0;
 	for (size_t index=0; index<progflags_size; index++) {
