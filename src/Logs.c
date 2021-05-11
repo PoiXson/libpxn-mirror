@@ -182,7 +182,7 @@ void log_write(char *line) {
 
 
 bool is_level_loggable(const LogLevel level) {
-	if (level == LVL_ALL)
+	if (current_level == LVL_ALL)
 		return true;
 	if (level >= current_level)
 		return true;
