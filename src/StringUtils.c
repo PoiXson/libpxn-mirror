@@ -205,9 +205,9 @@ void str_pad_front(char *line, const size_t size) {
 	}
 	pad[count] = '\0';
 	char result[size+1];
-	strcpy(result, pad);
-	strcat(result, line);
-	strcpy(line, result);
+	strlcpy(result, pad,  size+1);
+	strlcat(result, line, size+1);
+	strlcpy(line, result, size+1);
 }
 
 void str_pad_end(char *line, const size_t size) {
@@ -220,7 +220,7 @@ void str_pad_end(char *line, const size_t size) {
 		pad[index] = ' ';
 	}
 	pad[count] = '\0';
-	strcat(line, pad);
+	strlcat(line, pad, size+1);
 }
 
 void str_pad_center(char *line, const size_t size) {
@@ -234,15 +234,15 @@ void str_pad_center(char *line, const size_t size) {
 	}
 	pad[count] = '\0';
 	char result[size+1];
-	strcpy(result, pad);
-	strcat(result, line);
+	strlcpy(result, pad,  size+1);
+	strlcat(result, line, size+1);
 	count = 1 + (((size - len) - 1) / 2);
 	for (size_t index=0; index<count; index++) {
 		pad[index] = ' ';
 	}
 	pad[count] = '\0';
-	strcat(result, pad);
-	strcpy(line, result);
+	strlcat(result, pad,  size+1);
+	strlcpy(line, result, size+1);
 }
 
 
