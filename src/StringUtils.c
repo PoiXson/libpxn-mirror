@@ -179,14 +179,14 @@ size_t chrpos(const char *haystack, const char needle) {
 
 size_t chrposs(const char *haystack, const char needle, const size_t start) {
 	size_t len = strlen(haystack);
-	if (len < start)
+	if (start > len)
 		return -1;
 	size_t i = start;
 	while (i < len) {
-		if (haystack[i] == needle)
-			return i;
 		if (haystack[i] == '\0')
 			return (needle == '\0') ? i : -1;
+		if (haystack[i] == needle)
+			return i;
 		i++;
 	}
 	return (needle == '\0') ? len : -1;
