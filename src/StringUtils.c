@@ -194,6 +194,28 @@ size_t chrposs(const char *haystack, const char needle, const size_t start) {
 
 
 
+size_t chrrpos(const char *haystack, const char needle) {
+	return chrrposs(haystack, needle, 0);
+}
+
+size_t chrrposs(const char *haystack, const char needle, const size_t start) {
+	size_t len = strlen(haystack);
+	if (start > len)
+		return -1;
+	size_t i = start;
+	size_t last = -1;
+	while (i < len) {
+		if (haystack[i] == '\0')
+			break;
+		if (haystack[i] == needle)
+			last = i;
+		i++;
+	}
+	return last;
+}
+
+
+
 void str_pad_front(char *line, const size_t size) {
 	if (size < 1) return;
 	size_t len = strlen(line);

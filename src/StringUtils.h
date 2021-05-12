@@ -22,6 +22,9 @@ char* str_trim(char *str);
 size_t chrpos( const char *haystack, const char needle);
 size_t chrposs(const char *haystack, const char needle, const size_t start);
 
+size_t chrrpos( const char *haystack, const char needle);
+size_t chrrposs(const char *haystack, const char needle, const size_t start);
+
 void str_pad_front( char *line, const size_t size);
 void str_pad_end(   char *line, const size_t size);
 void str_pad_center(char *line, const size_t size);
