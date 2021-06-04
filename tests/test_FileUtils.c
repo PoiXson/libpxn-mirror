@@ -48,4 +48,38 @@ void test_FileUtils() {
 	// test copy_file()
 //TODO
 
+	// test file_compare()
+	{
+		char *data;
+		size_t data_size = 0;
+		for (size_t i=0; i<5; i++) {
+			for (size_t j=0; j<10; j++) {
+				strlrcat(&data, &data_size, "abcdefghijklmnopqrstuvwxyz\n", 27);
+			}
+			strlrcat(&data, &data_size, "\n", 2);
+		}
+		char *file = "tests/test.data";
+		// test matching
+		assert_intcmp(0, file_compare(file, data, data_size));
+		// test differ
+		char c = data[1350];
+		data[1350] = '2';
+		assert_intcmp(1350, file_compare(file, data, data_size));
+		// test matching
+		data[1350] = c;
+		assert_intcmp(0, file_compare(file, data, data_size));
+		// test matching extra lines
+		strlrcat(&data, &data_size, "\n\n\n", 4);
+		assert_intcmp(0, file_compare(file, data, data_size));
+		// test matching
+		str_trim(data);
+		strlrcat(&data, &data_size, "\n", 2);
+		assert_intcmp(0, file_compare(file, data, data_size));
+		// test differ longer
+		strlrcat(&data, &data_size, "abc\n", 5);
+		assert_intcmp(1356, file_compare(file, data, data_size));
+		// test differ shorter
+		data[20] = '\0';
+		assert_intcmp(20, file_compare(file, data, data_size));
+	}
 }

@@ -27,3 +27,5 @@ size_t read_text_file(FILE *handle, char **out);
 bool   save_text_file(const char *file, char *data, size_t size);
 
 bool copy_file(char *file_path, char *dest_path);
+
+size_t file_compare(const char *file, char *data, size_t data_len);

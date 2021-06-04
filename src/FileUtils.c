@@ -277,3 +277,61 @@ bool copy_file(char *file_path, char *dest_path) {
 	}
 	return true;
 }
+
+
+
+size_t file_compare(const char *file, char *data, size_t data_len) {
+	if (IS_FILE != get_file_type(file))
+		return -1;
+	FILE *handle = fopen(file, "r");
+	if (handle == NULL)
+		return -1;
+	size_t pos = 0;
+	char chr;
+	while (!feof(handle)) {
+		if (pos > data_len) {
+			while (!feof(handle)) {
+				chr = fgetc(handle);
+				if (chr == -1)
+					break;
+				if (chr == '\n') continue;
+				if (chr == '\r') continue;
+			}
+			fclose(handle);
+			return 0;
+		}
+		chr = fgetc(handle);
+		if (chr == -1)
+			break;
+		if (chr == '\0' && data[pos] == '\0') {
+			fclose(handle);
+			return 0; // match
+		}
+		if (chr == '\0' || data[pos] == '\0') {
+			fclose(handle);
+			if (pos == 0) pos++;
+			return pos; // differ
+		}
+		if (chr != data[pos]) {
+			fclose(handle);
+			if (pos == 0) pos++;
+			return pos; // differ
+		}
+		pos++;
+	}
+	fclose(handle);
+	if (data_len > pos) {
+		if (data[pos+1] == '\0')
+			return 0;
+		while (true) {
+			pos++;
+			if (pos > data_len) return 0;
+			if (data[pos] == '\0') return 0;
+			if (data[pos] == '\n') continue;
+			if (data[pos] == '\r') continue;
+			break;
+		}
+		return pos+1;
+	}
+	return 0;
+}
