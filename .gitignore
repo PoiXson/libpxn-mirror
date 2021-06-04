@@ -97,3 +97,5 @@ missing
 **/.dirstamp
 .libs/
 *.la
+
+libpxn-test
