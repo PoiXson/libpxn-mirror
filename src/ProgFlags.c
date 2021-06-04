@@ -6,6 +6,7 @@
 #include <stdarg.h>
 
 #include "StringUtils.h"
+#include "NumberUtils.h"
 #include "FileUtils.h"
 #include "Logs.h"
 
@@ -283,6 +284,19 @@ bool progflags_get_bool(size_t index) {
 	default: break;
 	}
 	return false;
+}
+
+char* progflags_get_text(size_t index) {
+	switch (progflags[index].type) {
+	case FLAGTYPE_BOOL:
+		if (progflags[index].value_bool)
+			return strdup("true");
+		return strdup("false");
+	case FLAGTYPE_INT:  return itostr(progflags[index].value_int);
+	case FLAGTYPE_TEXT: return strdup(progflags[index].value_text);
+	default: break;
+	}
+	return NULL;
 }
 
 

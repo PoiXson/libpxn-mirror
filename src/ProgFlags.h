@@ -58,6 +58,7 @@ void progflags_process_value(const size_t flag_index, char *str);
 size_t progflags_find_flag(const char *flag);
 
 bool progflags_get_bool(size_t index);
+char* progflags_get_text(size_t index);
 
 size_t prog_flags_count();
 size_t prog_actions_count();
