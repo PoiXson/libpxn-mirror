@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "StringUtils.h"
+#include "NumberUtils.h"
 #include "FileUtils.h"
 #include "Logs.h"
 
@@ -412,7 +413,7 @@ size_t tpl_render(char **result, TPL_Doc *doc) {
 	log_line("Rendering Doc..");
 	#endif
 	tpl_render_nodes(doc, result, &result_size, doc->nodes, doc->nodes_size);
-	return result_size;
+	return MIN(result_size, strlen(*result));
 }
 
 void tpl_render_nodes(TPL_Doc *doc, char **result, size_t *result_size, TPL_Node *nodes, size_t nodes_size) {
