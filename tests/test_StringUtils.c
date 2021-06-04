@@ -91,7 +91,7 @@ void test_StringUtils() {
 	char *result;
 	result = str_trim(str);
 		assert_strcmp("Abc", result);
-	strlcpy(str, "   \t Abc \t   ", size);
+	strlcpy(str, "   \t Abc \t   \n", size);
 	result = str_trim(str);
 		assert_strcmp("Abc", result);
 

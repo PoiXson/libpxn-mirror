@@ -155,16 +155,18 @@ char* str_trim(char *str) {
 	// trim front
 	while (true) {
 		if (*str == ' ' ) { *str++; continue; }
+		if (*str == '\n') { *str++; continue; }
+		if (*str == '\r') { *str++; continue; }
 		if (*str == '\t') { *str++; continue; }
-		if (*str == '\0') { *str++; continue; }
 		break;
 	}
 	size_t len = strlen(str) - 1;
 	// trim end
 	while (true) {
 		if (str[len] == ' ' ) { len--; continue; }
+		if (str[len] == '\n') { len--; continue; }
+		if (str[len] == '\r') { len--; continue; }
 		if (str[len] == '\t') { len--; continue; }
-		if (str[len] == '\0') { len--; continue; }
 		break;
 	}
 	str[len+1] = '\0';
