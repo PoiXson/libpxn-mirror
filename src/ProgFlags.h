@@ -42,22 +42,22 @@ extern size_t progflags_size;
 
 
 
-extern char *prog_actions[PROGFLAGS_ACTION_SIZE];
+extern char*  prog_actions[PROGFLAGS_ACTION_SIZE];
 extern size_t prog_actions_size;
 
 
 
 size_t progflag_allocate();
-void progflag_init(const size_t index);
+void   progflag_init(const size_t index);
 
 size_t progflags_add(const char flag_short, const size_t flags_long_count, ...);
 size_t progflags_add_spacer();
 
-void progflags_process(const int argc, char *argv[], char *exec_name);
-void progflags_process_value(const size_t flag_index, char *str);
+void   progflags_process(const int argc, char *argv[], char *exec_name);
+void   progflags_process_value(const size_t flag_index, char *str);
 size_t progflags_find_flag(const char *flag);
 
-bool progflags_get_bool(size_t index);
+bool  progflags_get_bool(size_t index);
 char* progflags_get_text(size_t index);
 
 size_t prog_flags_count();
