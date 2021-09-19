@@ -12,105 +12,105 @@
 
 
 
-char *progflags_exec_name;
+char *params_exec_name;
 
-ProgFlag *progflags;
-size_t progflags_size = 0;
+Param *params;
+size_t params_size = 0;
 
-char *prog_actions[PROGFLAGS_ACTION_SIZE];
-size_t prog_actions_size = 0;
+char *param_actions[PARAMS_ACTION_SIZE];
+size_t param_actions_size = 0;
 
 
 
-size_t progflag_allocate() {
+size_t param_allocate() {
 	// allocate first block
-	if (progflags_size == 0) {
-		progflags_size = 2;
-		progflags = malloc(progflags_size * sizeof(ProgFlag));
-		if (progflags == NULL) {
-			log_fatal("Failed to allocate progflags array");
+	if (params_size == 0) {
+		params_size = 2;
+		params = malloc(params_size * sizeof(Param));
+		if (params == NULL) {
+			log_fatal("Failed to allocate params array");
 			exit(1);
 		}
-		for (size_t index=0; index<progflags_size; index++) {
-			progflag_init(index);
+		for (size_t index=0; index<params_size; index++) {
+			param_init(index);
 		}
-		progflags[0].used = true;
+		params[0].used = true;
 		return 0;
 	}
 	// find space in existing array
-	for (size_t index=0; index<progflags_size; index++) {
-		if (progflags[index].used == false) {
-			progflag_init(index);
-			progflags[index].used = true;
+	for (size_t index=0; index<params_size; index++) {
+		if (params[index].used == false) {
+			param_init(index);
+			params[index].used = true;
 			return index;
 		}
 	}
 	// expand array
-	progflags = realloc(progflags, sizeof(ProgFlag) * progflags_size * 2);
-	if (progflags == NULL) {
-		log_fatal("Failed to reallocate progflags array");
+	params = realloc(params, sizeof(Param) * params_size * 2);
+	if (params == NULL) {
+		log_fatal("Failed to reallocate params array");
 		exit(1);
 	}
-	for (size_t index=progflags_size; index<progflags_size*2; index++) {
-		progflag_init(index);
+	for (size_t index=params_size; index<params_size*2; index++) {
+		param_init(index);
 	}
-	progflags_size *= 2;
-	return progflag_allocate();
+	params_size *= 2;
+	return param_allocate();
 }
 
-void progflag_init(const size_t index) {
-	progflags[index].used  = false;
-	progflags[index].index = index;
-	progflags[index].flag_short = '\0';
-	for (size_t i=0; i<PROGFLAGS_LONG_MAX; i++)
-		memset(progflags[index].flags_long[i], '\0', PROGFLAGS_LONG_SIZE);
-	memset(progflags[index].desc, '\0', PROGFLAGS_DESC_SIZE);
-	progflags[index].type = FLAGTYPE_BOOL;
-	progflags[index].value_text = NULL;
+void param_init(const size_t index) {
+	params[index].used  = false;
+	params[index].index = index;
+	params[index].flag_short = '\0';
+	for (size_t i=0; i<PARAMS_LONG_MAX; i++)
+		memset(params[index].flags_long[i], '\0', PARAMS_LONG_SIZE);
+	memset(params[index].desc, '\0', PARAMS_DESC_SIZE);
+	params[index].type = FLAGTYPE_BOOL;
+	params[index].value_text = NULL;
 }
 
 
 
-size_t progflags_add(const char flag_short, const size_t flags_long_count, ...) {
-	size_t index = progflag_allocate();
-	progflags[index].flag_short = flag_short;
+size_t param_add(const char flag_short, const size_t flags_long_count, ...) {
+	size_t index = param_allocate();
+	params[index].flag_short = flag_short;
 	va_list flags_long;
 	va_start(flags_long, flags_long_count);
-	for (size_t i=0; i<PROGFLAGS_LONG_MAX; i++) {
+	for (size_t i=0; i<PARAMS_LONG_MAX; i++) {
 		if (i < flags_long_count) {
 			strlcpy(
-				progflags[index].flags_long[i],
+				params[index].flags_long[i],
 				va_arg(flags_long, char*),
-				PROGFLAGS_LONG_SIZE
+				PARAMS_LONG_SIZE
 			);
 		} else {
-			progflags[index].flags_long[i][0] = '\0';
+			params[index].flags_long[i][0] = '\0';
 		}
 	}
 	char *desc = va_arg(flags_long, char*);
-	strlcpy(progflags[index].desc, desc, PROGFLAGS_DESC_SIZE);
+	strlcpy(params[index].desc, desc, PARAMS_DESC_SIZE);
 	va_end(flags_long);
 	return index;
 }
 
-size_t progflags_add_spacer() {
-	size_t index = progflag_allocate();
-	progflags[index].flag_short = '-';
+size_t param_add_spacer() {
+	size_t index = param_allocate();
+	params[index].flag_short = '-';
 	return index;
 }
 
 
 
-void progflags_process(const int argc, char *argv[], char *exec_name) {
+void params_process(const int argc, char *argv[], char *exec_name) {
 	// program file name
 	if (exec_name != NULL && strlen(exec_name) > 0) {
 		size_t len = strlen(exec_name) + 1;
-		progflags_exec_name = malloc(len * sizeof(char));
-		strlcpy(progflags_exec_name, exec_name, len);
+		params_exec_name = malloc(len * sizeof(char));
+		strlcpy(params_exec_name, exec_name, len);
 	} else {
 		size_t len = strlen(argv[0]) + 1;
-		progflags_exec_name = malloc(len * sizeof(char));
-		strlcpy(progflags_exec_name, basename(argv[0]), len);
+		params_exec_name = malloc(len * sizeof(char));
+		strlcpy(params_exec_name, basename(argv[0]), len);
 	}
 	size_t flag_index = -1;
 	// parse args
@@ -123,29 +123,29 @@ void progflags_process(const int argc, char *argv[], char *exec_name) {
 				size_t pos = chrpos(argv[arg_index], '=');
 				if (pos != -1) {
 					argv[arg_index][pos] = '\0';
-					flag_index = progflags_find_flag(argv[arg_index]);
+					flag_index = params_find_flag(argv[arg_index]);
 					if (flag_index == -1) {
 						log_severe("Unknown argument: %s", argv[arg_index]);
 						exit(1);
 					}
 					pos++;
-					progflags_process_value(flag_index, argv[arg_index]+pos);
+					params_process_value(flag_index, argv[arg_index]+pos);
 					continue;
 				}
 				// --flag
-				flag_index = progflags_find_flag(argv[arg_index]);
+				flag_index = params_find_flag(argv[arg_index]);
 				if (flag_index == -1) {
 					log_severe("Unknown argument: %s", argv[arg_index]);
 					exit(1);
 				}
-				if (progflags[flag_index].type == FLAGTYPE_BOOL
+				if (params[flag_index].type == FLAGTYPE_BOOL
 				|| arg_index == argc - 1
 				|| argv[arg_index+1][0] == '-') {
-					progflags[flag_index].type = FLAGTYPE_BOOL;
-					progflags[flag_index].value_bool = true;
+					params[flag_index].type = FLAGTYPE_BOOL;
+					params[flag_index].value_bool = true;
 				} else {
 					arg_index++;
-					progflags_process_value(flag_index, argv[arg_index]);
+					params_process_value(flag_index, argv[arg_index]);
 				}
 				continue;
 			// -x flag
@@ -157,19 +157,19 @@ void progflags_process(const int argc, char *argv[], char *exec_name) {
 				}
 				// single -x flag
 				if (len == 2) {
-					flag_index = progflags_find_flag(argv[arg_index]);
+					flag_index = params_find_flag(argv[arg_index]);
 					if (flag_index == -1) {
 						log_severe("Unknown argument: %s", argv[arg_index]);
 						exit(1);
 					}
-					if (progflags[flag_index].type == FLAGTYPE_BOOL
+					if (params[flag_index].type == FLAGTYPE_BOOL
 					|| arg_index == argc - 1
 					|| argv[arg_index+1][0] == '-') {
-						progflags[flag_index].type = FLAGTYPE_BOOL;
-						progflags[flag_index].value_bool = true;
+						params[flag_index].type = FLAGTYPE_BOOL;
+						params[flag_index].value_bool = true;
 					} else {
 						arg_index++;
-						progflags_process_value(flag_index, argv[arg_index]);
+						params_process_value(flag_index, argv[arg_index]);
 					}
 					continue;
 				} else {
@@ -181,13 +181,13 @@ void progflags_process(const int argc, char *argv[], char *exec_name) {
 							exit(1);
 						}
 						argv[arg_index][pos] = '\0';
-						flag_index = progflags_find_flag(argv[arg_index]);
+						flag_index = params_find_flag(argv[arg_index]);
 						if (flag_index == -1) {
 							log_severe("Unknown argument: %s", argv[arg_index]);
 							exit(1);
 						}
 						pos++;
-						progflags_process_value(flag_index, argv[arg_index]+pos);
+						params_process_value(flag_index, argv[arg_index]+pos);
 						continue;
 					}
 					// multiple -flags
@@ -196,18 +196,18 @@ void progflags_process(const int argc, char *argv[], char *exec_name) {
 					tmp[2] = '\0';
 					for (size_t i=1; i<len; i++) {
 						tmp[1] = argv[arg_index][i];
-						flag_index = progflags_find_flag(tmp);
+						flag_index = params_find_flag(tmp);
 						if (flag_index == -1) {
 							log_severe("Unknown argument: -%c", argv[arg_index][i]);
 							exit(1);
 						}
-						if (progflags[flag_index].type == FLAGTYPE_BOOL
+						if (params[flag_index].type == FLAGTYPE_BOOL
 						|| arg_index == argc - 1
 						|| argv[arg_index+1][0] == '-') {
-							progflags[flag_index].value_bool = true;
-							progflags[flag_index].type = FLAGTYPE_BOOL;
+							params[flag_index].value_bool = true;
+							params[flag_index].type = FLAGTYPE_BOOL;
 						} else {
-							progflags_process_value(flag_index, argv[arg_index+1]);
+							params_process_value(flag_index, argv[arg_index+1]);
 						}
 					}
 					continue;
@@ -219,55 +219,55 @@ void progflags_process(const int argc, char *argv[], char *exec_name) {
 	}
 }
 
-void progflags_process_value(const size_t flag_index, char *str) {
-	switch (progflags[flag_index].type) {
+void params_process_value(const size_t flag_index, char *str) {
+	switch (params[flag_index].type) {
 	case FLAGTYPE_BOOL:
 		if (strlcmp(str, "yes", 4) == 0 || strlcmp(str, "true", 5) == 0) {
-			progflags[flag_index].value_bool = true;
+			params[flag_index].value_bool = true;
 			return;
 		}
 		if (strlcmp(str, "no", 3) == 0 || strlcmp(str, "false", 6) == 0) {
-			progflags[flag_index].value_bool = false;
+			params[flag_index].value_bool = false;
 			return;
 		}
 		log_warning("Unknown argument value: %s", str);
 		exit(1);
 	case FLAGTYPE_INT:
-		progflags[flag_index].value_int = atoi(str);
+		params[flag_index].value_int = atoi(str);
 		return;
 	case FLAGTYPE_TEXT: {
 		size_t len = strlen(str) + 1;
-		progflags[flag_index].value_text = calloc(len, sizeof(char));
-		strlcpy(progflags[flag_index].value_text, str, len);
+		params[flag_index].value_text = calloc(len, sizeof(char));
+		strlcpy(params[flag_index].value_text, str, len);
 		return;
 	}
 	default:
-		log_fatal("Unknown flag value type: %lu", progflags[flag_index].type);
+		log_fatal("Unknown flag value type: %lu", params[flag_index].type);
 		exit(1);
 	}
 }
 
-size_t progflags_find_flag(const char *flag) {
+size_t params_find_flag(const char *flag) {
 	if (strlen(flag) < 2) return -1;
 	if (flag[0] != '-')   return -1;
 	flag++;
 	// --flag
 	if (flag[0] == '-') {
 		flag++;
-		for (size_t index=0; index<progflags_size; index++) {
-			if (progflags[index].used != true) continue;
-			for (size_t i=0; i<PROGFLAGS_LONG_MAX; i++) {
-				if (progflags[index].flags_long[i][0] == '\0')         continue;
-				if (strcmp(flag, progflags[index].flags_long[i]) == 0) return index;
+		for (size_t index=0; index<params_size; index++) {
+			if (params[index].used != true) continue;
+			for (size_t i=0; i<PARAMS_LONG_MAX; i++) {
+				if (params[index].flags_long[i][0] == '\0')         continue;
+				if (strcmp(flag, params[index].flags_long[i]) == 0) return index;
 			}
 		}
 	// -x flag
 	} else {
-		for (size_t index=0; index<progflags_size; index++) {
-			if (progflags[index].used != true)       continue;
-			if (progflags[index].flag_short == '\0') continue;
-			if (progflags[index].flag_short == '-')  continue;
-			if (progflags[index].flag_short == flag[0])
+		for (size_t index=0; index<params_size; index++) {
+			if (params[index].used != true)       continue;
+			if (params[index].flag_short == '\0') continue;
+			if (params[index].flag_short == '-')  continue;
+			if (params[index].flag_short == flag[0])
 				return index;
 		}
 	}
@@ -276,24 +276,24 @@ size_t progflags_find_flag(const char *flag) {
 
 
 
-bool progflags_get_bool(size_t index) {
-	switch (progflags[index].type) {
-	case FLAGTYPE_BOOL: return   progflags[index].value_bool;
-	case FLAGTYPE_INT:  return  (progflags[index].value_int != 0);
-	case FLAGTYPE_TEXT: return ((progflags[index].value_text)[0]) != '\0';
+bool params_get_bool(size_t index) {
+	switch (params[index].type) {
+	case FLAGTYPE_BOOL: return   params[index].value_bool;
+	case FLAGTYPE_INT:  return  (params[index].value_int != 0);
+	case FLAGTYPE_TEXT: return ((params[index].value_text)[0]) != '\0';
 	default: break;
 	}
 	return false;
 }
 
-char* progflags_get_text(size_t index) {
-	switch (progflags[index].type) {
+char* params_get_text(size_t index) {
+	switch (params[index].type) {
 	case FLAGTYPE_BOOL:
-		if (progflags[index].value_bool)
+		if (params[index].value_bool)
 			return strdup("true");
 		return strdup("false");
-	case FLAGTYPE_INT:  return itostr(progflags[index].value_int);
-	case FLAGTYPE_TEXT: return strdup(progflags[index].value_text);
+	case FLAGTYPE_INT:  return itostr(params[index].value_int);
+	case FLAGTYPE_TEXT: return strdup(params[index].value_text);
 	default: break;
 	}
 	return NULL;
@@ -303,8 +303,8 @@ char* progflags_get_text(size_t index) {
 
 size_t prog_flags_count() {
 	size_t count = 0;
-	for (size_t index=0; index<progflags_size; index++) {
-		if (progflags[index].used == true)
+	for (size_t index=0; index<params_size; index++) {
+		if (params[index].used == true)
 			count++;
 	}
 	return count;
@@ -329,7 +329,7 @@ void display_help() {
 	{
 		log_line(
 			"  %s%s%s",
-			progflags_exec_name,
+			params_exec_name,
 			(options_count > 0 ? " [options]" : ""),
 			(actions_count > 0 ? " [actions]" : "")
 		);
@@ -344,56 +344,56 @@ void display_help() {
 			(color ? COLOR_YELLOW : ""),
 			(color ? COLOR_RESET  : "")
 		);
-		size_t line_size = PROGFLAGS_DESC_SIZE + PROGFLAGS_FLAGS_SPACE + 16;
+		size_t line_size = PARAMS_DESC_SIZE + PARAMS_FLAGS_SPACE + 16;
 		char line[line_size];
 		size_t f_index;
-		for (size_t index=0; index<progflags_size; index++) {
-			if (progflags[index].used != true)
+		for (size_t index=0; index<params_size; index++) {
+			if (params[index].used != true)
 				continue;
 			// spacer
-			if (progflags[index].flag_short == '-') {
+			if (params[index].flag_short == '-') {
 				log_line("");
 				continue;
 			}
 			// -x short flag
 			f_index = 0;
 			strlcpy(line, "  ", line_size);
-			if (progflags[index].flag_short != '\0') {
+			if (params[index].flag_short != '\0') {
 				line[2] = '-';
-				line[3] = progflags[index].flag_short;
+				line[3] = params[index].flag_short;
 				line[4] = '\0';
 				f_index++;
 			}
 			// --long flags
-			for (size_t i=0; i<PROGFLAGS_LONG_MAX; i++) {
-				if (progflags[index].flags_long[i][0] == '\0')
+			for (size_t i=0; i<PARAMS_LONG_MAX; i++) {
+				if (params[index].flags_long[i][0] == '\0')
 					continue;
 				if (f_index >= 3)
 					break;
 				// flag doesn't fit on line
-				if (strlen(line) + strlen(progflags[index].flags_long[i]) > PROGFLAGS_FLAGS_SPACE-5)
+				if (strlen(line) + strlen(params[index].flags_long[i]) > PARAMS_FLAGS_SPACE-5)
 					continue;
 				strlcat(
 					line,
 					(f_index == 0 ? "--" : ", --"),
 					line_size
 				);
-				strlcat(line, progflags[index].flags_long[i], line_size);
+				strlcat(line, params[index].flags_long[i], line_size);
 				f_index++;
 			}
 			// no flags
 			if (f_index == 0)
 				continue;
-			str_pad_end(line, PROGFLAGS_FLAGS_SPACE - 1);
-			line[PROGFLAGS_FLAGS_SPACE-1] = ' ';
-			line[PROGFLAGS_FLAGS_SPACE  ] = '\0';
+			str_pad_end(line, PARAMS_FLAGS_SPACE - 1);
+			line[PARAMS_FLAGS_SPACE-1] = ' ';
+			line[PARAMS_FLAGS_SPACE  ] = '\0';
 			if (color) {
 				strlcatfront(line, COLOR_GREEN, line_size);
 				strlcat     (line, COLOR_RESET, line_size);
 			}
 			// description
 			{
-				char *desc = progflags[index].desc;
+				char *desc = params[index].desc;
 				size_t pos;
 				while (true) {
 					pos = chrpos(desc, '\n');
@@ -408,9 +408,9 @@ void display_help() {
 					if (strlen(desc) == 0)
 						break;
 					log_line(line);
-					for (int i=0; i<PROGFLAGS_FLAGS_SPACE+2; i++)
+					for (int i=0; i<PARAMS_FLAGS_SPACE+2; i++)
 						line[i] = ' ';
-					line[PROGFLAGS_FLAGS_SPACE+2] = '\0';
+					line[PARAMS_FLAGS_SPACE+2] = '\0';
 				}
 			}
 			log_line(line);
