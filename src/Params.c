@@ -1,4 +1,4 @@
-#include "ProgFlags.h"
+#include "Params.h"
 
 #include <string.h>
 #include <stdlib.h>

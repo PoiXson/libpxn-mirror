@@ -6,7 +6,7 @@
 #include <time.h>
 
 #include "StringUtils.h"
-#include "ProgFlags.h"
+#include "Params.h"
 #include "Logs.h"
 #include "pxnDefines.h"
 

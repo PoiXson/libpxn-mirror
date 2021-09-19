@@ -14,7 +14,7 @@ libpxn_la_SOURCES = \
 	src/FileUtils.c   \
 	src/SystemUtils.c \
 	src/Logs.c        \
-	src/ProgFlags.c   \
+	src/Params.c      \
 	src/Run.c         \
 	src/tpl-engine.c  \
 	src/Testing.c     \
@@ -27,7 +27,7 @@ pkginclude_HEADERS = \
 	src/FileUtils.h   \
 	src/SystemUtils.h \
 	src/Logs.h        \
-	src/ProgFlags.h   \
+	src/Params.h      \
 	src/Run.h         \
 	src/tpl-engine.h  \
 	src/Testing.h     \
