@@ -20,6 +20,7 @@ libpxn_la_SOURCES = \
 	src/Testing.c     \
 	src/cjson/cJSON.c
 pkginclude_HEADERS = \
+	src/version.h     \
 	src/pxnDefines.h  \
 	src/Debug.h       \
 	src/StringUtils.h \

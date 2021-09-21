@@ -11,6 +11,7 @@ AC_PROG_MAKE_SET
 AC_LANG(C)
 
 # expected files
+AC_CONFIG_SRCDIR([src/version.h])
 AC_CONFIG_SRCDIR([src/StringUtils.c])
 AC_CONFIG_SRCDIR([src/StringUtils.h])
 AC_CONFIG_SRCDIR([src/cjson/cJSON.c])
