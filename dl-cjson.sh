@@ -2,7 +2,7 @@
 
 
 url="https://raw.githubusercontent.com/DaveGamble/cJSON"
-version="v1.7.14"
+version="v1.7.15"
 
 
 [[ -d src/cjson/ ]] || \mkdir -pv "src/cjson/" || exit 1
