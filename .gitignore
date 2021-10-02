@@ -98,4 +98,4 @@ missing
 .libs/
 *.la
 
-libpxn-test
+test-libpxn
