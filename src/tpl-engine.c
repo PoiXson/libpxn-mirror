@@ -398,6 +398,41 @@ void tpl_dump_vars(TPL_Doc *doc) {
 	}
 }
 
+void tpl_dump_doc(TPL_Doc *doc) {
+	tpl_dump_nodes(0, doc->nodes, doc->nodes_size);
+}
+
+void tpl_dump_nodes(size_t indent, TPL_Node *nodes, size_t nodes_size) {
+	log_line("Dumping [%lu] Node%s:", nodes_size, (nodes_size == 1 ? "" : "s"));
+	// NODES_LOOP:
+	for (size_t index=0; index<nodes_size; index++) {
+		if (nodes[index].type == NODE_TYPE_UNUSED)
+			continue;
+		switch (nodes[index].type) {
+		// {* comment *}
+		case NODE_TYPE_COMMENT:
+			log_line(" %lu)COMMENT: %s", index, nodes[index].var.value);
+			break;
+		// text
+		case NODE_TYPE_TEXT:
+			log_line(" %lu)TEXT: %s", index, nodes[index].var.value);
+			break;
+		// {{ variable }}
+		case NODE_TYPE_VAR:
+			log_line(" %lu)VAR: %s", index, nodes[index].var.name);
+			break;
+		// {% set var=value %}
+		case NODE_TYPE_SET_VAR:
+			log_line(" %lu)SET: %s = %s", index, nodes[index].var.name, nodes[index].var.value);
+			break;
+		// unknown
+		default:
+			log_severe("Unknown template node type: %i", nodes[index].type);
+			break;
+		}
+	} // end NODES_LOOP
+}
+
 
 
 size_t tpl_render(char **result, TPL_Doc *doc) {

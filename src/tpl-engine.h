@@ -68,7 +68,10 @@ void tpl_var_init(TPL_Var *var);
 
 char* tpl_get_var(TPL_Doc *doc, char *name);
 void  tpl_set_var(TPL_Doc *doc, char *name, char* value);
-void  tpl_dump_vars(TPL_Doc *doc);
+
+void tpl_dump_vars(TPL_Doc *doc);
+void tpl_dump_doc(TPL_Doc *doc);
+void tpl_dump_nodes(size_t indent, TPL_Node *nodes, size_t nodes_size);
 
 size_t tpl_render(char **result, TPL_Doc *doc);
 void   tpl_render_nodes(TPL_Doc *doc, char **result, size_t *result_size, TPL_Node *nodes, size_t nodes_size);
