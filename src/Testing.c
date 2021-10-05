@@ -26,6 +26,11 @@ size_t test_points_size = 0;
 
 
 void test_main(int argc, char *argv[], char *exec_name) {
+	#ifdef DEBUG
+		printf("<Debug Flag Enabled>");
+	#else
+		printf("<Debug Flag Disabled>");
+	#endif
 	size_t flag_abort   = param_add('a', 1, "abort",   "Abort on failed asserts [default]");
 	param_add_spacer();
 	size_t flag_color   = param_add('C', 1, "color",   "Enable console colors");
