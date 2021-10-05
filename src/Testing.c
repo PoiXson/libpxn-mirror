@@ -28,10 +28,18 @@ size_t test_points_size = 0;
 void test_main(int argc, char *argv[], char *exec_name) {
 	size_t flag_abort   = param_add('a', 1, "abort",   "Abort on failed asserts [default]");
 	param_add_spacer();
+	size_t flag_color   = param_add('C', 1, "color",   "Enable console colors");
+	size_t flag_ncolor  = param_add('\0',1, "no-color","Disable console colors");
 	size_t flag_verbose = param_add('v', 1, "verbose", "Detailed logging");
 	size_t flag_help    = param_add('h', 1, "help",    "Display this help message and exit");
 	params_process(argc, argv, exec_name);
 	abort_on_fail = params_get_bool(flag_abort);
+	if (params_get_bool(flag_ncolor)) {
+		set_color_enabled(false);
+	} else
+	if (params_get_bool(flag_color)) {
+		set_color_enabled(true);
+	}
 	if (params_get_bool(flag_verbose)) {
 		log_level_set(LVL_ALL);
 	}
