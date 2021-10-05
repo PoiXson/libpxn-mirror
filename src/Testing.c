@@ -195,15 +195,10 @@ void _assert(char *file, const int line, const bool test) {
 	test_points[index].line = line;
 	test_points[index].success = test;
 	if (test) {
-		count_success++;
-		printf(".");
+		TEST_PRINT_DOT;
 	} else {
-		count_failed++;
-		printf("x");
-		if (abort_on_fail) {
-			test_results_display(true);
-			exit(1);
-		}
+		TEST_PRINT_X;
+		TEST_ABORT_FAIL;
 	}
 }
 
@@ -214,12 +209,10 @@ void _assert_strcmp(char *file, const int line, char *expected, char *actual) {
 	int result = strcmp(expected, actual);
 	if (result == 0) {
 		test_points[index].success = true;
-		count_success++;
-		printf(".");
+		TEST_PRINT_DOT;
 	} else {
 		test_points[index].success = false;
-		count_failed++;
-		printf("x");
+		TEST_PRINT_X;
 		snprintf(
 			test_points[index].msg,
 			TEST_MSG_SIZE,
@@ -227,10 +220,7 @@ void _assert_strcmp(char *file, const int line, char *expected, char *actual) {
 			expected,
 			actual
 		);
-		if (abort_on_fail) {
-			test_results_display(true);
-			exit(1);
-		}
+		TEST_ABORT_FAIL;
 	}
 }
 
@@ -240,12 +230,10 @@ void _assert_intcmp(char *file, const int line, int expected, int actual) {
 	test_points[index].line = line;
 	if (expected == actual) {
 		test_points[index].success = true;
-		count_success++;
-		printf(".");
+		TEST_PRINT_DOT;
 	} else {
 		test_points[index].success = false;
-		count_failed++;
-		printf("x");
+		TEST_PRINT_X;
 		snprintf(
 			test_points[index].msg,
 			TEST_MSG_SIZE,
@@ -253,9 +241,6 @@ void _assert_intcmp(char *file, const int line, int expected, int actual) {
 			expected,
 			actual
 		);
-		if (abort_on_fail) {
-			test_results_display(true);
-			exit(1);
-		}
+		TEST_ABORT_FAIL;
 	}
 }

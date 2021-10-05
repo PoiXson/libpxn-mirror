@@ -35,6 +35,23 @@ void NAME##_init() { \
 
 
 
+#define TEST_PRINT_DOT \
+	count_success++; \
+	if (has_color_enabled()) \
+		printf(COLOR_GREEN"."COLOR_RESET); \
+	else printf(".");
+
+#define TEST_PRINT_X \
+	count_failed++; \
+	if (has_color_enabled()) \
+		printf(COLOR_RED"x"COLOR_RESET); \
+	else printf("x");
+
+#define TEST_ABORT_FAIL \
+	if (abort_on_fail) { test_results_display(true); exit(1); }
+
+
+
 extern bool abort_on_fail;
 
 extern size_t count_tests;
