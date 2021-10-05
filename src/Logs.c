@@ -128,9 +128,11 @@ void log_print(LogLevel level, char *mod_name, char *msg) {
 		char buf[len];
 		buf[0] = '\0';
 		bool color = has_color_enabled();
-		char *color_title = (color ? ANSI_COLOR_CYAN  : "");
-		char *color_reset = (color ? ANSI_COLOR_RESET : "");
-		snprintf(buf, len, "  %s[[ %s ]]%s ", color_title, msg, color_reset);
+		snprintf(buf, len, "  %s[[ %s ]]%s ",
+			(color ? COLOR_CYAN : ""),
+			msg,
+			(color ? COLOR_RESET : "")
+		);
 		log_write(buf);
 		return;
 	}

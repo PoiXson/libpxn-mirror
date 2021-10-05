@@ -83,6 +83,7 @@ void test_results_display(bool display_detail) {
 			last = test_points[index].timestamp;
 		}
 	}
+	bool color = has_color_enabled();
 	{
 		printf(
 			"\nRan %lu test set%s in %.3f %s\n",
@@ -92,15 +93,29 @@ void test_results_display(bool display_detail) {
 			(elapsed > 0.001 ? "seconds" : "milliseconds")
 		);
 		if (count_success == 0 && count_failed == 0) {
-			printf(" "ANSI_COLOR_RED"No test asserts to run!"ANSI_COLOR_RESET"\n", count_failed);
+			printf(" %sNo test asserts to run!%s\n",
+				(color ? COLOR_RED   : ""),
+				(color ? COLOR_RESET : "")
+			);
 		} else
 		if (count_failed == 0) {
-			printf(" "ANSI_COLOR_GREEN"%lu passing asserts"ANSI_COLOR_RESET"\n", count_success);
-			printf(ANSI_COLOR_GREEN"<PASS>"ANSI_COLOR_RESET"\n");
+			printf(" %s%lu passing asserts%s\n",
+				(color ? COLOR_GREEN : ""),
+				count_success,
+				(color ? COLOR_RESET : "")
+			);
+			printf(COLOR_GREEN"<PASS>"COLOR_RESET"\n");
 		} else {
 			printf(" %lu passing asserts\n", count_success);
-			printf(" "ANSI_COLOR_RED"%lu failed asserts!"ANSI_COLOR_RESET"\n", count_failed);
-			printf(ANSI_COLOR_RED"<FAIL>"ANSI_COLOR_RESET"\n");
+			printf(" %s%lu failed asserts!%s\n",
+				(color ? COLOR_RED : ""),
+				count_failed,
+				(color ? COLOR_RESET : "")
+			);
+			printf("%s<FAIL>%s\n",
+				(color ? COLOR_RED   : ""),
+				(color ? COLOR_RESET : "")
+			);
 		}
 	}
 	printf("\n");
