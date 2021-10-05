@@ -321,7 +321,7 @@ void display_help() {
 	size_t options_count = prog_flags_count();
 	size_t actions_count = prog_actions_count();
 	bool color = has_color_enabled();
-	log_line("");
+	log_nl();
 	log_line("%sUsage:%s",
 		(color ? COLOR_YELLOW : ""),
 		(color ? COLOR_RESET  : "")
@@ -334,7 +334,7 @@ void display_help() {
 			(actions_count > 0 ? " [actions]" : "")
 		);
 	}
-	log_line("");
+	log_nl();
 	if (actions_count > 0) {
 //		log_line("Actions:");
 //TODO: display available actions
@@ -352,7 +352,7 @@ void display_help() {
 				continue;
 			// spacer
 			if (params[index].flag_short == '-') {
-				log_line("");
+				log_nl();
 				continue;
 			}
 			// -x short flag
@@ -416,6 +416,6 @@ void display_help() {
 			log_line(line);
 		}
 	}
-	log_line("");
+	log_nl();
 	exit(1);
 }

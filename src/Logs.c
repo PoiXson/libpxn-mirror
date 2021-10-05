@@ -73,6 +73,10 @@ void log_dash() {
 
 
 
+void log_nl() {
+	log_line("");
+}
+
 #define LOG_PRINT(LVL) \
 	va_list args; \
 	va_start(args, msg); \
