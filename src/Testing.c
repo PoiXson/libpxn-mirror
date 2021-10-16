@@ -215,6 +215,30 @@ void _assert(char *file, const int line, const bool test) {
 	}
 }
 
+void _assert_null(char *file, const int line, void *value, bool invert) {
+	size_t index = test_point_allocate();
+	strlcpy(test_points[index].file, file, PATH_MAX);
+	test_points[index].line = line;
+	bool test = (value == NULL);
+	if (invert)
+		test = !test;
+	if (test) {
+		test_points[index].success = true;
+		TEST_PRINT_DOT;
+	} else {
+		test_points[index].success = false;
+		TEST_PRINT_X;
+		snprintf(
+			test_points[index].msg,
+			TEST_MSG_SIZE,
+			"\n   expected: %sNULL\n   actual: %sNULL",
+			(invert ? "NOT " : ""),
+			(invert ? "" : "NOT ")
+		);
+		TEST_ABORT_FAIL;
+	}
+}
+
 void _assert_strcmp(char *file, const int line, char *expected, char *actual) {
 	size_t index = test_point_allocate();
 	strlcpy(test_points[index].file, file, PATH_MAX);
