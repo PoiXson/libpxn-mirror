@@ -175,6 +175,39 @@ char* str_trim(char *str) {
 
 
 
+char* str_sum(char *str) {
+	size_t len = strlen(str);
+	bool started = false;
+	size_t result_start = 0;
+	size_t pos = 0;
+	for (; pos<len; pos++) {
+		if (str[pos] == '\0') break;
+		// find start
+		if (!started) {
+			if (str[pos] == ' ' ) continue;
+			if (str[pos] == '\t') continue;
+			if (str[pos] == '\n') continue;
+			if (str[pos] == '\r') continue;
+			started = true;
+			result_start = pos;
+		}
+		if (started) {
+			if (str[pos] == ' ' ) break;
+			if (str[pos] == '\t') break;
+			if (str[pos] == '\n') break;
+			if (str[pos] == '\r') break;
+		}
+	}
+	size_t result_len = (started ? pos - result_start : 0);
+	if (result_len > 20)
+		result_len = 20;
+	char *result = calloc(result_len+1, sizeof(char));
+	strlcpy(result, str+result_start, result_len+1);
+	return result;
+}
+
+
+
 size_t chrpos(const char *haystack, const char needle) {
 	return chrposs(haystack, needle, 0);
 }

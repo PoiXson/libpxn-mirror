@@ -19,6 +19,8 @@ int strlcmp(const char *strA, const char *strB, const size_t size);
 
 char* str_trim(char *str);
 
+char* str_sum(char *str);
+
 size_t chrpos( const char *haystack, const char needle);
 size_t chrposs(const char *haystack, const char needle, const size_t start);
 

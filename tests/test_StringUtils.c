@@ -95,6 +95,20 @@ void test_StringUtils() {
 	result = str_trim(str);
 		assert_strcmp("Abc", result);
 
+	// test str_sum()
+	result = str_sum("Abc");
+		assert_strcmp("Abc", result);
+		free(result);
+	result = str_sum(" Abc\n Efg");
+		assert_strcmp("Abc", result);
+		free(result);
+	result = str_sum("\n\tAbc\n\tEfg");
+		assert_strcmp("Abc", result);
+		free(result);
+	result = str_sum("\n\n\n");
+		assert_strcmp("", result);
+		free(result);
+
 	// test chrpos()
 	strlcpy(str, "abcdefg", size);
 		assert_intcmp( 0, chrpos(str, 'a'));
