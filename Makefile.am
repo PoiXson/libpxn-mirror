@@ -16,7 +16,7 @@ libpxn_la_SOURCES = \
 	src/Logs.c        \
 	src/Params.c      \
 	src/Run.c         \
-	src/tpl-engine.c  \
+	src/tpl.c         \
 	src/Testing.c     \
 	src/cjson/cJSON.c
 pkginclude_HEADERS = \
@@ -30,6 +30,6 @@ pkginclude_HEADERS = \
 	src/Logs.h        \
 	src/Params.h      \
 	src/Run.h         \
-	src/tpl-engine.h  \
+	src/tpl.h         \
 	src/Testing.h     \
 	src/cjson/cJSON.h
