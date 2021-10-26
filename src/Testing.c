@@ -85,8 +85,8 @@ void test_results_display(bool display_detail) {
 				printf(
 					" [%c] %.3f %s %s:%i",
 					(test_points[index].success ? ' ' : 'X'),
-					(duration > 0.001 ? duration : duration * 1000.0),
-					(duration > 0.001 ? "s" : "ms"),
+					(duration > 0.01 ? duration : duration * 1000.0),
+					(duration > 0.01 ? "s " : "ms"),
 					test_points[index].file,
 					test_points[index].line
 				);
@@ -104,8 +104,8 @@ void test_results_display(bool display_detail) {
 			"\nRan %lu test set%s in %.3f %s\n",
 			count_tests,
 			(count_tests == 1 ? "" : "s"),
-			(elapsed > 0.001 ? elapsed : elapsed * 1000.0),
-			(elapsed > 0.001 ? "seconds" : "milliseconds")
+			(elapsed > 0.01 ? elapsed : elapsed * 1000.0),
+			(elapsed > 0.01 ? "seconds" : "milliseconds")
 		);
 		if (count_success == 0 && count_failed == 0) {
 			printf(" %sNo test asserts to run!%s\n",
