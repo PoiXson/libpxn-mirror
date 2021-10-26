@@ -1,13 +1,13 @@
 
 #include "src/Testing.h"
 
-#include <stdio.h>
-
 #include "test_StringUtils.c"
 #include "test_NumberUtils.c"
 #include "test_FileUtils.c"
 #include "test_tpl-engine.c"
 #include "test_run.c"
+
+#include <stdio.h>
 
 
 

@@ -1,5 +1,8 @@
 #include "FileUtils.h"
 
+#include "StringUtils.h"
+#include "Logs.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -10,9 +13,6 @@
 #include <dirent.h>   // DIR
 #include <sys/file.h> // open
 #include <errno.h>    // errno
-
-#include "StringUtils.h"
-#include "Logs.h"
 
 
 

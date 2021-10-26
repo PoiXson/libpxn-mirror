@@ -1,13 +1,13 @@
 #include "Logs.h"
 
+#include "StringUtils.h"
+#include "pxnDefines.h"
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
-
-#include "StringUtils.h"
-#include "pxnDefines.h"
 
 
 
