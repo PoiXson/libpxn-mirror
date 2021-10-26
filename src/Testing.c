@@ -27,9 +27,9 @@ size_t test_points_size = 0;
 
 void test_main(int argc, char *argv[], char *exec_name) {
 	#ifdef DEBUG
-		printf("<Debug Flag Enabled>");
+		printf("<Built with Debug Flags>");
 	#else
-		printf("<Debug Flag Disabled>");
+		printf("<Production Build>");
 	#endif
 	size_t flag_abort   = param_add('a', 1, "abort",   "Abort on failed asserts [default]");
 	param_add_spacer();
@@ -112,21 +112,17 @@ void test_results_display(bool display_detail) {
 			);
 		} else
 		if (count_failed == 0) {
-			printf(" %s%lu passing asserts%s\n",
+			printf(
+				" %s<PASS> %lu passing asserts%s\n",
 				(color ? COLOR_GREEN : ""),
 				count_success,
 				(color ? COLOR_RESET : "")
 			);
-			printf(COLOR_GREEN"<PASS>"COLOR_RESET"\n");
 		} else {
 			printf(" %lu passing asserts\n", count_success);
-			printf(" %s%lu failed asserts!%s\n",
+			printf(" %s<FAIL> %lu failed asserts!%s\n",
 				(color ? COLOR_RED : ""),
 				count_failed,
-				(color ? COLOR_RESET : "")
-			);
-			printf("%s<FAIL>%s\n",
-				(color ? COLOR_RED   : ""),
 				(color ? COLOR_RESET : "")
 			);
 		}
@@ -220,6 +216,7 @@ void _assert_null(char *file, const int line, void *value, bool invert) {
 	strlcpy(test_points[index].file, file, PATH_MAX);
 	test_points[index].line = line;
 	bool test = (value == NULL);
+	// not null
 	if (invert)
 		test = !test;
 	if (test) {
