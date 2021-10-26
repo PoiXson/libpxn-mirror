@@ -250,13 +250,17 @@ void _assert_strcmp(char *file, const int line, char *expected, char *actual) {
 	} else {
 		test_points[index].success = false;
 		TEST_PRINT_X;
+		char *exp = str_unescape(expected);
+		char *act = str_unescape(actual);
 		snprintf(
 			test_points[index].msg,
 			TEST_MSG_SIZE,
 			"\n   expected: '%s'\n   actual: '%s'",
-			expected,
-			actual
+			exp,
+			act
 		);
+		free(exp);
+		free(act);
 		TEST_ABORT_FAIL;
 	}
 }
