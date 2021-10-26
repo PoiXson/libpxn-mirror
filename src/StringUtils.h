@@ -21,6 +21,9 @@ char* str_trim(char *str);
 
 char* str_sum(char *str);
 
+char* str_unescape( char *str);
+char* strl_unescape(char *str, size_t size);
+
 size_t chrpos( const char *haystack, const char needle);
 size_t chrposs(const char *haystack, const char needle, const size_t start);
 

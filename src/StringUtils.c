@@ -208,6 +208,56 @@ char* str_sum(char *str) {
 
 
 
+char* str_unescape(char *str) {
+	return strl_unescape(str, strlen(str));
+}
+char* strl_unescape(char *str, size_t size) {
+	// count escapes
+	size_t count = 0;
+	for (size_t index=0; index<size; index++) {
+		if (str[index] == '\\'
+		||  str[index] == '\n'
+		||  str[index] == '\r'
+		||  str[index] == '\t'
+		||  str[index] == '\0')
+			count++;
+	}
+	size_t result_size = size + count;
+	char *result = calloc(result_size+1, sizeof(char));
+	size_t pos = 0;
+	for (size_t index=0; index<size; index++) {
+		switch (str[index]) {
+			case '\\':
+				result[pos] = '\\'; pos++;
+				result[pos] = '\\'; pos++;
+				break;
+			case '\n':
+				result[pos] = '\\'; pos++;
+				result[pos] = 'n';  pos++;
+				break;
+			case '\r':
+				result[pos] = '\\'; pos++;
+				result[pos] = 'r';  pos++;
+				break;
+			case '\t':
+				result[pos] = '\\'; pos++;
+				result[pos] = 't';  pos++;
+				break;
+			case '\0':
+				result[pos] = '\\'; pos++;
+				result[pos] = '0';  pos++;
+				break;
+			default:
+				result[pos] = str[index]; pos++;
+				break;
+		}
+	}
+	result[result_size] = '\0';
+	return result;
+}
+
+
+
 size_t chrpos(const char *haystack, const char needle) {
 	return chrposs(haystack, needle, 0);
 }

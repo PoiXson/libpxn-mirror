@@ -108,6 +108,16 @@ void test_StringUtils() {
 	result = str_sum("\n\n\n");
 		assert_strcmp("", result);
 		free(result);
+	// test str_unescape
+	result = str_unescape("Abc");
+		assert_strcmp("Abc", result);
+		free(result);
+	result = strl_unescape("A\tb\rc\nd\0e", 9);
+		assert_strcmp("A\\tb\\rc\\nd\\0e", result);
+		free(result);
+	result = strl_unescape("\t\r\n\0", 4);
+		assert_strcmp("\\t\\r\\n\\0", result);
+		free(result);
 
 	// test chrpos()
 	strlcpy(str, "abcdefg", size);
