@@ -59,7 +59,7 @@ void test_main(int argc, char *argv[], char *exec_name) {
 	tests();
 	printf("\n");
 	// results
-	test_results_display( params_get_bool(flag_verbose) || count_failed > 0 );
+	test_results_display( params_get_bool(flag_verbose) );
 	if (count_success == 0 && count_failed == 0)
 		exit(1);
 	if (count_failed > 0)
@@ -70,7 +70,7 @@ void test_main(int argc, char *argv[], char *exec_name) {
 void test_results_display(bool display_detail) {
 	clock_t time_end = clock();
 	double elapsed = ( ((double)time_end) - ((double)time_start) ) / CLOCKS_PER_SEC;
-	if (display_detail) {
+	if (display_detail || count_failed > 0) {
 		double last = time_start;
 		double duration;
 		for (size_t index=0; index<test_points_size; index++) {
@@ -80,19 +80,21 @@ void test_results_display(bool display_detail) {
 				last = test_points[index].timestamp;
 				continue;
 			}
-			duration = ( ((double)test_points[index].timestamp) - last ) / CLOCKS_PER_SEC;
-			printf(
-				" [%c] %.3f %s %s:%i",
-				(test_points[index].success ? ' ' : 'X'),
-				(duration > 0.001 ? duration : duration * 1000.0),
-				(duration > 0.001 ? "s" : "ms"),
-				test_points[index].file,
-				test_points[index].line
-			);
-			if (strlen(test_points[index].msg) > 0) {
-				printf("%s", test_points[index].msg);
+			if (display_detail || ! test_points[index].success) {
+				duration = ( ((double)test_points[index].timestamp) - last ) / CLOCKS_PER_SEC;
+				printf(
+					" [%c] %.3f %s %s:%i",
+					(test_points[index].success ? ' ' : 'X'),
+					(duration > 0.001 ? duration : duration * 1000.0),
+					(duration > 0.001 ? "s" : "ms"),
+					test_points[index].file,
+					test_points[index].line
+				);
+				if (strlen(test_points[index].msg) > 0) {
+					printf("%s", test_points[index].msg);
+				}
+				printf("\n");
 			}
-			printf("\n");
 			last = test_points[index].timestamp;
 		}
 	}
