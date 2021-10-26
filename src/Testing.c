@@ -281,3 +281,24 @@ void _assert_intcmp(char *file, const int line, int expected, int actual) {
 		TEST_ABORT_FAIL;
 	}
 }
+
+void _assert_sztcmp(char *file, const int line, size_t expected, size_t actual) {
+	size_t index = test_point_allocate();
+	strlcpy(test_points[index].file, file, PATH_MAX);
+	test_points[index].line = line;
+	if (expected == actual) {
+		test_points[index].success = true;
+		TEST_PRINT_DOT;
+	} else {
+		test_points[index].success = false;
+		TEST_PRINT_X;
+		snprintf(
+			test_points[index].msg,
+			TEST_MSG_SIZE,
+			"\n   expected: %lu actual: %lu",
+			expected,
+			actual
+		);
+		TEST_ABORT_FAIL;
+	}
+}

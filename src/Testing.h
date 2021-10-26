@@ -98,6 +98,7 @@ void test_init(char *file);
 #define assert_intcmp(expected,actual) _assert_intcmp(__FILE__, __LINE__, expected, actual)
 
 void _assert(       char *file, const int line, const bool test);
-void _assert_null(  char *file, const int line, void *value, bool invert);
-void _assert_strcmp(char *file, const int line, char *expected, char *actual);
-void _assert_intcmp(char *file, const int line, int expected, int actual);
+void _assert_null(  char *file, const int line, void  *value,    bool   invert);
+void _assert_strcmp(char *file, const int line, char  *expected, char  *actual);
+void _assert_intcmp(char *file, const int line, int    expected, int    actual);
+void _assert_sztcmp(char *file, const int line, size_t expected, size_t actual);
