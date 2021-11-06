@@ -18,50 +18,40 @@
 //===============================================================================
 #include "Testing.h"
 
+#include "MemUtils.h"
 #include "StringUtils.h"
-#include "Params.h"
 #include "Logs.h"
-#include "pxnDefines.h"
+#include "Params.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 
 
-bool abort_on_fail;
-
-size_t count_tests   = 0;
-size_t count_success = 0;
-size_t count_failed  = 0;
-
-clock_t time_start;
-
-TestPoint *test_points;
-size_t test_points_size = 0;
+TestingState *testing_state = NULL;
 
 
 
-void test_main(int argc, char *argv[], char *exec_name) {
+void testing_init(int argc, char *argv[]) {
 	#ifdef DEBUG
-		printf("<Built with Debug Flags>");
+		log_line(" <Built with Debug Flags> ");
 	#else
-		printf("<Production Build>");
+		log_line(" <Production Build> ");
 	#endif
+	testing_state = calloc(1, sizeof(TestingState));
 	size_t flag_abort   = param_add('a', 1, "abort",   "Abort on failed asserts [default]");
 	param_add_spacer();
 	size_t flag_color   = param_add('C', 1, "color",   "Enable console colors");
 	size_t flag_ncolor  = param_add('\0',1, "no-color","Disable console colors");
 	size_t flag_verbose = param_add('v', 1, "verbose", "Detailed logging");
 	size_t flag_help    = param_add('h', 1, "help",    "Display this help message and exit");
-	params_process(argc, argv, exec_name);
-	abort_on_fail = params_get_bool(flag_abort);
+	params_process(argc, argv, argv[0]);
+	testing_state->abort_on_fail  = params_get_bool(flag_abort);
+	testing_state->display_detail = params_get_bool(flag_verbose);
 	if (params_get_bool(flag_ncolor)) {
-		set_color_enabled(false);
+		set_log_color_enabled(false);
 	} else
 	if (params_get_bool(flag_color)) {
-		set_color_enabled(true);
+		set_log_color_enabled(true);
 	}
 	if (params_get_bool(flag_verbose)) {
 		log_level_set(LVL_ALL);
@@ -71,255 +61,359 @@ void test_main(int argc, char *argv[], char *exec_name) {
 		display_help();
 		exit(1);
 	}
-	time_start = clock();
-	// run tests
-	printf("\n");
-	tests();
-	printf("\n");
-	// results
-	test_results_display( params_get_bool(flag_verbose) );
-	if (count_success == 0 && count_failed == 0)
-		exit(1);
-	if (count_failed > 0)
-		exit(1);
-	exit(0);
 }
 
-void test_results_display(bool display_detail) {
-	clock_t time_end = clock();
-	double elapsed = ( ((double)time_end) - ((double)time_start) ) / CLOCKS_PER_SEC;
-	if (display_detail || count_failed > 0) {
-		double last = time_start;
-		double duration;
-		for (size_t index=0; index<test_points_size; index++) {
-			if (test_points[index].used != true)
-				continue;
-			if (test_points[index].line == -1) {
-				last = test_points[index].timestamp;
-				continue;
-			}
-			if (display_detail || ! test_points[index].success) {
-				duration = ( ((double)test_points[index].timestamp) - last ) / CLOCKS_PER_SEC;
-				printf(
-					" [%c] %.3f %s %s:%i",
-					(test_points[index].success ? ' ' : 'X'),
-					(duration > 0.01 ? duration : duration * 1000.0),
-					(duration > 0.01 ? "s " : "ms"),
-					test_points[index].file,
-					test_points[index].line
-				);
-				if (strlen(test_points[index].msg) > 0) {
-					printf("%s", test_points[index].msg);
-				}
-				printf("\n");
-			}
-			last = test_points[index].timestamp;
-		}
+void testing_start() {
+	if (testing_state == NULL) {
+		log_fatal("Testing framework not initialized");
+		exit(1);
 	}
-	bool color = has_color_enabled();
-	{
+	bool color = has_log_color_enabled();
+	testing_state->time_start = clock();
+	log_nl();
+	// GROUPS_LOOP:
+	for (size_t index=0; index<testing_state->groups_size; index++) {
+		TestingGroup *group = &(testing_state->groups[index]);
+		if (group->used != true) continue;
+		testing_state->current_group = index;
 		printf(
-			"\nRan %lu test set%s in %.3f %s\n",
-			count_tests,
-			(count_tests == 1 ? "" : "s"),
-			(elapsed > 0.01 ? elapsed : elapsed * 1000.0),
-			(elapsed > 0.01 ? "seconds" : "milliseconds")
+			"%s%20s%s %s[%s",
+			(color ? COLOR_CYAN  : ""),
+			group->group_name,
+			(color ? COLOR_RESET : ""),
+			(color ? COLOR_BLUE  : ""),
+			(color ? COLOR_RESET : "")
 		);
-		if (count_success == 0 && count_failed == 0) {
-			printf(" %sNo test asserts to run!%s\n",
-				(color ? COLOR_RED   : ""),
-				(color ? COLOR_RESET : "")
-			);
-		} else
-		if (count_failed == 0) {
-			printf(
-				" %s<PASS> %lu passing asserts%s\n",
-				(color ? COLOR_GREEN : ""),
-				count_success,
-				(color ? COLOR_RESET : "")
-			);
-		} else {
-			printf(" %lu passing asserts\n", count_success);
-			printf(" %s<FAIL> %lu failed asserts!%s\n",
-				(color ? COLOR_RED : ""),
-				count_failed,
-				(color ? COLOR_RESET : "")
-			);
-		}
+		group->time_start = clock();
+		group->func();
+		group->time_end = clock();
+		printf(
+			"%s]%s\n",
+			(color ? COLOR_BLUE  : ""),
+			(color ? COLOR_RESET : "")
+		);
+		testing_state->count_groups++;
+	} // end GROUPS_LOOP
+	log_nl();
+	testing_state->time_end = clock();
+}
+
+int testing_done() {
+	if (testing_state == NULL) {
+		log_fatal("Testing framework not initialized");
+		exit(1);
 	}
-	printf("\n");
+	bool color = has_log_color_enabled();
+	testing_state->time_end = clock();
+	// display details
+	if (testing_state->display_detail
+	||  testing_state->count_failed > 0) {
+		// GROUPS_LOOP:
+		for (size_t group_index=0; group_index<testing_state->groups_size; group_index++) {
+			TestingGroup *group = &(testing_state->groups[group_index]);
+			if (group->used != true)
+				continue;
+			double last = group->time_start;
+			// POINTS_LOOP:
+			for (size_t point_index=0; point_index<group->points_size; point_index++) {
+				TestingPoint *point = &(group->points[point_index]);
+				if (point->used != true)
+					continue;
+				if (testing_state->display_detail
+				||  point->success != true) {
+					double duration = (point->timestamp - last) / CLOCKS_PER_SEC;
+					log_line(
+						" %s[%s]%s %5.3f %s %s:%i",
+						(color ? (point->success ? COLOR_GREEN : COLOR_RED) : ""),
+						(point->success ? (color ? "\u2713" : ".") : "X"),
+						(color ? COLOR_RESET : ""),
+						(duration > 0.01 ? duration : duration * 1000.0),
+						(duration > 0.01 ? "s "     : "ms"             ),
+						(str_empty(group->func_name) ? "" : group->func_name),
+						point->line
+					);
+					if (str_not_empty(point->msg)) {
+						log_line(point->msg);
+					}
+				}
+				last = point->timestamp;
+			} // end POINTS_LOOP
+		} // end GROUPS_LOOP
+	}
+	log_nl();
+	double elapsed = (testing_state->time_end - testing_state->time_start) / CLOCKS_PER_SEC;
+	printf(
+		"Ran %s%lu%s test group%s in %s%.3f%s %s\n",
+		(color ? COLOR_CYAN : ""),
+		testing_state->count_groups,
+		(color ? COLOR_RESET : ""),
+		(testing_state->count_groups == 1 ? "" : "s"),
+		(color ? COLOR_CYAN : ""),
+		(elapsed > 0.01 ? elapsed : elapsed * 1000.0),
+		(color ? COLOR_RESET : ""),
+		(elapsed > 0.01 ? "seconds" : "milliseconds")
+	);
+	// no asserts
+	if (testing_state->count_success == 0
+	&&  testing_state->count_failed  == 0) {
+		printf(" %sNo test asserts ran!%s\n",
+			(color ? COLOR_RED   : ""),
+			(color ? COLOR_RESET : "")
+		);
+	} else
+	// all passing
+	if (testing_state->count_failed == 0) {
+		printf(
+			" %s<PASS> %lu passing asserts%s\n",
+			(color ? COLOR_GREEN : ""),
+			testing_state->count_success,
+			(color ? COLOR_RESET : "")
+		);
+	// failed asserts
+	} else {
+		printf(" %lu passing asserts\n", testing_state->count_success);
+		printf(" %s<FAIL> %lu failed asserts!%s\n",
+			(color ? COLOR_RED : ""),
+			testing_state->count_failed,
+			(color ? COLOR_RESET : "")
+		);
+	}
+	log_nl();
+	// finished/exit
+	if (testing_state->count_success == 0
+	&&  testing_state->count_failed  == 0)
+		return 1;
+	if (testing_state->count_failed > 0)
+		return 1;
+	return 0;
 }
 
 
 
-size_t test_point_allocate() {
-	clock_t timestamp = clock();
-	// allocate first block
-	if (test_points_size == 0) {
-		test_points_size = 32;
-		test_points = malloc(test_points_size * sizeof(TestPoint));
-		if (test_points == NULL) {
-			printf("Failed to allocate test_points array");
+void testing_free() {
+	if (testing_state != NULL) {
+		if (testing_state->groups != NULL) {
+			// GROUPS_LOOP:
+			for (size_t group_index=0; group_index<testing_state->groups_size; group_index++) {
+				TestingGroup *group = &(testing_state->groups[group_index]);
+				if (group->func_name  != NULL) free(group->func_name);
+				if (group->group_name != NULL) free(group->group_name);
+				if (group->points     != NULL) free(group->points);
+			} // end GROUPS_LOOP:
+			free(testing_state->groups);
+		}
+		free(testing_state);
+		testing_state = NULL;
+	}
+}
+
+
+
+// ========================================
+// allocations
+
+
+
+size_t testing_alloc_group() {
+	if (testing_state->groups_size == 0) {
+		testing_state->groups_size = 1;
+		testing_state->groups = calloc(testing_state->groups_size, sizeof(TestingGroup));
+		if (testing_state->groups == NULL) {
+			log_fatal("Failed to allocate testing group array");
 			exit(1);
 		}
-		for (size_t index=0; index<test_points_size; index++) {
-			test_point_init(index);
-		}
-		test_points[0].used = true;
-		test_points[0].timestamp = timestamp;
 		return 0;
 	}
-	// find space in existing array
-	for (size_t index=0; index<test_points_size; index++) {
-		if (test_points[index].used == false) {
-			test_point_init(index);
-			test_points[index].used = true;
-			test_points[index].timestamp = timestamp;
+	for (size_t index=0; index<testing_state->groups_size; index++) {
+		if (testing_state->groups[index].used == false)
 			return index;
-		}
 	}
-	// expand array
-	test_points = realloc(test_points, sizeof(TestPoint) * test_points_size * 2);
-	if (test_points == NULL) {
-		printf("Failed to reallocate test_points array");
+	size_t old_size = testing_state->groups_size;
+	size_t new_size = testing_state->groups_size * 2;
+	testing_state->groups = realloc_zero(
+		testing_state->groups,
+		sizeof(TestingGroup) * old_size,
+		sizeof(TestingGroup) * new_size
+	);
+	if (testing_state->groups == NULL) {
+		log_fatal("Failed to reallocate testing group array");
 		exit(1);
 	}
-	for (size_t index=test_points_size; index<test_points_size*2; index++) {
-		test_point_init(index);
+	testing_state->groups_size = new_size;
+	return old_size;
+}
+
+size_t testing_alloc_point(TestingGroup *group) {
+	if (testing_state == NULL) {
+		log_fatal("Testing framework not initialized");
+		exit(1);
 	}
-	test_points_size *= 2;
-	{
-		size_t index = test_point_allocate();
-		test_points[index].timestamp = timestamp;
-		// store a marker to reset the clock
-		size_t i = test_point_allocate();
-		strlcpy(test_points[i].file, "reallocate", PATH_MAX);
-		test_points[i].line = -1;
-		return index;
+	if (group->points_size == 0) {
+		group->points_size = 1;
+		group->points = calloc(group->points_size, sizeof(TestingPoint));
+		if (group->points == NULL) {
+			log_fatal("Failed to allocate testing points array");
+			exit(1);
+		}
+		return 0;
 	}
+	for (size_t index=0; index<group->points_size; index++) {
+		if (group->points[index].used == false)
+			return index;
+	}
+	size_t old_size = group->points_size;
+	size_t new_size = group->points_size * 2;
+	group->points = realloc_zero(
+		group->points,
+		sizeof(TestingPoint) * old_size,
+		sizeof(TestingPoint) * new_size
+	);
+	if (group->points == NULL) {
+		log_fatal("Failed to reallocate testing points array");
+		exit(1);
+	}
+	group->points_size = new_size;
+	return old_size;
 }
 
-void test_point_init(const size_t index) {
-	test_points[index].used = false;
-	memset(test_points[index].file, '\0', PATH_MAX);
-	test_points[index].line      = 0;
-	test_points[index].timestamp = 0;
-	test_points[index].success   = false;
-	memset(test_points[index].msg, '\0', TEST_MSG_SIZE);
+
+
+void testing_add(const void *func, const char *group_name, const char *func_name) {
+	if (testing_state == NULL) {
+		log_fatal("Testing framework not initialized");
+		exit(1);
+	}
+	size_t index = testing_alloc_group();
+	TestingGroup *group = &(testing_state->groups[index]);
+	group->used = true;
+	group->func = func;
+	size_t group_name_size = str_len(group_name) + 1;
+	size_t func_name_size  = str_len(func_name ) + 1;
+	group->group_name = calloc(group_name_size, sizeof(char));
+	group->func_name  = calloc(func_name_size,  sizeof(char));
+	str_l_cpy(group->group_name, group_name, group_name_size);
+	str_l_cpy(group->func_name,  func_name,  func_name_size );
 }
 
 
 
-void test_init(char *file) {
-	count_tests++;
-	size_t index = test_point_allocate();
-	strlcpy(test_points[index].file, file, PATH_MAX);
-	test_points[index].line = -1;
-	test_points[index].timestamp = clock();
-}
+// ========================================
+// asserts
 
-void _assert(char *file, const int line, const bool test) {
-	size_t index = test_point_allocate();
-	strlcpy(test_points[index].file, file, PATH_MAX);
-	test_points[index].line = line;
-	test_points[index].success = test;
+
+
+TestingPoint* do_assert(const int line, const bool test) {
+	if (testing_state == NULL) {
+		log_fatal("Testing framework not initialized");
+		exit(1);
+	}
+	TestingGroup *group = &(testing_state->groups[testing_state->current_group]);
+	size_t index = testing_alloc_point(group);
+	TestingPoint *point = &(group->points[index]);
+	point->used      = true;
+	point->timestamp = clock();
+	point->line      = line;
+	point->success   = test;
 	if (test) {
-		TEST_PRINT_DOT;
+		testing_state->count_success++;
+		if (has_log_color_enabled())
+			printf(COLOR_GREEN"."COLOR_RESET);
+		else printf(".");
 	} else {
-		TEST_PRINT_X;
-		TEST_ABORT_FAIL;
+		testing_state->count_failed++;
+		if (has_log_color_enabled())
+			printf(COLOR_RED"x"COLOR_RESET);
+		else printf("x");
+	}
+	return point;
+}
+
+void testing_abort_on_fail() {
+	if (testing_state->abort_on_fail) {
+		testing_done();
+		exit(1);
 	}
 }
 
-void _assert_null(char *file, const int line, void *value, bool invert) {
-	size_t index = test_point_allocate();
-	strlcpy(test_points[index].file, file, PATH_MAX);
-	test_points[index].line = line;
+
+
+void assert(const int line, const bool test) {
+	TestingPoint *point = do_assert(line, test);
+	if (!point->success) {
+		testing_abort_on_fail();
+	}
+}
+void assert_not(const int line, const bool test) {
+	TestingPoint *point = do_assert(line, !test);
+	if (!point->success) {
+		testing_abort_on_fail();
+	}
+}
+
+void assert_null(const int line, const void *value) {
 	bool test = (value == NULL);
-	// not null
-	if (invert)
-		test = !test;
-	if (test) {
-		test_points[index].success = true;
-		TEST_PRINT_DOT;
-	} else {
-		test_points[index].success = false;
-		TEST_PRINT_X;
-		snprintf(
-			test_points[index].msg,
-			TEST_MSG_SIZE,
-			"\n   expected: %sNULL\n   actual: %sNULL",
-			(invert ? "NOT " : ""),
-			(invert ? "" : "NOT ")
-		);
-		TEST_ABORT_FAIL;
+	TestingPoint *point = do_assert(line, test);
+	if (!point->success) {
+		str_l_cpy(point->msg, "   expected: NULL\n   actual:   <other>", TEST_MSG_SIZE);
+		testing_abort_on_fail();
+	}
+}
+void assert_not_null(const int line, const void *value) {
+	bool test = (value != NULL);
+	TestingPoint *point = do_assert(line, test);
+	if (!point->success) {
+		str_l_cpy(point->msg, "   expected: <other>\n   actual:   NULL", TEST_MSG_SIZE);
+		testing_abort_on_fail();
 	}
 }
 
-void _assert_strcmp(char *file, const int line, char *expected, char *actual) {
-	size_t index = test_point_allocate();
-	strlcpy(test_points[index].file, file, PATH_MAX);
-	test_points[index].line = line;
-	int result = strcmp(expected, actual);
-	if (result == 0) {
-		test_points[index].success = true;
-		TEST_PRINT_DOT;
-	} else {
-		test_points[index].success = false;
-		TEST_PRINT_X;
-		char *exp = str_unescape(expected);
-		char *act = str_unescape(actual);
+void assert_str_cmp(const int line, const char *expected, const char *actual) {
+	int result = str_cmp(expected, actual);
+	bool test = (result == 0);
+	TestingPoint *point = do_assert(line, test);
+	if (!point->success) {
+		char *exp = str_la_unescape(expected, str_len(expected));
+		char *act = str_la_unescape(actual,   str_len(actual)  );
 		snprintf(
-			test_points[index].msg,
+			point->msg,
 			TEST_MSG_SIZE,
-			"\n   expected: '%s'\n   actual: '%s'",
+			"   cmp result: %i\n   expected: '%s'\n   actual:   '%s'",
+		   result,
 			exp,
 			act
 		);
 		free(exp);
 		free(act);
-		TEST_ABORT_FAIL;
+		testing_abort_on_fail();
 	}
 }
 
-void _assert_intcmp(char *file, const int line, int expected, int actual) {
-	size_t index = test_point_allocate();
-	strlcpy(test_points[index].file, file, PATH_MAX);
-	test_points[index].line = line;
-	if (expected == actual) {
-		test_points[index].success = true;
-		TEST_PRINT_DOT;
-	} else {
-		test_points[index].success = false;
-		TEST_PRINT_X;
+void assert_int_cmp(const int line, const int expected, const int actual) {
+	bool test = (expected == actual);
+	TestingPoint *point = do_assert(line, test);
+	if (!point->success) {
 		snprintf(
-			test_points[index].msg,
+			point->msg,
 			TEST_MSG_SIZE,
-			"\n   expected: %i actual: %i",
+			"   expected: %i\n   actual:   %i",
 			expected,
 			actual
 		);
-		TEST_ABORT_FAIL;
+		testing_abort_on_fail();
 	}
 }
 
-void _assert_sztcmp(char *file, const int line, size_t expected, size_t actual) {
-	size_t index = test_point_allocate();
-	strlcpy(test_points[index].file, file, PATH_MAX);
-	test_points[index].line = line;
-	if (expected == actual) {
-		test_points[index].success = true;
-		TEST_PRINT_DOT;
-	} else {
-		test_points[index].success = false;
-		TEST_PRINT_X;
+void assert_sizet_cmp(const int line, const size_t expected, const size_t actual) {
+	bool test = (expected == actual);
+	TestingPoint *point = do_assert(line, test);
+	if (!point->success) {
 		snprintf(
-			test_points[index].msg,
+			point->msg,
 			TEST_MSG_SIZE,
-			"\n   expected: %lu actual: %lu",
+			"   expected: %lu\n   actual:   %lu",
 			expected,
 			actual
 		);
-		TEST_ABORT_FAIL;
+		testing_abort_on_fail();
 	}
 }

@@ -18,105 +18,72 @@
 //===============================================================================
 #pragma once
 
-#include <stdbool.h>
-#include <time.h>
-#include <limits.h>
-
 #include "StringUtils.h"
 
-
-
-#define TEST_NAME_MAX 20
-
-
-
-#define TEST_MAIN(exec_name) \
-int main(int argc, char *argv[]) { \
-	test_main(argc, argv, exec_name); \
-}
-
-#define TEST_INIT(NAME) \
-void NAME##_init() { \
-	test_init(__##FILE__); \
-}
-
-#define RUN_TEST(NAME_FUNC,NAME_STR) \
-	{ \
-		NAME_FUNC##_init(); \
-		char name_padded[TEST_NAME_MAX]; \
-		strlcpy(name_padded, NAME_STR, TEST_NAME_MAX); \
-		str_pad_front(name_padded, TEST_NAME_MAX); \
-		printf("%s [", name_padded); \
-		NAME_FUNC(); \
-		printf("]\n"); \
-	}
-
-
-
-#define TEST_PRINT_DOT \
-	count_success++; \
-	if (has_color_enabled()) \
-		printf(COLOR_GREEN"."COLOR_RESET); \
-	else printf(".");
-
-#define TEST_PRINT_X \
-	count_failed++; \
-	if (has_color_enabled()) \
-		printf(COLOR_RED"x"COLOR_RESET); \
-	else printf("x");
-
-#define TEST_ABORT_FAIL \
-	if (abort_on_fail) { test_results_display(true); exit(1); }
-
-
-
-extern bool abort_on_fail;
-
-extern size_t count_tests;
-extern size_t count_success;
-extern size_t count_failed;
-
-extern clock_t time_start;
+#include <stdbool.h>
+#include <stdlib.h>
 
 
 
 #define TEST_MSG_SIZE 100
 
-typedef struct TestPoint {
+
+
+typedef struct TestingPoint {
 	bool used;
-	char file[PATH_MAX];
 	int line;
-	clock_t timestamp;
 	bool success;
+	double timestamp;
 	char msg[TEST_MSG_SIZE];
-} TestPoint;
+} TestingPoint;
 
-extern TestPoint *test_points;
-extern size_t test_points_size;
+typedef struct TestingGroup {
+	bool used;
+	void (*func)();
+	char *func_name;
+	char *group_name;
+	double time_start;
+	double time_end;
+	// asserts
+	TestingPoint *points;
+	size_t points_size;
+} TestingGroup;
+
+typedef struct TestingState {
+	bool abort_on_fail;
+	bool display_detail;
+	double time_start;
+	double time_end;
+	size_t count_groups;
+	size_t count_success;
+	size_t count_failed;
+	// test groups
+	TestingGroup *groups;
+	size_t groups_size;
+	size_t current_group;
+} TestingState;
+
+extern TestingState *testing_state;
 
 
 
-void test_main(int argc, char *argv[], char *exec_name);
-void test_results_display(bool display_detail);
-void tests();
+void testing_init(int argc, char *argv[]);
+void testing_start();
+int  testing_done();
+void testing_free();
 
-size_t test_point_allocate();
-void test_point_init(const size_t index);
+size_t testing_alloc_group();
+size_t testing_alloc_point(TestingGroup *group);
 
-void test_init(char *file);
+void testing_add(const void *func, const char *group_name, const char *func_name);
 
+TestingPoint* do_assert(const int line, const bool test);
+void testing_abort_on_fail();
 
-
-#define assert(test)                   _assert(       __FILE__, __LINE__, test)
-
-#define assert_null(value)             _assert_null(  __FILE__, __LINE__, value, false)
-#define assert_not_null(value)         _assert_null(  __FILE__, __LINE__, value, true )
-
-#define assert_strcmp(expected,actual) _assert_strcmp(__FILE__, __LINE__, expected, actual)
-#define assert_intcmp(expected,actual) _assert_intcmp(__FILE__, __LINE__, expected, actual)
-
-void _assert(       char *file, const int line, const bool test);
-void _assert_null(  char *file, const int line, void  *value,    bool   invert);
-void _assert_strcmp(char *file, const int line, char  *expected, char  *actual);
-void _assert_intcmp(char *file, const int line, int    expected, int    actual);
-void _assert_sztcmp(char *file, const int line, size_t expected, size_t actual);
+void assert          (const int line, const bool test);
+void assert_not      (const int line, const bool test);
+void assert_null     (const int line, const void *value);
+void assert_not_null (const int line, const void *value);
+void assert_str_cmp  (const int line, const char  *expected, const char  *actual);
+void assert_int_cmp  (const int line, const int    expected, const int    actual);
+void assert_sizet_cmp(const int line, const size_t expected, const size_t actual);
