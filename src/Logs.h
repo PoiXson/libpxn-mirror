@@ -20,77 +20,14 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include <limits.h>
+#include <stdarg.h> // va_list
+#include <limits.h> // INT_MIN/MAX
 
 
-
-#define LOG_NAME_MAX 12
-#define LOG_ARGS_LEN_MAX 200
-
-
-
-typedef enum LogLevel {
-	LVL_OFF     = INT_MAX,
-	LVL_ALL     = INT_MIN,
-	LVL_TITLE   = 9000,
-	LVL_DETAIL  = 100,
-	LVL_INFO    = 500,
-	LVL_NOTICE  = 700,
-	LVL_WARNING = 800,
-	LVL_SEVERE  = 900,
-	LVL_FATAL   = 1000
-} LogLevel;
-
-
-
-#define LOG_PRINTER_ARGS LogLevel, char*, char*
-
-extern void (*log_printer)(LOG_PRINTER_ARGS);
-
-extern LogLevel current_level;
-extern char log_module[LOG_NAME_MAX];
-
-extern size_t count_warnings;
-extern size_t count_severe;
-extern size_t count_fatal;
 
 #define DEFAULT_CONSOLE_COLOR false
-extern bool console_color_enabled;
 
 
-void set_log_printer( void (*printer)(LOG_PRINTER_ARGS) );
-void set_log_module(char *name);
-
-void log_lines(void (*callback)(char *msg, ...), char *text);
-void log_dash();
-
-void log_nl();
-void log_line   (char *msg, ...);
-void log_title  (char *msg, ...);
-void log_detail (char *msg, ...);
-void log_info   (char *msg, ...);
-void log_notice (char *msg, ...);
-void log_warning(char *msg, ...);
-void log_severe (char *msg, ...);
-void log_fatal  (char *msg, ...);
-
-void log_print(LOG_PRINTER_ARGS);
-void log_write(char *line);
-
-bool is_level_loggable(const LogLevel level);
-void log_level_set(const LogLevel level);
-void log_level_to_name(const LogLevel level, char *name);
-
-size_t get_warning_count();
-size_t get_severe_count();
-size_t get_fatal_count();
-
-bool has_warnings();
-bool has_severe();
-bool has_fatal();
-
-bool set_color_enabled(bool enabled);
-bool has_color_enabled();
 
 #define COLOR_BLACK       "\e[0;30m"
 #define COLOR_BLUE        "\e[0;34m"
@@ -109,3 +46,67 @@ bool has_color_enabled();
 #define COLOR_YELLOW      "\e[1;33m"
 #define COLOR_WHITE       "\e[1;37m"
 #define COLOR_RESET       "\e[0m"
+
+
+
+typedef enum LogLevel {
+	LVL_OFF     = INT_MAX,
+	LVL_ALL     = INT_MIN,
+	LVL_TITLE   = 9000,
+	LVL_DETAIL  = 100,
+	LVL_INFO    = 500,
+	LVL_NOTICE  = 700,
+	LVL_WARNING = 800,
+	LVL_SEVERE  = 900,
+	LVL_FATAL   = 1000
+} LogLevel;
+
+
+
+#define LOG_PRINTER_ARGS const LogLevel, const char*, va_list args
+
+typedef struct LoggerState {
+	LogLevel current_level;
+	bool color_enabled;
+
+	size_t count_warning;
+	size_t count_severe;
+	size_t count_fatal;
+
+	// printer/writer handler
+	void (*printer)(LOG_PRINTER_ARGS);
+	void (*writer)(const char *line);
+} LoggerState;
+extern LoggerState *logger_state;
+
+
+
+void init_logger_state();
+
+void log_nl();
+void log_line   (const char *msg, ...);
+void log_title  (const char *msg, ...);
+void log_detail (const char *msg, ...);
+void log_info   (const char *msg, ...);
+void log_notice (const char *msg, ...);
+void log_warning(const char *msg, ...);
+void log_severe (const char *msg, ...);
+void log_fatal  (const char *msg, ...);
+
+void log_print(LOG_PRINTER_ARGS);
+void log_write(const char *line);
+
+bool  is_level_loggable(const LogLevel level);
+void  log_level_set(const LogLevel level);
+
+char* log_level_to_name_short(const LogLevel level);
+char* log_level_to_name_full (const LogLevel level);
+char* log_level_to_color(const LogLevel level);
+
+size_t get_log_warning_count();
+size_t get_log_severe_count();
+size_t get_log_fatal_count();
+size_t reset_log_counts();
+
+bool has_log_color_enabled();
+void set_log_color_enabled(bool enabled);

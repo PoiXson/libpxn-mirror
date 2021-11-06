@@ -19,75 +19,29 @@
 #include "Logs.h"
 
 #include "StringUtils.h"
-#include "pxnDefines.h"
+#include "NumberUtils.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <ctype.h>
+#include <stdlib.h> // size_t
 
 
 
-void (*log_printer)(LOG_PRINTER_ARGS) = NULL;
-
-#ifdef DEBUG
-LogLevel current_level = LVL_ALL;
-#else
-LogLevel current_level = LVL_INFO;
-#endif
-
-char log_module[] = {0};
-
-size_t count_warnings = 0;
-size_t count_severe   = 0;
-size_t count_fatal    = 0;
-
-bool console_color_enabled = DEFAULT_CONSOLE_COLOR;
+LoggerState *logger_state = NULL;
 
 
 
-void set_log_printer( void (*printer)(LOG_PRINTER_ARGS) ) {
-	log_printer = printer;
-}
-
-void set_log_module(char *name) {
-	strlcpy(log_module, name, LOG_NAME_MAX);
-}
-
-
-
-void log_lines(void (*callback)(char *msg, ...), char *text) {
-	if (callback == NULL)
-		return;
-	if (text == NULL) {
-		(*callback) ("<null>");
-		return;
+void init_logger_state() {
+	if (logger_state == NULL) {
+		logger_state = calloc(1, sizeof(LoggerState));
+		// default log level
+		logger_state->current_level = LVL_ALL;
 	}
-	size_t len = strlen(text) + 1;
-	char *txt = malloc(len * sizeof(char));
-	strlcpy(txt, text, len);
-	char *ptr = txt;
-	size_t pos;
-	while (true) {
-		pos = chrpos(ptr, '\n');
-		if (pos == -1) {
-			(*callback) (ptr);
-			break;
-		}
-		ptr[pos] = '\0';
-		(*callback) (ptr);
-		ptr += pos;
-		ptr++;
-	}
-	free(txt);
+	if (logger_state->printer == NULL) logger_state->printer = log_print;
+	if (logger_state->writer  == NULL) logger_state->writer  = log_write;
 }
 
-void log_dash() {
-	if (log_printer == NULL) \
-		set_log_printer(log_print); \
-	log_printer(LVL_ALL, log_module, ""); \
-}
+
+
+// ========================================
 
 
 
@@ -95,184 +49,244 @@ void log_nl() {
 	log_line("");
 }
 
-#define LOG_PRINT(LVL) \
-	va_list args; \
-	va_start(args, msg); \
-	size_t buf_size = strlen(msg) + LOG_ARGS_LEN_MAX + 1; \
-	char buf[buf_size]; \
-	vsnprintf(buf, buf_size, msg, args); \
-	if (log_printer == NULL) \
-		set_log_printer(log_print); \
-	log_printer(LVL, log_module, buf); \
+void log_line(const char *msg, ...) {
+	init_logger_state();
+	va_list args;
+	va_start(args, msg);
+	(logger_state->printer)(LVL_OFF, msg, args);
 	va_end(args);
-
-void log_line(char *msg, ...) {
-	LOG_PRINT(LVL_OFF);
 }
 
-void log_title(char *msg, ...) {
-	LOG_PRINT(LVL_TITLE);
+void log_title(const char *msg, ...) {
+	init_logger_state();
+	va_list args;
+	va_start(args, msg);
+	(logger_state->printer)(LVL_TITLE, msg, args);
+	va_end(args);
 }
 
-void log_detail(char *msg, ...) {
-	LOG_PRINT(LVL_DETAIL);
+void log_detail(const char *msg, ...) {
+	init_logger_state();
+	va_list args;
+	va_start(args, msg);
+	(logger_state->printer)(LVL_DETAIL, msg, args);
+	va_end(args);
 }
 
-void log_info(char *msg, ...) {
-	LOG_PRINT(LVL_INFO);
+void log_info(const char *msg, ...) {
+	init_logger_state();
+	va_list args;
+	va_start(args, msg);
+	(logger_state->printer)(LVL_INFO, msg, args);
+	va_end(args);
 }
 
-void log_notice(char *msg, ...) {
-	LOG_PRINT(LVL_NOTICE);
+void log_notice(const char *msg, ...) {
+	init_logger_state();
+	va_list args;
+	va_start(args, msg);
+	(logger_state->printer)(LVL_NOTICE, msg, args);
+	va_end(args);
 }
 
-void log_warning(char *msg, ...) {
-	count_warnings++;
-	LOG_PRINT(LVL_WARNING)
+void log_warning(const char *msg, ...) {
+	init_logger_state();
+	logger_state->count_warning++;
+	va_list args;
+	va_start(args, msg);
+	(logger_state->printer)(LVL_WARNING, msg, args);
+	va_end(args);
 }
 
-void log_severe(char *msg, ...) {
-	count_severe++;
-	LOG_PRINT(LVL_SEVERE);
+void log_severe(const char *msg, ...) {
+	init_logger_state();
+	logger_state->count_severe++;
+	va_list args;
+	va_start(args, msg);
+	(logger_state->printer)(LVL_SEVERE, msg, args);
+	va_end(args);
 }
 
-void log_fatal(char *msg, ...) {
-	count_fatal++;
-	LOG_PRINT(LVL_FATAL);
+void log_fatal(const char *msg, ...) {
+	init_logger_state();
+	logger_state->count_fatal++;
+	va_list args;
+	va_start(args, msg);
+	(logger_state->printer)(LVL_FATAL, msg, args);
+	va_end(args);
 }
 
 
 
-void log_print(LogLevel level, char *mod_name, char *msg) {
+void log_print(const LogLevel level, const char *msg, va_list args) {
+	init_logger_state();
+
+	if (msg == NULL) {
+		logger_state->printer(level, "(null)", NULL);
+		return;
+	}
+
+	if (str_cmp(msg, "---") == 0) {
+		logger_state->writer(" [ - - - ] ");
+		return;
+	}
+	bool color = has_log_color_enabled();
+
+	// render message
+	size_t msg_ready_size = 0;
+	char *msg_ready = vsnprintf_alloc(&msg_ready_size, msg, args);
+
 	// title
 	if (level == LVL_TITLE) {
-		size_t len = strlen(msg) + 30;
-		char buf[len];
-		buf[0] = '\0';
-		bool color = has_color_enabled();
-		snprintf(buf, len, "  %s[[ %s ]]%s ",
-			(color ? COLOR_CYAN : ""),
+		size_t buf_size = 0;
+		char *buf = snprintf_alloc(
+			&buf_size,
+			"  %s[[ %s ]]%s ",
+			(color ? COLOR_BROWN : ""),
 			msg,
 			(color ? COLOR_RESET : "")
 		);
-		log_write(buf);
+		logger_state->writer(buf);
+		free(buf);
+		free(msg_ready);
 		return;
 	}
-	if (level == LVL_ALL && strlen(msg) == 0) {
-		log_write(" [ - - - ] ");
+
+	// level name
+	char *level_name  = log_level_to_name_short(level);
+
+	// plain line
+	if (str_empty(level_name)) {
+		if (level_name != NULL)
+			free(level_name);
+		logger_state->writer(msg_ready);
+		free(msg_ready);
 		return;
 	}
+
+	// loggable message
 	if (is_level_loggable(level)) {
-		// level name
-		char lvlName[LOG_NAME_MAX+1];
-		log_level_to_name(level, lvlName);
-		// plain line
-		if (strlen(lvlName) == 0) {
-			log_write(msg);
-			return;
-		}
-		// module name
-		char modName[LOG_NAME_MAX+4];
-		if (mod_name[0] == '\0') {
-			modName[0] = '\0';
-		} else {
-			snprintf(modName, LOG_NAME_MAX+4, "][%s", mod_name);
-		}
-		// message with level
-		for (char *c=lvlName; (*c=toupper(*c)); ++c);
-		str_pad_center(lvlName, 7);
-		size_t msg_len = strlen(msg);
-		size_t buf_size = msg_len + LOG_NAME_MAX+5;
-		char buf[buf_size+1];
-		snprintf(buf, buf_size, " [%s%s] %s", lvlName, modName, msg);
-		if (msg_len-1 == LOG_ARGS_LEN_MAX) {
-			buf[buf_size-4] = '.';
-			buf[buf_size-3] = '.';
-			buf[buf_size-2] = '.';
-		}
-		buf[buf_size-1] = '\0';
-		log_write(buf);
+		char *level_color = NULL;
+		if (color)
+			level_color = log_level_to_color(level);
+		size_t msg_len = str_len(msg);
+		size_t buf_size = 0;
+		char *buf = snprintf_alloc(
+			&buf_size,
+			" %s[%s]%s %s",
+			(color ? level_color : ""),
+			level_name,
+			(color ? COLOR_RESET : ""),
+			msg_ready
+		);
+		logger_state->writer(buf);
+		free(buf);
+		if (level_color != NULL)
+			free(level_color);
 	}
+	free(level_name);
+	free(msg_ready);
 }
 
-void log_write(char *line) {
+void log_write(const char *line) {
 	printf(line);
-	if (line[strlen(line)-1] != '\n') {
+	if (!str_ends_with(line, '\n'))
 		printf("\n");
-	}
-//TODO: log to file
 }
+
+
+
+// ========================================
+// log level
 
 
 
 bool is_level_loggable(const LogLevel level) {
-	if (current_level == LVL_ALL)
-		return true;
-	if (level >= current_level)
-		return true;
-	return false;
+	return (
+		logger_state->current_level == LVL_ALL ||
+		logger_state->current_level <= level
+	);
 }
 
 void log_level_set(const LogLevel level) {
-	current_level = level;
+	init_logger_state();
+	logger_state->current_level = level;
 }
 
-void log_level_to_name(const LogLevel level, char *name) {
+
+
+char* log_level_to_name_short(const LogLevel level) {
 	switch (level) {
-	case LVL_OFF:     break;
-	case LVL_ALL:     break;
-	case LVL_TITLE:   break;
-	case LVL_DETAIL:  strcpy(name, "Detail");  return;
-	case LVL_INFO:    strcpy(name, "Info");    return;
-	case LVL_NOTICE:  strcpy(name, "Notice");  return;
-	case LVL_WARNING: strcpy(name, "Warning"); return;
-	case LVL_SEVERE:  strcpy(name, "Severe");  return;
-	case LVL_FATAL:   strcpy(name, "Fatal");   return;
-	default: break;
+		case LVL_DETAIL:  return str_l_dup("detl", 4);
+		case LVL_INFO:    return str_l_dup("info", 4);
+		case LVL_NOTICE:  return str_l_dup("note", 4);
+		case LVL_WARNING: return str_l_dup("Warn", 4);
+		case LVL_SEVERE:  return str_l_dup("SEVR", 4);
+		case LVL_FATAL:   return str_l_dup("FAIL", 4);
+		default:
+			return NULL;
 	}
-	name[0] = '\0';
+}
+
+char* log_level_to_name_full(const LogLevel level) {
+	switch (level) {
+		case LVL_DETAIL:  return str_dup("detail" );
+		case LVL_INFO:    return str_dup("info"   );
+		case LVL_NOTICE:  return str_dup("notice" );
+		case LVL_WARNING: return str_dup("Warning");
+		case LVL_SEVERE:  return str_dup("SEVERE" );
+		case LVL_FATAL:   return str_dup("FATAL"  );
+		default:
+			return NULL;
+	}
+}
+
+char* log_level_to_color(const LogLevel level) {
+	switch (level) {
+		case LVL_DETAIL:  return str_dup(COLOR_CYAN);
+		case LVL_INFO:    return str_dup(COLOR_CYAN);
+		case LVL_NOTICE:  return str_dup(COLOR_BROWN);
+		case LVL_WARNING: return str_dup(COLOR_BROWN);
+		case LVL_SEVERE:  return str_dup(COLOR_RED);
+		case LVL_FATAL:   return str_dup(COLOR_RED);
+		default:
+			return NULL;
+	}
 }
 
 
 
-size_t get_warning_count() {
-	size_t count = count_warnings;
-	count_warnings = 0;
-	return count;
+bool has_log_color_enabled() {
+	init_logger_state();
+	return logger_state->color_enabled;
 }
-
-size_t get_severe_count() {
-	size_t count = count_severe;
-	count_severe = 0;
-	return count;
-}
-
-size_t get_fatal_count() {
-	size_t count = count_fatal;
-	count_fatal = 0;
-	return count;
+void set_log_color_enabled(bool enabled) {
+	logger_state->color_enabled = enabled;
 }
 
 
 
-bool has_warnings() {
-	return (count_warnings > 0);
+// ========================================
+
+
+
+size_t get_log_warning_count() {
+	return logger_state->count_warning;
+}
+size_t get_log_severe_count() {
+	return logger_state->count_severe;
+}
+size_t get_log_fatal_count() {
+	return logger_state->count_fatal;
 }
 
-bool has_severe() {
-	return (count_severe > 0);
-}
-
-bool has_fatal() {
-	return (count_fatal > 0);
-}
-
-
-
-bool set_color_enabled(bool enabled) {
-	console_color_enabled = enabled;
-}
-
-bool has_color_enabled() {
-	return console_color_enabled;
+size_t reset_log_counts() {
+	size_t total = 0;
+	total += logger_state->count_warning;
+	total += logger_state->count_severe;
+	total += logger_state->count_fatal;
+	logger_state->count_warning = 0;
+	logger_state->count_severe  = 0;
+	logger_state->count_fatal   = 0;
+	return total;
 }
