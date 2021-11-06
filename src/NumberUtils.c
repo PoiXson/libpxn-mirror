@@ -18,27 +18,9 @@
 //===============================================================================
 #include "NumberUtils.h"
 
-#include <stdlib.h>
 #include <stdbool.h>
 
 
-
-char* itostr(int value) {
-	int len = len_int(value);
-	char *result = calloc(len+1, sizeof(char));
-	if (value < 0) {
-		value = 0 - value;
-		result[0] = '-';
-	}
-	for (int i=len-1; i>=0; --i, value /= 10) {
-		if (i == 0 && result[0] == '-')
-			break;
-		result[i] = (value % 10) + '0';
-		if (value <= 0)
-			break;
-	}
-	return result;
-}
 
 size_t len_int(const int value) {
 	if (value < 0) {
@@ -55,4 +37,24 @@ size_t len_int(const int value) {
 		count++;
 		count_value *= 10;
 	}
+}
+
+
+
+char* i_to_str(const int value) {
+	int len = len_int(value);
+	char *result = calloc(len+1, sizeof(char));
+	int val = value;
+	if (val < 0) {
+		val = 0 - val;
+		result[0] = '-';
+	}
+	for (int i=len-1; i>=0; --i, val /= 10) {
+		if (i == 0 && result[0] == '-')
+			break;
+		result[i] = (val % 10) + '0';
+		if (val <= 0)
+			break;
+	}
+	return result;
 }

@@ -20,39 +20,49 @@
 
 #include <stdbool.h>
 #include <stdlib.h> // size_t
+#include <stdarg.h> // va_list
 
 
 
-size_t strlcpy(     char *dest, char *src, const size_t size);
-size_t strlcat(     char *dest, char *src, const size_t size);
-size_t strlcatfront(char *dest, char *src, const size_t size);
+bool str_empty(const char *src);
+bool str_not_empty(const char *src);
 
-size_t strrcpy(char **dest, size_t *size, char *src);
-size_t strrcat(char **dest, size_t *size, char *src);
+char *str_dup(const char *str);
+char *str_l_dup(const char *str, const size_t size);
 
-size_t strlrcpy(char **dest, size_t *size, char *src, size_t len_src);
-size_t strlrcat(char **dest, size_t *size, char *src, size_t len_src);
+size_t str_len  (const char *src);
+size_t str_l_len(const char *src, const size_t size);
 
-int strlcmp(const char *strA, const char *strB, const size_t size);
+size_t str_l_cpy(char *dest, const char *src, const size_t size);
+size_t str_l_cat(char *dest, const char *src, const size_t size);
+size_t str_la_cat(char **dest, size_t *size, const char *src, const size_t src_size);
 
-char* str_trim(char *str);
+char* snprintf_alloc(size_t *size, const char *msg, ...);
+char* vsnprintf_alloc(size_t *size, const char *msg, va_list args);
 
-char* str_sum(char *str);
+int str_cmp  (const char *strA, const char *strB);
+int str_l_cmp(const char *strA, const char *strB, const size_t size);
 
-char* str_unescape( char *str);
-char* strl_unescape(char *str, size_t size);
+bool str_ends_with(const char *src, const char match);
 
-size_t chrpos( const char *haystack, const char needle);
-size_t chrposs(const char *haystack, const char needle, const size_t start);
+size_t chr_pos(const char *haystack, const char needle);
+size_t chr_s_pos(const char *haystack, const char needle, const size_t start);
+size_t chr_r_pos(const char *haystack, const char needle);
+size_t chr_rs_pos(const char *haystack, const char needle, const size_t start);
 
-size_t chrrpos( const char *haystack, const char needle);
-size_t chrrposs(const char *haystack, const char needle, const size_t start);
+char *str_trim      (char *src);
+char *str_trim_left (char *src);
+void  str_trim_right(char *src);
 
-void str_pad_front( char *line, const size_t size);
-void str_pad_end(   char *line, const size_t size);
-void str_pad_center(char *line, const size_t size);
+void str_to_upper(char *src);
+void str_to_lower(char *src);
+void str_l_to_upper(char *src, const size_t size);
+void str_l_to_lower(char *src, const size_t size);
 
-bool str_starts_with(const char *haystack, const char *needle);
-bool str_ends_with(  const char *haystack, const char *needle);
+void str_pad_front (char *src, const size_t size);
+void str_pad_end   (char *src, const size_t size);
+void str_pad_center(char *src, const size_t size);
 
-void str_make_safe(char *str, const size_t size);
+void  str_l_make_safe(char *src, const size_t size);
+char* str_la_unescape(const char *src, const size_t size);
+char* str_a_sum(const char *src);

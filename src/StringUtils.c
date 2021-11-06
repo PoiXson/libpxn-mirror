@@ -18,233 +18,434 @@
 //===============================================================================
 #include "StringUtils.h"
 
-#include <stdbool.h>
-#include <string.h> // strlen
+#include "MemUtils.h"
+#include "NumberUtils.h"
+
+#include <stdio.h>  // vsnprintf
 #include <limits.h> // int_min
 #include <ctype.h>  // tolower
 
 
 
-size_t strlcpy(char *dest, char *src, const size_t size) {
-	size_t len = strlen(dest);
-	for (size_t i=0; i<size; i++) {
-		dest[i] = src[i];
-		if (src[i] == '\0')
-			break;
-		len++;
-	}
-	dest[size-1] = '\0';
-	return len;
+bool str_empty(const char *src) {
+	if (src == NULL)    return true;
+	if (src[0] == '\0') return true;
+	return false;
 }
-
-size_t strlcat(char *dest, char *src, const size_t size) {
-	size_t len = strlen(dest);
-	if (len >= size) {
-		dest[size-1] = '\0';
-		return len;
-	}
-	dest = dest + len;
-	while (*src != '\0' && len < size-1) {
-		*dest++ = *src++;
-		len++;
-	}
-	*dest = '\0';
-	return len;
-}
-
-size_t strlcatfront(char *dest, char *src, const size_t size) {
-	size_t len_dest = strlen(dest);
-	size_t len_src  = strlen(src);
-	size_t len = len_dest + len_src;
-	if (len_dest > size-1) len_dest = size-1;
-	if (len_src  > size-1) len_src  = size-1;
-	// shorten dest if needed
-	if (size-1 < len) {
-		len_dest = (size-1) - len_src;
-		len = len_dest + len_src;
-	}
-	// shift chars right
-	for (size_t i=0; i<len_dest; i++) {
-		dest[(len_dest-i)+(len_src-1)] = dest[(len_dest-i)-1];
-	}
-	// prepend source string
-	for (size_t i=0; i<len_src; i++) {
-		dest[i] = src[i];
-	}
-	dest[len] = '\0';
-	return len;
+bool str_not_empty(const char *src) {
+	if (src == NULL)    return false;
+	if (src[0] == '\0') return false;
+	return true;
 }
 
 
 
-size_t strrcpy(char **dest, size_t *size, char *src) {
-	return strlrcpy(dest, size, src, strlen(src));
-}
-
-size_t strrcat(char **dest, size_t *size, char *src) {
-	return strlrcat(dest, size, src, strlen(src));
-}
-
-
-
-size_t strlrcpy(char **dest, size_t *size, char *src, size_t len_src) {
-	{
-		size_t ln = strlen(src);
-		if (len_src > ln)
-			len_src = ln;
-	}
-	// allocate first block
-	if (*size == 0) {
-		*size = len_src + 1;
-		*dest = calloc(*size, sizeof(char));
-		return strlcpy(*dest, src, *size);
-	}
-	size_t len_dest = strlen(*dest);
-	// reallocate more space
-	if (len_dest + len_src + 1 > (*size)) {
-		*size = len_dest + len_src + 1;
-		*dest = realloc(*dest, (*size) * sizeof(char));
-		memset((*dest)+len_dest, '\0', len_src + 1);
-	}
-	return strlcpy(*dest, src, len_dest + len_src + 1);
-}
-
-size_t strlrcat(char **dest, size_t *size, char *src, size_t len_src) {
-	{
-		size_t ln = strlen(src);
-		if (len_src > ln)
-			len_src = ln;
-	}
-	// allocate first block
-	if (*size == 0) {
-		*size = len_src + 1;
-		*dest = calloc(*size, sizeof(char));
-		return strlcpy(*dest, src, *size);
-	}
-	size_t len_dest = strlen(*dest);
-	// reallocate more space
-	if (len_dest + len_src + 1 > (*size)) {
-		while (len_dest + len_src + 1 > *size) {
-			(*size) *= 2;
-		}
-		*dest = realloc(*dest, (*size) * sizeof(char));
-		memset((*dest)+len_dest, '\0', len_src + 1);
-	}
-	return strlcat(*dest, src, len_dest + len_src + 1);
-}
-
-
-
-int strlcmp(const char *strA, const char *strB, const size_t size) {
-	if (size == -1 || size == 0)
-		return INT_MIN;
-	if (strA == NULL) {
-		if (strB == NULL)
-			return 0;
-		return INT_MIN;
-	}
-	if (strB == NULL)
-		return INT_MAX;
+size_t str_len(const char *src) {
+	if (src == NULL)
+		return 0;
 	size_t index = 0;
-	int cmp;
 	while (true) {
-		if (++index > size)
-			return 0;
-		if (*strA == '\0') {
-			if (*strB == '\0')
+		if (src[index] == '\0')
+			return index;
+		index++;
+	}
+}
+
+size_t str_l_len(const char *src, const size_t size) {
+	if (src == NULL)
+		return 0;
+	for (size_t index=0; index<size; index++) {
+		if (src[index] == '\0')
+			return index;
+	}
+	return size;
+}
+
+
+
+// ========================================
+// copy/concat strings
+
+
+
+char *str_dup(const char *str) {
+	return str_l_dup(str, str_len(str)+1);
+}
+char *str_l_dup(const char *str, const size_t size) {
+	char *dup = calloc(size, sizeof(char));
+	str_l_cpy(dup, str, size);
+	return dup;
+}
+
+
+
+size_t str_l_cpy(char *dest, const char *src, const size_t size) {
+	if (dest == NULL || size == 0)
+		return 0;
+	if (src == NULL || size == 1) {
+		dest[0] = '\0';
+		return 0;
+	}
+	size_t index = 0;
+	while (true) {
+		dest[index] = src[index];
+		if (src[index] == '\0')
+			break;
+		index++;
+		if (index+1 >= size)
+			break;
+	}
+	dest[index] = '\0';
+	return index;
+}
+
+size_t str_l_cat(char *dest, const char *src, const size_t size) {
+	if (dest == NULL || size == 0)
+		return 0;
+	if (src == NULL || size == 1) {
+		dest[0] = '\0';
+		return 0;
+	}
+	size_t dest_pos = str_len(dest);
+	size_t src_pos = 0;
+	while (true) {
+		if (src[src_pos] == '\0') break;
+		dest[dest_pos] = src[src_pos];
+		dest_pos++;
+		src_pos++;
+		if (dest_pos >= size) break;
+	}
+	dest[dest_pos+1] = '\0';
+	return dest_pos;
+}
+
+
+
+size_t str_la_cat(char **dest, size_t *size, const char *src, const size_t src_size) {
+	size_t dest_size = str_len(*dest);
+	size_t new_size = dest_size + src_size + 1;
+	// allocate first
+	if (*size == 0) {
+		*size = new_size;
+		*dest = calloc(*size, sizeof(char));
+		return str_l_cpy(*dest, src, *size);
+	} else
+	// reallocate more space
+	if (new_size > *size) {
+		*dest = realloc_zero(*dest, *size, new_size);
+		*size = new_size;
+	}
+	return str_l_cat(*dest, src, *size);
+}
+
+
+
+char* snprintf_alloc(size_t *size, const char *msg, ...) {
+	va_list args;
+	va_start(args, msg);
+	char *result = vsnprintf_alloc(size, msg, args);
+	va_end(args);
+	return result;
+}
+
+char* vsnprintf_alloc(size_t *size, const char *msg, va_list args) {
+	{
+		va_list va_tmp;
+		va_copy(va_tmp, args);
+		char *tmp = calloc(1, sizeof(char));
+		*size = vsnprintf(tmp, 1, msg, va_tmp);
+		free(tmp);
+		va_end(va_tmp);
+	}
+	if (*size == -1) {
+		char *result = calloc(17, sizeof(char));
+		str_l_cpy(result, "Invalid encoding", 16);
+		return result;
+	}
+	{
+		char *result = calloc(*size+1, sizeof(char));
+		vsnprintf(result, *size+1, msg, args);
+		return result;
+	}
+}
+
+
+
+// ========================================
+// compare strings
+
+
+
+int str_cmp(const char *strA, const char *strB) {
+	if (strA == NULL
+	||  strB == NULL) {
+		if (strA != NULL) return 0 - (strA[0]);
+		if (strB != NULL) return strB[0];
+		return 0;
+	}
+	size_t sizeA = str_len(strA);
+	size_t sizeB = str_len(strB);
+	return str_l_cmp(strA, strB, MAX(sizeA, sizeB));
+}
+
+int str_l_cmp(const char *strA, const char *strB, const size_t size) {
+	if (size == -1) return INT_MIN;
+	if (size ==  0) return 0;
+	if (strA == NULL
+	||  strB == NULL) {
+		if (strA != NULL) return 0 - (strA[0]);
+		if (strB != NULL) return strB[0];
+		return 0;
+	}
+	int cmp;
+	for (size_t index=0; index<size; index++) {
+		if (*strA == '\0'
+		||  *strB == '\0') {
+			if (*strA == '\0'
+			&&  *strB == '\0')
 				return 0;
-			return (int)(*strB);
-		}
-		if (*strB == '\0')
+			if (*strA == '\0')
+				return (int)(*strB);
 			return 0 - (int)(*strA);
-		cmp = tolower( (int)(*strB) ) - tolower( (int)(*strA) );
+		}
+		cmp = tolower((int)(*strB)) - tolower((int)(*strA));
 		if (cmp != 0)
 			return cmp;
 		strA++;
 		strB++;
+		
+	}
+	return 0;
+}
+
+
+
+bool str_ends_with(const char *src, const char match) {
+	if (src   == NULL) return false;
+	if (match == '\0') return true;
+	size_t len = str_len(src);
+	return (src[len-2] == match);
+}
+
+
+
+// ========================================
+// find in string
+
+
+
+size_t chr_pos(const char *haystack, const char needle) {
+	return chr_s_pos(haystack, needle, 0);
+}
+
+size_t chr_s_pos(const char *haystack, const char needle, const size_t start) {
+	size_t len = str_len(haystack);
+	if (start > len)
+		return -1;
+	size_t i = start;
+	while (i < len) {
+		if (haystack[i] == '\0')
+			return (needle == '\0') ? i : -1;
+		if (haystack[i] == needle)
+			return i;
+		i++;
+	}
+	return (needle == '\0') ? len : -1;
+}
+
+
+
+size_t chr_r_pos(const char *haystack, const char needle) {
+	return chr_rs_pos(haystack, needle, 0);
+}
+
+size_t chr_rs_pos(const char *haystack, const char needle, const size_t start) {
+	size_t len = str_len(haystack);
+	if (start > len)
+		return -1;
+	size_t i = start;
+	size_t last = -1;
+	while (i < len) {
+		if (haystack[i] == '\0')
+			break;
+		if (haystack[i] == needle)
+			last = i;
+		i++;
+	}
+	return last;
+}
+
+
+
+// ========================================
+// trim
+
+
+
+char *str_trim(char *src) {
+	if (src == NULL) return NULL;
+	str_trim_right(src);
+	return str_trim_left(src);
+}
+
+char *str_trim_left(char *src) {
+	if (src == NULL) return NULL;
+	while (*src != '\0') {
+		if (*src != ' '
+		&&  *src != '\t'
+		&&  *src != '\n'
+		&&  *src != '\r')
+			break;
+		*src++;
+	}
+	return src;
+}
+
+void str_trim_right(char *src) {
+	if (src == NULL) return;
+	size_t len = str_len(src);
+	if (len == 0)
+		return;
+	len--;
+	while (src[len] != '\0') {
+		if (src[len] != ' '
+		&&  src[len] != '\t'
+		&&  src[len] != '\n'
+		&&  src[len] != '\r')
+			break;
+		len--;
+	}
+	src[len+1] = '\0';
+}
+
+
+
+// ========================================
+// to upper/lower
+
+
+
+void str_to_upper(char *src) {
+	if (src == NULL) return;
+	for (char *c=src; (*c=toupper(*c)); c++);
+}
+void str_to_lower(char *src) {
+	if (src == NULL) return;
+	for (char *c=src; (*c=tolower(*c)); c++);
+}
+
+void str_l_to_upper(char *src, const size_t size) {
+	if (src == NULL) return;
+	char *c = src;
+	for (size_t pos=0; pos<size; pos++) {
+		*c=toupper(*c);
+		c++;
+	}
+}
+void str_l_to_lower(char *src, const size_t size) {
+	if (src == NULL) return;
+	char *c = src;
+	for (size_t pos=0; pos<size; pos++) {
+		*c=tolower(*c);
+		c++;
 	}
 }
 
 
 
-char* str_trim(char *str) {
-	if (str == NULL)
-		return NULL;
-	// trim front
-	while (true) {
-		if (*str == ' ' ) { *str++; continue; }
-		if (*str == '\n') { *str++; continue; }
-		if (*str == '\r') { *str++; continue; }
-		if (*str == '\t') { *str++; continue; }
-		break;
+// ========================================
+// pad string
+
+
+
+void str_pad_front(char *src, const size_t size) {
+	if (size < 1) return;
+	size_t len = str_len(src);
+	if (len > size) return;
+	size_t siz = size - 1;
+	size_t count = siz - len;
+	// shift to end
+	for (size_t pos=1; pos<len+1; pos++)
+		src[siz-pos] = src[len-pos];
+	// pad front
+	for (size_t pos=0; pos<count; pos++)
+		src[pos] = ' ';
+	src[siz] = '\0';
+}
+
+void str_pad_end(char *src, const size_t size) {
+	if (size < 1) return;
+	size_t len = str_len(src);
+	if (len > size) return;
+	size_t siz = size - 1;
+	size_t count = siz - len;
+	char pad[count+1];
+	for (size_t index=0; index<count; index++) {
+		pad[index] = ' ';
 	}
-	size_t len = strlen(str) - 1;
-	// trim end
-	while (true) {
-		if (str[len] == ' ' ) { len--; continue; }
-		if (str[len] == '\n') { len--; continue; }
-		if (str[len] == '\r') { len--; continue; }
-		if (str[len] == '\t') { len--; continue; }
-		break;
+	pad[count] = '\0';
+	str_l_cat(src, pad, size);
+}
+
+void str_pad_center(char *src, const size_t size) {
+	if (size < 1) return;
+	size_t len = str_len(src);
+	if (len > size) return;
+	char result[size];
+	mem_set(result, ' ', size);
+	result[size] = '\0';
+	size_t offset = ((size - len) / 2);
+	for (size_t index=0; index<len; index++) {
+		if (src[index] == '\0')
+			break;
+		result[index+offset] = src[index];
 	}
-	str[len+1] = '\0';
-	return str;
+	str_l_cpy(src, result, size);
 }
 
 
 
-char* str_sum(char *str) {
-	size_t len = strlen(str);
-	bool started = false;
-	size_t result_start = 0;
-	size_t pos = 0;
-	for (; pos<len; pos++) {
-		if (str[pos] == '\0') break;
-		// find start
-		if (!started) {
-			if (str[pos] == ' ' ) continue;
-			if (str[pos] == '\t') continue;
-			if (str[pos] == '\n') continue;
-			if (str[pos] == '\r') continue;
-			started = true;
-			result_start = pos;
+// ========================================
+// modify string
+
+
+
+void str_l_make_safe(char *src, const size_t size) {
+	char c;
+	for (size_t i=0; i<size; i++) {
+		c = src[i];
+		if (c == '\0') {
+			for (;i<size; i++)
+				src[i] = '\0';
+			return;
 		}
-		if (started) {
-			if (str[pos] == ' ' ) break;
-			if (str[pos] == '\t') break;
-			if (str[pos] == '\n') break;
-			if (str[pos] == '\r') break;
-		}
+		if (c == '_' || c == '-') continue;
+		if (c >= 'a' && c <= 'z') continue;
+		if (c >= 'A' && c <= 'Z') continue;
+		if (c >= '0' && c <= '9') continue;
+		src[i] = '_';
 	}
-	size_t result_len = (started ? pos - result_start : 0);
-	if (result_len > 20)
-		result_len = 20;
-	char *result = calloc(result_len+1, sizeof(char));
-	strlcpy(result, str+result_start, result_len+1);
-	return result;
+	src[size-1] = '\0';
 }
 
 
 
-char* str_unescape(char *str) {
-	return strl_unescape(str, strlen(str));
-}
-char* strl_unescape(char *str, size_t size) {
+char* str_la_unescape(const char *src, const size_t size) {
 	// count escapes
 	size_t count = 0;
 	for (size_t index=0; index<size; index++) {
-		if (str[index] == '\\'
-		||  str[index] == '\n'
-		||  str[index] == '\r'
-		||  str[index] == '\t'
-		||  str[index] == '\0')
+		if (src[index] == '\\'
+		||  src[index] == '\n'
+		||  src[index] == '\r'
+		||  src[index] == '\t'
+		||  src[index] == '\0')
 			count++;
 	}
 	size_t result_size = size + count;
 	char *result = calloc(result_size+1, sizeof(char));
 	size_t pos = 0;
 	for (size_t index=0; index<size; index++) {
-		switch (str[index]) {
+		switch (src[index]) {
 			case '\\':
 				result[pos] = '\\'; pos++;
 				result[pos] = '\\'; pos++;
@@ -266,7 +467,7 @@ char* strl_unescape(char *str, size_t size) {
 				result[pos] = '0';  pos++;
 				break;
 			default:
-				result[pos] = str[index]; pos++;
+				result[pos] = src[index]; pos++;
 				break;
 		}
 	}
@@ -276,133 +477,33 @@ char* strl_unescape(char *str, size_t size) {
 
 
 
-size_t chrpos(const char *haystack, const char needle) {
-	return chrposs(haystack, needle, 0);
-}
-
-size_t chrposs(const char *haystack, const char needle, const size_t start) {
-	size_t len = strlen(haystack);
-	if (start > len)
-		return -1;
-	size_t i = start;
-	while (i < len) {
-		if (haystack[i] == '\0')
-			return (needle == '\0') ? i : -1;
-		if (haystack[i] == needle)
-			return i;
-		i++;
-	}
-	return (needle == '\0') ? len : -1;
-}
-
-
-
-size_t chrrpos(const char *haystack, const char needle) {
-	return chrrposs(haystack, needle, 0);
-}
-
-size_t chrrposs(const char *haystack, const char needle, const size_t start) {
-	size_t len = strlen(haystack);
-	if (start > len)
-		return -1;
-	size_t i = start;
-	size_t last = -1;
-	while (i < len) {
-		if (haystack[i] == '\0')
-			break;
-		if (haystack[i] == needle)
-			last = i;
-		i++;
-	}
-	return last;
-}
-
-
-
-void str_pad_front(char *line, const size_t size) {
-	if (size < 1) return;
-	size_t len = strlen(line);
-	if (len >= size) return;
-	size_t count = size - len;
-	char pad[count+1];
-	for (size_t index=0; index<count; index++) {
-		pad[index] = ' ';
-	}
-	pad[count] = '\0';
-	char result[size+1];
-	strlcpy(result, pad,  size+1);
-	strlcat(result, line, size+1);
-	strlcpy(line, result, size+1);
-}
-
-void str_pad_end(char *line, const size_t size) {
-	if (size < 1) return;
-	size_t len = strlen(line);
-	if (len >= size) return;
-	size_t count = size - len;
-	char pad[count+1];
-	for (size_t index=0; index<count; index++) {
-		pad[index] = ' ';
-	}
-	pad[count] = '\0';
-	strlcat(line, pad, size+1);
-}
-
-void str_pad_center(char *line, const size_t size) {
-	if (size < 1) return;
-	size_t len = strlen(line);
-	if (len >= size) return;
-	size_t count = ((size - len) / 2);
-	char pad[count+2];
-	for (size_t index=0; index<count; index++) {
-		pad[index] = ' ';
-	}
-	pad[count] = '\0';
-	char result[size+1];
-	strlcpy(result, pad,  size+1);
-	strlcat(result, line, size+1);
-	count = 1 + (((size - len) - 1) / 2);
-	for (size_t index=0; index<count; index++) {
-		pad[index] = ' ';
-	}
-	pad[count] = '\0';
-	strlcat(result, pad,  size+1);
-	strlcpy(line, result, size+1);
-}
-
-
-
-bool str_starts_with(const char *haystack, const char *needle) {
-	for (size_t i=0; needle[i] != '\0'; i++) {
-		if (haystack[i] != needle[i])
-			return false;
-	}
-	return true;
-}
-
-bool str_ends_with(const char *haystack, const char *needle) {
-	if (strlen(haystack) < strlen(needle))
-		return false;
-	size_t len = strlen(haystack) - strlen(needle);
-	return (strcmp(&haystack[len], needle) == 0);
-}
-
-
-
-void str_make_safe(char *str, const size_t size) {
-	char c;
-	for (size_t i=0; i<size; i++) {
-		c = str[i];
-		if (c == '\0') {
-			for (;i<size; i++)
-				str[i] = '\0';
-			return;
+char* str_a_sum(const char *src) {
+	size_t len = str_len(src);
+	bool started = false;
+	size_t result_start = 0;
+	size_t pos = 0;
+	for (; pos<len; pos++) {
+		if (src[pos] == '\0') break;
+		// find start
+		if (!started) {
+			if (src[pos] == ' ' ) continue;
+			if (src[pos] == '\t') continue;
+			if (src[pos] == '\n') continue;
+			if (src[pos] == '\r') continue;
+			started = true;
+			result_start = pos;
 		}
-		if (c == '_' || c == '-') continue;
-		if (c >= 'a' && c <= 'z') continue;
-		if (c >= 'A' && c <= 'Z') continue;
-		if (c >= '0' && c <= '9') continue;
-		str[i] = '_';
+		if (started) {
+			if (src[pos] == ' ' ) break;
+			if (src[pos] == '\t') break;
+			if (src[pos] == '\n') break;
+			if (src[pos] == '\r') break;
+		}
 	}
-	str[size-1] = '\0';
+	size_t result_len = (started ? pos - result_start : 0);
+	if (result_len > 20)
+		result_len = 20;
+	char *result = calloc(result_len+1, sizeof(char));
+	str_l_cpy(result, src+result_start, result_len+1);
+	return result;
 }
