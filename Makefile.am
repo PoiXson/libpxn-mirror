@@ -9,6 +9,8 @@ test_libpxn_SOURCES = tests/tests.c
 libpxn_la_SOURCES = \
 	src/libpxn.c      \
 	src/Debug.c       \
+	src/Testing.c     \
+	src/MemUtils.c    \
 	src/StringUtils.c \
 	src/NumberUtils.c \
 	src/FileUtils.c   \
@@ -17,12 +19,15 @@ libpxn_la_SOURCES = \
 	src/Params.c      \
 	src/Run.c         \
 	src/tpl.c         \
-	src/Testing.c     \
+	src/tpl_parse.c   \
+	src/tpl_render.c  \
 	src/cjson/cJSON.c
 pkginclude_HEADERS = \
 	src/version.h     \
 	src/pxnDefines.h  \
 	src/Debug.h       \
+	src/Testing.h     \
+	src/MemUtils.h    \
 	src/StringUtils.h \
 	src/NumberUtils.h \
 	src/FileUtils.h   \
@@ -31,5 +36,4 @@ pkginclude_HEADERS = \
 	src/Params.h      \
 	src/Run.h         \
 	src/tpl.h         \
-	src/Testing.h     \
 	src/cjson/cJSON.h
