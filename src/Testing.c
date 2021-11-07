@@ -41,22 +41,18 @@ void testing_init(int argc, char *argv[]) {
 	testing_state = calloc(1, sizeof(TestingState));
 	size_t flag_abort   = param_add('a', 1, "abort",   "Abort on failed asserts [default]");
 	param_add_spacer();
+	size_t flag_verbose = param_add('v', 1, "verbose", "Detailed logging");
 	size_t flag_color   = param_add('C', 1, "color",   "Enable console colors");
 	size_t flag_ncolor  = param_add('\0',1, "no-color","Disable console colors");
 	size_t flag_version = param_add('V', 1, "version", "Display version information and exit");
-	size_t flag_verbose = param_add('v', 1, "verbose", "Detailed logging");
 	size_t flag_help    = param_add('h', 1, "help",    "Display this help message and exit");
 	params_process(argc, argv, argv[0]);
-	testing_state->abort_on_fail  = params_get_bool(flag_abort);
-	testing_state->display_detail = params_get_bool(flag_verbose);
+	// --color / --no-color
 	if (params_get_bool(flag_ncolor)) {
 		set_log_color_enabled(false);
 	} else
 	if (params_get_bool(flag_color)) {
 		set_log_color_enabled(true);
-	}
-	if (params_get_bool(flag_verbose)) {
-		log_level_set(LVL_ALL);
 	}
 	// --help
 	if (params_get_bool(flag_help)) {
@@ -67,6 +63,13 @@ void testing_init(int argc, char *argv[]) {
 	if (params_get_bool(flag_version)) {
 		testing_display_version();
 		exit(1);
+	}
+	// --abort
+	testing_state->abort_on_fail  = params_get_bool(flag_abort);
+	// --verbose
+	testing_state->display_detail = params_get_bool(flag_verbose);
+	if (testing_state->display_detail) {
+		log_level_set(LVL_ALL);
 	}
 }
 
