@@ -18,9 +18,9 @@
 //===============================================================================
 #pragma once
 
-#include <stdio.h>
+#include <stdio.h>  // FILE
 #include <stdbool.h>
-#include <limits.h>
+#include <stdlib.h> // size_t
 
 
 
@@ -34,16 +34,15 @@ File_Type get_file_type(const char *path);
 
 
 
-char* basename(char *file);
-void build_path(char *path, const size_t num, ...);
-
-int get_lock(char *lock_file, const bool blocking);
-void free_lock(char *lock_file, const int handle);
+char* get_basename(char *file);
+char* build_path(const size_t num_parts, ...);
 
 size_t load_text_file(const char *file, char **out);
 size_t read_text_file(FILE *handle, char **out);
 bool   save_text_file(const char *file, char *data, size_t size);
 
-bool copy_file(char *file_path, char *dest_path);
+//bool   copy_file(char *file_path, char *dest_path);
+//size_t file_compare(const char *file, char *data, size_t data_len);
 
-size_t file_compare(const char *file, char *data, size_t data_len);
+//int  get_lock (char *lock_file, const bool blocking);
+//void free_lock(char *lock_file, const int handle);

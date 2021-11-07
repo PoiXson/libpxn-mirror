@@ -19,15 +19,9 @@
 #include "FileUtils.h"
 
 #include "StringUtils.h"
-#include "Logs.h"
+#include "MemUtils.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdarg.h>
 #include <string.h>
-#include <limits.h>
-#include <unistd.h>   // getpid
 #include <dirent.h>   // DIR
 #include <sys/file.h> // open
 #include <errno.h>    // errno
@@ -44,20 +38,26 @@ File_Type get_file_type(const char *path) {
 
 
 
-char* basename(char *file) {
-	size_t pos = strlen(file) - 1;
+char* get_basename(char *file) {
+	size_t pos = str_len(file);
+	if (pos == 0) return file;
 	while (true) {
-		if (file[pos] == '/') {
-			pos++;
-			return file + pos;
-		}
+		pos--;
+		if (file[pos] == '/')
+			return file + pos + 1;
 		if (pos == 0)
 			break;
-		pos--;
 	}
 	return file;
 }
 
+
+
+char* build_path(const size_t num_parts, ...) {
+//TODO
+return NULL;
+}
+/*
 void build_path(char *path, const size_t num, ...) {
 	memset(path, '\0', PATH_MAX);
 	if (num == 0)
@@ -117,48 +117,12 @@ void build_path(char *path, const size_t num, ...) {
 	}
 	va_end(args);
 }
+*/
 
 
 
-// note: error codes found at: /usr/include/asm-generic/errno-base.h
-int get_lock(char *lock_file, const bool blocking) {
-	int handle = open(lock_file, O_CREAT | O_RDWR, 0666);
-	if (handle < 0) {
-		if (EACCES == errno) {
-			log_fatal("Permission denied to lock file: %s", lock_file);
-		} else
-		if (EIO == errno) {
-			log_fatal("IO Error accessing file: %s", lock_file);
-		} else
-		if (ENOSPC == errno) {
-			log_fatal("No space left on device for file: %s", lock_file);
-		} else {
-			log_fatal("Failed to open lock file: %s errno: %i", lock_file, errno);
-		}
-		exit(1);
-	}
-	if (flock(handle, LOCK_EX | (blocking ? 0 : LOCK_NB) )) {
-		if (EWOULDBLOCK == errno) {
-			log_fatal("Concurrent instance, already running");
-		} else {
-			log_fatal("Failed to lock file: %s errno: %i", lock_file, errno);
-		}
-		exit(1);
-	}
-	int pid = getpid();
-	dprintf(handle, "%i", pid);
-	log_detail("Got instance lock for pid: %i", pid);
-	return handle;
-}
-
-void free_lock(char *lock_file, const int handle) {
-	close(handle);
-	if (remove(lock_file)) {
-		log_warning("Failed to remove lock file: %s", lock_file);
-	} else {
-		log_detail("Released lock file: %s", lock_file);
-	}
-}
+// ========================================
+// load/save file
 
 
 
@@ -185,14 +149,15 @@ size_t read_text_file(FILE *handle, char **out) {
 			break;
 		if (size == 0L) {
 			size = len + 1;
-			*out = malloc(size);
+			*out = calloc(size, 1);
 			memcpy(*out, chunk, len);
 			pos += len;
 			(*out)[pos] = '\0';
 		} else {
 			if (pos + len + 1 > size) {
-				size *= 2;
-				*out = realloc(*out, size);
+				size_t old_size = size;
+				size_t new_size = size * 2;
+				*out = realloc_zero(*out, old_size, new_size);
 			}
 			memcpy( (*out)+pos, chunk, len);
 			pos += len;
@@ -200,27 +165,9 @@ size_t read_text_file(FILE *handle, char **out) {
 		}
 	}
 	return size;
-/*
-	fseek(handle, 0L, SEEK_END);
-	long size = ftell(handle);
-	if (size > (long)INT_MAX) {
-		log_severe("File size out of range");
-		return -1L;
-	}
-	fseek(handle, 0L, SEEK_SET);
-	*out = malloc(size + 1L);
-	for (long index=0L; index<size; index++)
-		out[index] = '\0';
-	size_t len = fread(out, 1L, size, handle);
-	if (len != size) {
-		log_severe("read size different from file seek size: %lu, %lu", size, len);
-		free(out);
-		return -1L;
-	}
-	out[size] = '\0';
-	return size;
-*/
 }
+
+
 
 bool save_text_file(const char *file, char *data, size_t size) {
 	FILE *handle = fopen(file, "w");
@@ -228,11 +175,14 @@ bool save_text_file(const char *file, char *data, size_t size) {
 		return false;
 	int len = fwrite(data, size, 1, handle);
 	fclose(handle);
+//TODO: is this right?
 	return (len == 1);
 }
 
 
 
+//TODO: redo this
+/*
 bool copy_file(char *file_path, char *dest_path) {
 	{
 		File_Type type = get_file_type(dest_path);
@@ -242,13 +192,13 @@ bool copy_file(char *file_path, char *dest_path) {
 			return false;
 		case IS_DIR: {
 			char path[PATH_MAX+1];
-			strlcpy(path, dest_path, PATH_MAX);
+			str_l_cpy(path, dest_path, PATH_MAX);
 			size_t len = strlen(path);
 			if (path[len-1] != '/') {
 				path[len  ] = '/';
 				path[len+1] = '\0';
 			}
-			strlcat(path, basename(file_path), PATH_MAX);
+			str_l_cat(path, basename(file_path), PATH_MAX);
 			return copy_file(file_path, path);
 		}
 		default:
@@ -295,9 +245,12 @@ bool copy_file(char *file_path, char *dest_path) {
 	}
 	return true;
 }
+*/
 
 
 
+//TODO: redo this
+/*
 size_t file_compare(const char *file, char *data, size_t data_len) {
 	if (IS_FILE != get_file_type(file))
 		return -1;
@@ -353,3 +306,53 @@ size_t file_compare(const char *file, char *data, size_t data_len) {
 	}
 	return 0;
 }
+*/
+
+
+
+// ========================================
+// lock file
+
+
+
+// note: error codes found at: /usr/include/asm-generic/errno-base.h
+/*
+int get_lock(char *lock_file, const bool blocking) {
+	int handle = open(lock_file, O_CREAT | O_RDWR, 0666);
+	if (handle < 0) {
+		if (EACCES == errno) {
+			log_fatal("Permission denied to lock file: %s", lock_file);
+		} else
+		if (EIO == errno) {
+			log_fatal("IO Error accessing file: %s", lock_file);
+		} else
+		if (ENOSPC == errno) {
+			log_fatal("No space left on device for file: %s", lock_file);
+		} else {
+			log_fatal("Failed to open lock file: %s errno: %i", lock_file, errno);
+		}
+		exit(1);
+	}
+	if (flock(handle, LOCK_EX | (blocking ? 0 : LOCK_NB) )) {
+		if (EWOULDBLOCK == errno) {
+			log_fatal("Concurrent instance, already running");
+		} else {
+			log_fatal("Failed to lock file: %s errno: %i", lock_file, errno);
+		}
+		exit(1);
+	}
+	int pid = getpid();
+	dprintf(handle, "%i", pid);
+	log_detail("Got instance lock for pid: %i", pid);
+	return handle;
+}
+
+void free_lock(char *lock_file, const int handle) {
+	close(handle);
+	if (remove(lock_file)) {
+		log_warning("Failed to remove lock file: %s", lock_file);
+	} else {
+		log_detail("Released lock file: %s", lock_file);
+	}
+}
+*/
