@@ -19,12 +19,13 @@
 #include "src/Testing.h"
 
 #include "src/Run.h"
-#include "src/Logs.h"
-
-#include <string.h>
 
 
 
+void test_run() {
+//TODO
+}
+/*
 TEST_INIT(test_parse_cmd_args)
 void test_parse_cmd_args() {
 	size_t size = 11;
@@ -86,3 +87,4 @@ void test_run() {
 		assert_intcmp(0, result->status);
 		assert_strcmp("Arg: abc\nArg: 123\n", result->out);
 }
+*/

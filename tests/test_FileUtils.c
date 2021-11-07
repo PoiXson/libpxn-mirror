@@ -20,43 +20,40 @@
 
 #include "src/FileUtils.h"
 
-#include <stdlib.h>
-#include <string.h>
 
 
-
-TEST_INIT(test_FileUtils)
 void test_FileUtils() {
 
 	// test get_file_type()
-	assert_intcmp(IS_DIR,  get_file_type("/etc"));
-	assert_intcmp(IS_FILE, get_file_type("/etc/redhat-release"));
-	assert_intcmp(NOT_FOUND, get_file_type("/abcdefg12345gfedcba"));
+	assert_int_cmp(__LINE__, IS_DIR,    get_file_type("/etc"));
+	assert_int_cmp(__LINE__, IS_FILE,   get_file_type("/etc/redhat-release"));
+	assert_int_cmp(__LINE__, NOT_FOUND, get_file_type("/abcdefg12345gfedcba"));
 
-	// test basename()
-//TODO
+	// test get_basename()
+	assert_str_cmp(__LINE__, NULL, get_basename(NULL));
+	assert_str_cmp(__LINE__, "",   get_basename(""  ));
+	assert_str_cmp(__LINE__, "ghi.txt", get_basename("/abc/def/ghi.txt"));
 
+/*
 	// test build_path()
 	{
 		char *path = calloc(PATH_MAX, sizeof(char));
 		build_path(path, 2, "/etc/", "///redhat-release");
-			assert_strcmp("/etc/redhat-release", path);
+			assert_str_cmp(__LINE__, "/etc/redhat-release", path);
 		build_path(path, 3, "/var/log/", "cups", "error_log");
-			assert_strcmp("/var/log/cups/error_log", path);
+			assert_str_cmp(__LINE__, "/var/log/cups/error_log", path);
 		build_path(path, 2, "data", "file.txt");
-			assert_strcmp("data/file.txt", path);
+			assert_str_cmp(__LINE__, "data/file.txt", path);
 		free(path);
 	}
+*/
 
-	// test get_lock() and free_lock()
-//TODO: maybe use pwd
-
-	// test load_text_file() and read_text_file()
+	// test load file
 	{
-		char *out;
+		char *out = NULL;
 		int len = load_text_file("/etc/redhat-release", &out);
-		assert(len > 0);
-		assert(strlen(out) > 0);
+		assert(__LINE__, len > 0);
+		assert(__LINE__, str_len(out) > 0);
 	}
 
 	// test save_text_file()
@@ -66,6 +63,8 @@ void test_FileUtils() {
 //TODO
 
 	// test file_compare()
+//TODO
+/*
 	{
 		char *data;
 		size_t data_size = 0;
@@ -99,4 +98,9 @@ void test_FileUtils() {
 		data[20] = '\0';
 		assert_intcmp(20, file_compare(file, data, data_size));
 	}
+*/
+
+	// test get_lock() and free_lock()
+//TODO: maybe use pwd
+
 }

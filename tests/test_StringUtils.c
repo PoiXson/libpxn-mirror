@@ -18,183 +18,272 @@
 //===============================================================================
 #include "src/Testing.h"
 
-#include "src/StringUtils.h"
-
-#include <string.h>
+#include "src/MemUtils.h"
 
 
 
-TEST_INIT(test_StringUtils)
 void test_StringUtils() {
-	size_t size = 11;
-	char str[size];
 
-	// test strlcpy()
-	strlcpy(str, "qwerty", size);
-		assert(strcmp(str, "qwerty") == 0);
-	strlcpy(str, "abc", size);
-		assert(strcmp(str, "abc") == 0);
-	// test strlcat()
-	strlcat(str, "def", size);
-		assert(strcmp(str, "abcdef") == 0);
-	strlcat(str, "ghijklmnopqrstuvwxyz", size);
-		assert_strcmp("abcdefghij", str);
-	// test strlcatfront
-	strlcpy(str, "def", size);
-	strlcatfront(str, "abc", size);
-		assert_strcmp("abcdef", str);
-	strlcatfront(str, "123456", size);
-		assert_strcmp("123456abcd", str);
-	strlcatfront(str, "ABCD", 5);
-		assert_strcmp("ABCD", str);
+	// test str_empty()
+	assert    (__LINE__, str_empty(NULL ));
+	assert    (__LINE__, str_empty(""   ));
+	assert_not(__LINE__, str_empty(" "  ));
+	assert_not(__LINE__, str_empty("Abc"));
+	// test str_not_empty()
+	assert_not(__LINE__, str_not_empty(NULL ));
+	assert_not(__LINE__, str_not_empty(""   ));
+	assert    (__LINE__, str_not_empty(" "  ));
+	assert    (__LINE__, str_not_empty("Abc"));
 
-	// test str reallocate functions
+	// test str_len()
+	assert_int_cmp(__LINE__, 0, str_len(NULL   ));
+	assert_int_cmp(__LINE__, 0, str_len(""     ));
+	assert_int_cmp(__LINE__, 3, str_len("Abc"  ));
+	assert_int_cmp(__LINE__, 3, str_len("Abc\0"));
+	// test str_l_len()
+	assert_int_cmp(__LINE__, 0, str_l_len(NULL,    0));
+	assert_int_cmp(__LINE__, 0, str_l_len(NULL,   11));
+	assert_int_cmp(__LINE__, 3, str_l_len("Abc",  11));
+	assert_int_cmp(__LINE__, 0, str_l_len("",      3));
+	assert_int_cmp(__LINE__, 0, str_l_len("Abc",   0));
+	assert_int_cmp(__LINE__, 1, str_l_len("Abc",   1));
+	assert_int_cmp(__LINE__, 3, str_l_len("Abc",   3));
+	assert_int_cmp(__LINE__, 3, str_l_len("Abc\0", 3));
+	assert_int_cmp(__LINE__, 3, str_l_len("Abcd",  3));
+
+	// test str_dup();
 	{
-		size_t sizeB;
-		char *strB;
-		// test strrcpy() strrcat()
-		sizeB = 2;
-		strB = calloc(sizeB, sizeof(char));
-		strrcpy(&strB, &sizeB, "abcd");
-			assert_intcmp(5, sizeB);
-			assert_strcmp("abcd", strB);
-		free(strB);
-		sizeB = 2;
-		strB = calloc(sizeB, sizeof(char));
-		strrcat(&strB, &sizeB, "abcd");
-			assert_intcmp(8, sizeB);
-			assert_strcmp("abcd", strB);
-		strrcat(&strB, &sizeB, "efg");
-			assert_intcmp(8, sizeB);
-			assert_strcmp("abcdefg", strB);
-		strrcat(&strB, &sizeB, "hijklmnopqrstuvwxyz");
-			assert_intcmp(32, sizeB);
-			assert_strcmp("abcdefghijklmnopqrstuvwxyz", strB);
-		free(strB);
-		// test strlrcpy() strlrcat()
-		sizeB = 2;
-		strB = calloc(sizeB, sizeof(char));
-		strlrcpy(&strB, &sizeB, "abc", 3);
-			assert_intcmp(4, sizeB);
-			assert_strcmp("abc", strB);
-		free(strB);
-		sizeB = 2;
-		strB = calloc(sizeB, sizeof(char));
-		strlrcat(&strB, &sizeB, "abc", 3);
-			assert_intcmp(4, sizeB);
-			assert_strcmp("abc", strB);
-		strlrcat(&strB, &sizeB, "def", 1);
-			assert_intcmp(8, sizeB);
-			assert_strcmp("abcd", strB);
-		strlrcat(&strB, &sizeB, "ef", 20);
-			assert_intcmp(8, sizeB);
-			assert_strcmp("abcdef", strB);
-		free(strB);
+		char *line = str_dup("\r\n\t Abc \t\r\n");
+			assert_str_cmp(__LINE__, "\r\n\t Abc \t\r\n", line);
 	}
 
-	// test strlcmp()
-	strlcpy(str, "Abc", size);
-		assert_intcmp(-65, strlcmp(str, "", size));
-		assert_intcmp(  0, strlcmp(str, "Abc", size));
-		assert_intcmp( -1, strlcmp(str, "Abb", size));
-		assert_intcmp(  1, strlcmp(str, "Abd", size));
-		assert_intcmp(-99, strlcmp(str, "Ab",  size));
-		assert_intcmp(100, strlcmp(str, "Abcd", size));
-		assert_intcmp(  0, strlcmp(str, "Abcxyz", 3));
-		assert_intcmp(120, strlcmp(str, "Abcxyz", 4));
-		assert_intcmp(120, strlcmp(str, "Abcxyz", 6));
+	// test str_l_cpy()
+	{
+		size_t tmp_size = 11;
+		assert_sizet_cmp(__LINE__, 0, str_l_cpy(NULL, "Abc", tmp_size));
+		char *tmp = calloc(tmp_size, sizeof(char));
+		assert_sizet_cmp(__LINE__, 6, str_l_cpy(tmp, "qwerty", tmp_size));
+			assert_str_cmp(__LINE__, "qwerty", tmp);
+		assert_sizet_cmp(__LINE__, 3, str_l_cpy(tmp, "Abc", tmp_size));
+			assert_str_cmp(__LINE__, "Abc", tmp);
+		assert_sizet_cmp(__LINE__, 2, str_l_cpy(tmp, "Abc", 3));
+			assert_str_cmp(__LINE__, "Ab", tmp);
+		free(tmp);
+	}
 
-	// test str_trim()
-	char *result;
-	result = str_trim(str);
-		assert_strcmp("Abc", result);
-	strlcpy(str, "   \t Abc \t   \n", size);
-	result = str_trim(str);
-		assert_strcmp("Abc", result);
+	// test str_l_cat()
+	{
+		size_t tmp_size = 11;
+		char *tmp = calloc(tmp_size, sizeof(char));
+		assert_sizet_cmp(__LINE__, 3, str_l_cat(tmp, "Abc", tmp_size));
+			assert_str_cmp(__LINE__, "Abc", tmp);
+		assert_sizet_cmp(__LINE__, 6, str_l_cat(tmp, "Def", tmp_size));
+			assert_str_cmp(__LINE__, "AbcDef", tmp);
+		free(tmp);
+	}
 
-	// test str_sum()
-	result = str_sum("Abc");
-		assert_strcmp("Abc", result);
-		free(result);
-	result = str_sum(" Abc\n Efg");
-		assert_strcmp("Abc", result);
-		free(result);
-	result = str_sum("\n\tAbc\n\tEfg");
-		assert_strcmp("Abc", result);
-		free(result);
-	result = str_sum("\n\n\n");
-		assert_strcmp("", result);
-		free(result);
-	// test str_unescape
-	result = str_unescape("Abc");
-		assert_strcmp("Abc", result);
-		free(result);
-	result = strl_unescape("A\tb\rc\nd\0e", 9);
-		assert_strcmp("A\\tb\\rc\\nd\\0e", result);
-		free(result);
-	result = strl_unescape("\t\r\n\0", 4);
-		assert_strcmp("\\t\\r\\n\\0", result);
-		free(result);
+	// test str_la_cat()
+	{
+		size_t tmp_size = 0;
+		char *tmp = NULL;
+		assert_sizet_cmp(__LINE__, 3, str_la_cat(&tmp, &tmp_size, "Abc", 3));
+			assert_sizet_cmp(__LINE__, 4, tmp_size);
+			assert_str_cmp  (__LINE__, "Abc", tmp);
+		assert_sizet_cmp(__LINE__, 6, str_la_cat(&tmp, &tmp_size, "Def", 3));
+			assert_sizet_cmp(__LINE__, 7, tmp_size);
+			assert_str_cmp  (__LINE__, "AbcDef", tmp);
+		free(tmp);
+	}
 
-	// test chrpos()
-	strlcpy(str, "abcdefg", size);
-		assert_intcmp( 0, chrpos(str, 'a'));
-		assert_intcmp( 3, chrpos(str, 'd'));
-		assert_intcmp( 6, chrpos(str, 'g'));
-		assert_intcmp(-1, chrpos(str, 'z'));
-	// test chrposs()
-	strlcpy(str, "abcdefg", size);
-		assert_intcmp( 0, chrposs(str, 'a', 0));
-		assert_intcmp(-1, chrposs(str, 'a', 1));
-		assert_intcmp( 3, chrposs(str, 'd', 3));
-		assert_intcmp(-1, chrposs(str, 'd', 4));
-	strlcpy(str, "abc\n\n\n", size);
-	size_t pos;
-		assert_intcmp( 3, pos = chrposs(str, '\n', 0));
-		assert_intcmp( 4, pos = chrposs(str, '\n', pos+1));
-		assert_intcmp( 5, pos = chrposs(str, '\n', pos+1));
-		assert_intcmp(-1, pos = chrposs(str, '\n', pos+1));
+	// test snprintf_alloc()
+	{
+		size_t tmp_size = 0;
+		char *tmp = NULL;
+		tmp = snprintf_alloc(&tmp_size, "Abc %s %i", "def", 123);
+			assert_sizet_cmp(__LINE__, 11, tmp_size);
+			assert_str_cmp  (__LINE__, "Abc def 123", tmp);
+		free(tmp);
+	}
 
-	// test pad_front()
-	strlcpy(str, "abc", size);
-	str_pad_front(str, 9);
-		assert_strcmp("      abc", str);
-	strlcpy(str, "abc", size);
-	str_pad_front(str, 2);
-		assert_strcmp("abc", str);
-	// test pad_end()
-	strlcpy(str, "abc", size);
-	str_pad_end(str, 9);
-		assert_strcmp("abc      ", str);
-	strlcpy(str, "abc", size);
-	str_pad_end(str, 2);
-		assert_strcmp("abc", str);
-	// test pad_center()
-	strlcpy(str, "abc", size);
-	str_pad_center(str, 9);
-		assert_strcmp("   abc   ", str);
-	strlcpy(str, "abc", size);
-	str_pad_center(str, 2);
-		assert_strcmp("abc", str);
+	// test str_cmp()
+	assert_int_cmp(__LINE__,   0, str_cmp(NULL,  NULL  ));
+	assert_int_cmp(__LINE__, -65, str_cmp("Abc", NULL  ));
+	assert_int_cmp(__LINE__,  65, str_cmp(NULL,  "Abc" ));
+	assert_int_cmp(__LINE__,   0, str_cmp("Abc", "Abc" ));
+	assert_int_cmp(__LINE__, -65, str_cmp("Abc", ""    ));
+	assert_int_cmp(__LINE__,  65, str_cmp("",    "Abc" ));
+	assert_int_cmp(__LINE__,   1, str_cmp("Abb", "Abc" ));
+	assert_int_cmp(__LINE__,  -1, str_cmp("Abc", "Abb" ));
+	assert_int_cmp(__LINE__,   1, str_cmp("Abc", "Abd" ));
+	assert_int_cmp(__LINE__,  -1, str_cmp("Abd", "Abc" ));
+	assert_int_cmp(__LINE__, 100, str_cmp("Abc", "Abcd"));
+	// test str_l_cmp()
+	assert_int_cmp(__LINE__,   0, str_l_cmp(NULL,  NULL,     3));
+	assert_int_cmp(__LINE__, -65, str_l_cmp("Abc", NULL,     3));
+	assert_int_cmp(__LINE__,  65, str_l_cmp(NULL,  "Abc",    3));
+	assert_int_cmp(__LINE__,   0, str_l_cmp("Abc", "Abc",    3));
+	assert_int_cmp(__LINE__, -65, str_l_cmp("Abc", ""   ,    3));
+	assert_int_cmp(__LINE__,  65, str_l_cmp("",    "Abc",    3));
+	assert_int_cmp(__LINE__,   1, str_l_cmp("Abb", "Abc",    3));
+	assert_int_cmp(__LINE__,  -1, str_l_cmp("Abc", "Abb",    3));
+	assert_int_cmp(__LINE__,   1, str_l_cmp("Abc", "Abd",    3));
+	assert_int_cmp(__LINE__,  -1, str_l_cmp("Abd", "Abc",    3));
+	assert_int_cmp(__LINE__,   0, str_l_cmp("Abc", "Abcd",   3));
+	assert_int_cmp(__LINE__, 100, str_l_cmp("Abc", "Abcd",   4));
+	assert_int_cmp(__LINE__,   0, str_l_cmp("Abc", "Abcxyz", 3));
+	assert_int_cmp(__LINE__, 120, str_l_cmp("Abc", "Abcxyz", 4));
+	assert_int_cmp(__LINE__, 120, str_l_cmp("Abc", "Abcxyz", 6));
 
-	// test str_starts_with()
-	strlcpy(str, "abc", size);
-		assert( str_starts_with(str, "ab"));
-		assert(!str_starts_with(str, "abcd"));
-	// test str_ends_with()
-	assert( str_ends_with(str, "bc"));
-	assert(!str_ends_with(str, "ab"));
+	{
+		size_t str_size = 11;
+		char *str = calloc(str_size, sizeof(char));
+		// test chr_pos()
+		str_l_cpy(str, "abcdefg", str_size);
+			assert_int_cmp(__LINE__,  0, chr_pos(str, 'a'));
+			assert_int_cmp(__LINE__,  3, chr_pos(str, 'd'));
+			assert_int_cmp(__LINE__,  6, chr_pos(str, 'g'));
+			assert_int_cmp(__LINE__, -1, chr_pos(str, 'z'));
+		// test chr_s_pos()
+		str_l_cpy(str, "abcdefg", str_size);
+			assert_int_cmp(__LINE__,  0, chr_s_pos(str, 'a', 0));
+			assert_int_cmp(__LINE__, -1, chr_s_pos(str, 'a', 1));
+			assert_int_cmp(__LINE__,  3, chr_s_pos(str, 'd', 3));
+			assert_int_cmp(__LINE__, -1, chr_s_pos(str, 'd', 4));
+		str_l_cpy(str, "abc\n\n\n", str_size);
+		size_t pos;
+			assert_int_cmp(__LINE__,  3, pos = chr_s_pos(str, '\n', 0));
+			assert_int_cmp(__LINE__,  4, pos = chr_s_pos(str, '\n', pos+1));
+			assert_int_cmp(__LINE__,  5, pos = chr_s_pos(str, '\n', pos+1));
+			assert_int_cmp(__LINE__, -1, pos = chr_s_pos(str, '\n', pos+1));
+		free(str);
+	}
+
+	// str_trim_left()
+	{
+		char *line = str_dup("\r\n\t Abc \t\r\n");
+		char *result = str_trim_left(line);
+			assert_str_cmp(__LINE__, "Abc \t\r\n", result);
+		line[0] = '\0';
+		result = str_trim_left(line);
+			assert_str_cmp(__LINE__, "", result);
+		free(line);
+	}
+	// str_trim_right()
+	{
+		char *line = str_dup("\r\n\t Abc \t\r\n");
+		str_trim_right(line);
+			assert_str_cmp(__LINE__, "\r\n\t Abc", line);
+		line[0] = '\0';
+		str_trim_right(line);
+			assert_str_cmp(__LINE__, "", line);
+		free(line);
+	}
+	// str_trim()
+	{
+		char *line = str_dup("\r\n\t Abc \t\r\n");
+		char *result = str_trim(line);
+			assert_str_cmp(__LINE__, "Abc", result);
+		line[0] = '\0';
+		result = str_trim(line);
+			assert_str_cmp(__LINE__, "", result);
+		free(line);
+	}
+
+	// test to upper/lower
+	{
+		size_t tmp_size = 11;
+		char *tmp = NULL;
+		str_to_upper(tmp); assert_str_cmp(__LINE__, NULL, tmp);
+		str_to_lower(tmp); assert_str_cmp(__LINE__, NULL, tmp);
+		tmp = calloc(tmp_size, sizeof(char));
+		str_to_upper(tmp); assert_str_cmp(__LINE__, "", tmp);
+		str_to_lower(tmp); assert_str_cmp(__LINE__, "", tmp);
+		str_l_cpy(tmp, "Abc", 4);
+		str_to_upper(tmp); assert_str_cmp(__LINE__, "ABC", tmp);
+		str_to_lower(tmp); assert_str_cmp(__LINE__, "abc", tmp);
+		free(tmp);
+	}
+
+	// test str_pad_front()
+	{
+		size_t tmp_size = 11;
+		char *tmp = calloc(tmp_size, sizeof(char));
+		str_l_cpy(tmp, "Abc", 4);
+		str_pad_front(tmp, 2); assert_str_cmp(__LINE__, "Abc",   tmp);
+		str_pad_front(tmp, 4); assert_str_cmp(__LINE__, "Abc",   tmp);
+		str_pad_front(tmp, 6); assert_str_cmp(__LINE__, "  Abc", tmp);
+		free(tmp);
+	}
+	// test str_pad_end()
+	{
+		size_t tmp_size = 11;
+		char *tmp = calloc(tmp_size, sizeof(char));
+		str_l_cpy(tmp, "Abc", 4);
+		str_pad_end(tmp, 2); assert_str_cmp(__LINE__, "Abc",   tmp);
+		str_pad_end(tmp, 4); assert_str_cmp(__LINE__, "Abc",   tmp);
+		str_pad_end(tmp, 6); assert_str_cmp(__LINE__, "Abc  ", tmp);
+		free(tmp);
+	}
+	// test str_pad_center()
+	{
+		size_t tmp_size = 11;
+		char *tmp = calloc(tmp_size, sizeof(char));
+		str_l_cpy(tmp, "Abc", 4);
+		str_pad_center(tmp, 2); assert_str_cmp(__LINE__, "Abc",   tmp);
+		str_pad_center(tmp, 4); assert_str_cmp(__LINE__, "Abc",   tmp);
+		str_pad_center(tmp, 6); assert_str_cmp(__LINE__, " Abc ", tmp);
+		free(tmp);
+	}
 
 	// test str_make_safe()
-	strlcpy(str, "a b\tc!d@efg", size);
-	str_make_safe(str, size);
-		assert_strcmp("a_b_c_d_ef", str);
-	strlcpy(str, "abc", size);
-	str[5]      = 'A';
-	str[size-1] = 'B';
-	str_make_safe(str, size);
-		assert_strcmp("abc", str);
-		assert(str[5]      == '\0');
-		assert(str[size-1] == '\0');
+	{
+		size_t tmp_size = 11;
+		char *tmp = calloc(tmp_size, sizeof(char));
+		str_l_cpy(tmp, "a b\tc!d@efg", tmp_size);
+		str_l_make_safe(tmp, tmp_size);
+			assert_str_cmp(__LINE__, "a_b_c_d_ef", tmp);
+		str_l_cpy(tmp, "abc", tmp_size);
+		tmp[5]          = 'A';
+		tmp[tmp_size-1] = 'B';
+		str_l_make_safe(tmp, tmp_size);
+			assert_str_cmp(__LINE__, "abc", tmp);
+			assert(__LINE__, tmp[5]          == '\0');
+			assert(__LINE__, tmp[tmp_size-1] == '\0');
+		free(tmp);
+	}
+
+	// test str_unescape
+	{
+		char *result;
+		result = str_la_unescape("Abc", 3);
+			assert_str_cmp(__LINE__, "Abc", result);
+			free(result);
+		result = str_la_unescape("Abc", 4);
+			assert_str_cmp(__LINE__, "Abc\\0", result);
+			free(result);
+		result = str_la_unescape("A\tb\rc\nd\0e", 9);
+			assert_str_cmp(__LINE__, "A\\tb\\rc\\nd\\0e", result);
+			free(result);
+		result = str_la_unescape("\t\r\n\0", 4);
+			assert_str_cmp(__LINE__, "\\t\\r\\n\\0", result);
+			free(result);
+	}
+
+	// test str_sum()
+	{
+		char *result;
+		result = str_a_sum("Abc");
+			assert_str_cmp(__LINE__, "Abc", result);
+			free(result);
+		result = str_a_sum(" Abc\n Efg");
+			assert_str_cmp(__LINE__, "Abc", result);
+			free(result);
+		result = str_a_sum("\n\tAbc\n\tEfg");
+			assert_str_cmp(__LINE__, "Abc", result);
+			free(result);
+		result = str_a_sum("\n\n\n");
+			assert_str_cmp(__LINE__, "", result);
+			free(result);
+	}
 
 }
