@@ -280,6 +280,14 @@ size_t get_log_fatal_count() {
 	return logger_state->count_fatal;
 }
 
+bool has_log_warnsevfat() {
+	return (
+		logger_state->count_warning > 0 ||
+		logger_state->count_severe  > 0 ||
+		logger_state->count_fatal   > 0
+	);
+}
+
 size_t reset_log_counts() {
 	size_t total = 0;
 	total += logger_state->count_warning;

@@ -106,6 +106,8 @@ char* log_level_to_color(const LogLevel level);
 size_t get_log_warning_count();
 size_t get_log_severe_count();
 size_t get_log_fatal_count();
+
+bool has_log_warnsevfat();
 size_t reset_log_counts();
 
 bool has_log_color_enabled();
