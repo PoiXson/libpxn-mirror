@@ -17,6 +17,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //===============================================================================
 #include "Testing.h"
+#include "libpxn_version.h"
 
 #include "MemUtils.h"
 #include "StringUtils.h"
@@ -42,6 +43,7 @@ void testing_init(int argc, char *argv[]) {
 	param_add_spacer();
 	size_t flag_color   = param_add('C', 1, "color",   "Enable console colors");
 	size_t flag_ncolor  = param_add('\0',1, "no-color","Disable console colors");
+	size_t flag_version = param_add('V', 1, "version", "Display version information and exit");
 	size_t flag_verbose = param_add('v', 1, "verbose", "Detailed logging");
 	size_t flag_help    = param_add('h', 1, "help",    "Display this help message and exit");
 	params_process(argc, argv, argv[0]);
@@ -61,6 +63,17 @@ void testing_init(int argc, char *argv[]) {
 		display_help();
 		exit(1);
 	}
+	// --version
+	if (params_get_bool(flag_version)) {
+		testing_display_version();
+		exit(1);
+	}
+}
+
+void testing_display_version() {
+	log_nl();
+	log_line(" %s %s", params_exec_name, LIBPXN_VERSION);
+	log_nl();
 }
 
 void testing_start() {

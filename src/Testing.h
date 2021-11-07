@@ -71,6 +71,7 @@ void testing_init(int argc, char *argv[]);
 void testing_start();
 int  testing_done();
 void testing_free();
+void testing_display_version();
 
 size_t testing_alloc_group();
 size_t testing_alloc_point(TestingGroup *group);
