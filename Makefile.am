@@ -23,17 +23,17 @@ libpxn_la_SOURCES = \
 	src/tpl_render.c  \
 	src/cjson/cJSON.c
 pkginclude_HEADERS = \
-	src/version.h     \
-	src/pxnDefines.h  \
-	src/Debug.h       \
-	src/Testing.h     \
-	src/MemUtils.h    \
-	src/StringUtils.h \
-	src/NumberUtils.h \
-	src/FileUtils.h   \
-	src/SystemUtils.h \
-	src/Logs.h        \
-	src/Params.h      \
-	src/Run.h         \
-	src/tpl.h         \
+	src/libpxn_version.h \
+	src/pxnDefines.h     \
+	src/Debug.h          \
+	src/Testing.h        \
+	src/MemUtils.h       \
+	src/StringUtils.h    \
+	src/NumberUtils.h    \
+	src/FileUtils.h      \
+	src/SystemUtils.h    \
+	src/Logs.h           \
+	src/Params.h         \
+	src/Run.h            \
+	src/tpl.h            \
 	src/cjson/cJSON.h
