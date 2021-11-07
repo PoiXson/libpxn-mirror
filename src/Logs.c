@@ -33,7 +33,11 @@ void init_logger_state() {
 	if (logger_state == NULL) {
 		logger_state = calloc(1, sizeof(LoggerState));
 		// default log level
-		logger_state->current_level = LVL_ALL;
+		#ifdef DEBUG
+			logger_state->current_level = LVL_ALL;
+		#else
+			logger_state->current_level = LVL_INFO;
+		#endif
 	}
 	if (logger_state->printer == NULL) logger_state->printer = log_print;
 	if (logger_state->writer  == NULL) logger_state->writer  = log_write;
