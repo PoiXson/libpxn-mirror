@@ -30,7 +30,7 @@
 
 bool is_mapped(const void *ptr, const size_t bytes);
 
-void hex_dump(void *addr, const size_t len);
+void hex_dump(const void *addr, const size_t len);
 
 
 

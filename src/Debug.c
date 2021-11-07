@@ -20,8 +20,6 @@
 #ifdef DEBUG
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include <unistd.h>
 #include <errno.h>
 
@@ -35,17 +33,19 @@ bool is_mapped(const void *ptr, const size_t bytes) {
 		return false;
 	if (write(fd[1], ptr, bytes) < 0) {
 		if (errno == EFAULT) {
-			close(fd[0]); close(fd[1]);
+			close(fd[0]);
+			close(fd[1]);
 			return false;
 		}
 	}
-	close(fd[0]); close(fd[1]);
+	close(fd[0]);
+	close(fd[1]);
 	return true;
 }
 
 
 
-void hex_dump(void *addr, const size_t len) {
+void hex_dump(const void *addr, const size_t len) {
 	unsigned char buff[17];
 	unsigned char *pc = (unsigned char*) addr;
 	// process bytes
