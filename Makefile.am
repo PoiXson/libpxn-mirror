@@ -5,6 +5,7 @@ libpxn_la_CFLAGS = -fPIC
 check_PROGRAMS = test-libpxn
 test_libpxn_LDADD = -lpxn
 test_libpxn_SOURCES = tests/tests.c
+test_libpxn_la_CFLAGS = -fPIC
 
 libpxn_la_SOURCES = \
 	src/libpxn.c      \
