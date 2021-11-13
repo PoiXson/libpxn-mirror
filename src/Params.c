@@ -303,7 +303,7 @@ char* params_get_text(size_t index) {
 
 
 
-size_t get_params_count() {
+size_t params_get_count() {
 	size_t count = 0;
 	for (size_t index=0; index<param_flags_size; index++) {
 		if (param_flags[index].used == true)

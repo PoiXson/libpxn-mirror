@@ -70,6 +70,6 @@ size_t params_find_flag(const char *flag);
 bool params_get_bool(size_t index);
 char* params_get_text(size_t index);
 
-size_t get_params_count();
+size_t params_get_count();
 
 void display_help();
