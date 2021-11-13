@@ -44,6 +44,7 @@ void testing_init(int argc, char *argv[]) {
 	size_t flag_verbose = param_add('v', 1, "verbose", "Detailed logging");
 	size_t flag_color   = param_add('C', 1, "color",   "Enable console colors");
 	size_t flag_ncolor  = param_add('\0',1, "no-color","Disable console colors");
+	param_add_spacer();
 	size_t flag_version = param_add('V', 1, "version", "Display version information and exit");
 	size_t flag_help    = param_add('h', 1, "help",    "Display this help message and exit");
 	params_process(argc, argv, argv[0]);

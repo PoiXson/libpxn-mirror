@@ -29,12 +29,14 @@
 
 int main(int argc, char *argv[]) {
 	testing_init(argc, argv);
+
 	testing_add(test_MemUtils,    "MemUtils",    "test_MemUtils"   );
 	testing_add(test_StringUtils, "StringUtils", "test_StringUtils");
 	testing_add(test_NumberUtils, "NumberUtils", "test_NumberUtils");
 	testing_add(test_FileUtils,   "FileUtils",   "test_FileUtils"  );
 	testing_add(test_tpl,         "tpl",         "test_tpl"        );
 	testing_add(test_run,         "run",         "test_run"        );
+
 	testing_start();
 	int result = testing_done();
 	testing_free();
