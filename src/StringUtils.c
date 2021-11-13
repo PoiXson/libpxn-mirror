@@ -213,7 +213,6 @@ int str_l_cmp(const char *strA, const char *strB, const size_t size) {
 			return cmp;
 		strA++;
 		strB++;
-		
 	}
 	return 0;
 }
@@ -296,7 +295,7 @@ char *str_trim_left(char *src) {
 		&&  *src != '\n'
 		&&  *src != '\r')
 			break;
-		*src++;
+		src++;
 	}
 	return src;
 }
