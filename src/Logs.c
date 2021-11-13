@@ -206,6 +206,7 @@ void log_write(const char *line) {
 
 
 bool is_level_loggable(const LogLevel level) {
+	init_logger_state();
 	return (
 		logger_state->current_level == LVL_ALL ||
 		logger_state->current_level <= level
@@ -265,6 +266,7 @@ bool has_log_color_enabled() {
 	return logger_state->color_enabled;
 }
 void set_log_color_enabled(bool enabled) {
+	init_logger_state();
 	logger_state->color_enabled = enabled;
 }
 
@@ -293,6 +295,7 @@ bool has_log_warnsevfat() {
 }
 
 size_t reset_log_counts() {
+	init_logger_state();
 	size_t total = 0;
 	total += logger_state->count_warning;
 	total += logger_state->count_severe;
