@@ -173,7 +173,6 @@ void log_print(const LogLevel level, const char *msg, va_list args) {
 		char *level_color = NULL;
 		if (color)
 			level_color = log_level_to_color(level);
-		size_t msg_len = str_len(msg);
 		size_t buf_size = 0;
 		char *buf = snprintf_alloc(
 			&buf_size,
