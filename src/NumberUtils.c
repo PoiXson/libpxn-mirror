@@ -35,6 +35,19 @@ size_t len_int(const int value) {
 	}
 }
 
+size_t len_sizet(const size_t value) {
+	size_t count = 0;
+	size_t count_value = 1;
+	while (true) {
+		if (value < count_value)
+			return (count == 0 ? 1 : count);
+		count++;
+		// max length of size_t
+		if (count >= 19) return 19;
+		count_value *= 10;
+	}
+}
+
 
 
 char* i_to_str(const int value) {

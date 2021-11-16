@@ -28,5 +28,6 @@
 
 
 size_t len_int  (const int    value);
+size_t len_sizet(const size_t value);
 
 char* i_to_str(const int value);
