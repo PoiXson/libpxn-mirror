@@ -23,17 +23,13 @@
 
 
 size_t len_int(const int value) {
-	if (value < 0) {
+	if (value < 0)
 		return len_int(0-value)+1;
-	}
 	size_t count = 0;
 	int count_value = 1;
 	while (true) {
-		if (value < count_value) {
-			if (count == 0)
-				return 1;
-			return count;
-		}
+		if (value < count_value)
+			return (count == 0 ? 1 : count);
 		count++;
 		count_value *= 10;
 	}
