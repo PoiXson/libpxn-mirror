@@ -23,6 +23,7 @@
 #include "NumberUtils.h"
 #include "Logs.h"
 
+#include <string.h>
 #include <stdarg.h>
 #include <libgen.h>
 
@@ -315,7 +316,7 @@ size_t params_get_count() {
 
 
 void display_help() {
-	size_t options_count = get_params_count();
+	size_t options_count = params_get_count();
 //	size_t actions_count = prog_actions_count();
 	bool color = has_log_color_enabled();
 	log_nl();
@@ -343,78 +344,94 @@ void display_help() {
 			(color ? COLOR_YELLOW : ""),
 			(color ? COLOR_RESET  : "")
 		);
-		size_t line_size = PARAMS_DESC_SIZE + PARAMS_FLAGS_SPACE + 16;
-		char line[line_size];
-		size_t f_index;
+		char *flags_str = calloc(PARAMS_FLAGS_SPACE+1, sizeof(char));
+		char *desc_str  = calloc(PARAMS_DESC_SIZE+1,   sizeof(char));
+		bool first_flag;
+		// PARAMS_LOOP:
 		for (size_t index=0; index<param_flags_size; index++) {
-			if (param_flags[index].used != true)
+			Param *param = &(param_flags[index]);
+			if (param->used != true)
 				continue;
+
 			// spacer
-			if (param_flags[index].flag_short == '-') {
+			if (param->flag_short == '-') {
 				log_nl();
 				continue;
 			}
+
+			memset(flags_str, '\0', PARAMS_FLAGS_SPACE);
+			memset(desc_str,  '\0', PARAMS_DESC_SIZE  );
+			first_flag = true;
+
 			// -x short flag
-			f_index = 0;
-			str_l_cpy(line, "  ", line_size);
-			if (param_flags[index].flag_short != '\0') {
-				line[2] = '-';
-				line[3] = param_flags[index].flag_short;
-				line[4] = '\0';
-				f_index++;
+			if (param->flag_short != '\0') {
+				first_flag = false;
+				flags_str[0] = '-';
+				flags_str[1] = param->flag_short;
+				flags_str[2] = '\0';
 			}
+
 			// --long flags
 			for (size_t i=0; i<PARAMS_LONG_MAX; i++) {
-				if (param_flags[index].flags_long[i][0] == '\0')
+				if (param->flags_long[i][0] == '\0')
 					continue;
-				if (f_index >= 3)
-					break;
 				// flag doesn't fit on line
-				if (str_len(line) + str_len(param_flags[index].flags_long[i]) > PARAMS_FLAGS_SPACE-5)
+				if (str_len(flags_str) + str_len(param->flags_long[i]) >= PARAMS_FLAGS_SPACE-4)
 					continue;
-				str_l_cat(
-					line,
-					(f_index == 0 ? "--" : ", --"),
-					line_size
-				);
-				str_l_cat(line, param_flags[index].flags_long[i], line_size);
-				f_index++;
-			}
-			// no flags
-			if (f_index == 0)
-				continue;
-//			str_pad_end(line, PARAMS_FLAGS_SPACE - 1);
-			line[PARAMS_FLAGS_SPACE-1] = ' ';
-			line[PARAMS_FLAGS_SPACE  ] = '\0';
-//			if (color) {
-//				str_f_cat(line, COLOR_GREEN, line_size);
-//				str_l_cat(line, COLOR_RESET, line_size);
-//			}
-			// description
-			{
-				char *desc = param_flags[index].desc;
-				size_t pos;
-				while (true) {
-					pos = chr_pos(desc, '\n');
-					if (pos == -1) {
-						str_l_cat(line, desc, line_size);
-						break;
-					}
-					// multi-line description
-					desc[pos] = '\0';
-					str_l_cat(line, desc, line_size);
-					desc += pos+1;
-					if (str_len(desc) == 0)
-						break;
-					log_line(line);
-					for (int i=0; i<PARAMS_FLAGS_SPACE+2; i++)
-						line[i] = ' ';
-					line[PARAMS_FLAGS_SPACE+2] = '\0';
+				if (first_flag) {
+					first_flag = false;
+				} else {
+					str_l_cat(flags_str, ", ", PARAMS_FLAGS_SPACE);
 				}
+				str_l_cat(flags_str, "--", PARAMS_FLAGS_SPACE);
+				str_l_cat(flags_str, param->flags_long[i], PARAMS_FLAGS_SPACE);
 			}
-			log_line(line);
-		}
-	}
+
+			// no flags
+			if (first_flag)
+				continue;
+			str_pad_end(flags_str, PARAMS_FLAGS_SPACE);
+
+			// description
+			size_t pos = chr_pos(param->desc, '\n');
+			if (pos != -1)
+				(param->desc)[pos] = '\0';
+			str_l_cpy(desc_str, param->desc, PARAMS_DESC_SIZE);
+			if (pos != -1)
+				(param->desc)[pos] = '\n';
+
+			log_line(
+				"  %s%s%s%s",
+				(color ? COLOR_GREEN : ""),
+				flags_str,
+				(color ? COLOR_RESET : ""),
+				desc_str
+			);
+
+			// more desc lines
+			if (pos != -1) {
+				char *ptr = param->desc;
+				// DESC_LINES_LOOP:
+				while (true) {
+					ptr += pos + 1;
+					pos = chr_pos(ptr, '\n');
+					if (pos != -1)
+						ptr[pos] = '\0';
+					for (int i=0; i<PARAMS_FLAGS_SPACE+3; i++)
+						desc_str[i] = ' ';
+					desc_str[PARAMS_FLAGS_SPACE+3] = '\0';
+					str_l_cat(desc_str, ptr, PARAMS_DESC_SIZE);
+					log_line(desc_str);
+					if (pos == -1)
+						break;
+					ptr[pos] = '\n';
+				} // end DESC_LINES_LOOP
+			}
+
+		} // end PARAMS_LOOP
+		free(flags_str);
+		free(desc_str);
+	} // end if options count
 	log_nl();
 	exit(1);
 }
