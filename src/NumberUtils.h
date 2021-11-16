@@ -27,6 +27,9 @@
 
 
 
+int    pow_int  (const int    base, const int power);
+size_t pow_sizet(const size_t base, const int power);
+
 size_t len_int  (const int    value);
 size_t len_sizet(const size_t value);
 

@@ -22,6 +22,26 @@
 
 
 
+int pow_int(const int base, const int power) {
+	if (power == 0) return 0;
+	int result = base;
+	for (int i=1; i<power; i++) {
+		result *= base;
+	}
+	return result;
+}
+
+size_t pow_sizet(const size_t base, const int power) {
+	if (power == 0) return 0;
+	size_t result = base;
+	for (int i=1; i<power; i++) {
+		result *= base;
+	}
+	return result;
+}
+
+
+
 size_t len_int(const int value) {
 	if (value < 0)
 		return len_int(0-value)+1;
