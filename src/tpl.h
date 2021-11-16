@@ -94,8 +94,8 @@ void tpl_free_node   (TPL_Node *node);
 void tpl_free_vars   (TPL_Context *context);
 void tpl_free_context(TPL_Context *context);
 
-size_t tpl_doc_nodes_count(TPL_Doc *doc);
-size_t tpl_nodes_count(TPL_Node *nodes, size_t nodes_size);
+size_t tpl_doc_nodes_count(const TPL_Doc *doc);
+size_t tpl_nodes_count(const TPL_Node *nodes, const size_t nodes_size);
 
 size_t tpl_find_var(TPL_Context *context, const char *name);
 char*  tpl_get_var (TPL_Context *context, const char *name);

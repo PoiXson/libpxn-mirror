@@ -156,11 +156,11 @@ void tpl_free_context(TPL_Context *context) {
 
 
 
-size_t tpl_doc_nodes_count(TPL_Doc *doc) {
+size_t tpl_doc_nodes_count(const TPL_Doc *doc) {
 	return tpl_nodes_count(doc->nodes, doc->nodes_size);
 }
 
-size_t tpl_nodes_count(TPL_Node *nodes, size_t nodes_size) {
+size_t tpl_nodes_count(const TPL_Node *nodes, const size_t nodes_size) {
 	size_t count = 0;
 	// NODES_LOOP:
 	for (size_t index=0; index<nodes_size; index++) {
