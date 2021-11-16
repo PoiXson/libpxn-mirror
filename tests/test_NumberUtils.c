@@ -38,15 +38,45 @@ void test_NumberUtils() {
 	assert_int_cmp(__LINE__, 9, MAX(-9, 9));
 	assert_int_cmp(__LINE__,-5, MAX(-9,-5));
 
+	// pow()
+	{
+		// int power
+		assert_int_cmp(__LINE__,    0, pow_int( 2, 0));
+		assert_int_cmp(__LINE__,    2, pow_int( 2, 1));
+		assert_int_cmp(__LINE__,    4, pow_int( 2, 2));
+		assert_int_cmp(__LINE__,   16, pow_int( 2, 4));
+		assert_int_cmp(__LINE__,   10, pow_int(10, 1));
+		assert_int_cmp(__LINE__,  100, pow_int(10, 2));
+		assert_int_cmp(__LINE__, 1000, pow_int(10, 3));
+		// size_t power
+		assert_sizet_cmp(__LINE__,    0, pow_sizet( 2, 0));
+		assert_sizet_cmp(__LINE__,    2, pow_sizet( 2, 1));
+		assert_sizet_cmp(__LINE__,    4, pow_sizet( 2, 2));
+		assert_sizet_cmp(__LINE__,   16, pow_sizet( 2, 4));
+		assert_sizet_cmp(__LINE__,   10, pow_sizet(10, 1));
+		assert_sizet_cmp(__LINE__,  100, pow_sizet(10, 2));
+		assert_sizet_cmp(__LINE__, 1000, pow_sizet(10, 3));
+	}
+
 	// test len_int()
 	{
-		assert_int_cmp(__LINE__, 9,  len_int(123456789));
-		assert_int_cmp(__LINE__, 10, len_int(-123456789));
-		assert_int_cmp(__LINE__, 1,  len_int(0));
-		assert_int_cmp(__LINE__, 1,  len_int(1));
-		assert_int_cmp(__LINE__, 2,  len_int(-1));
-		assert_int_cmp(__LINE__, 3,  len_int(999));
-		assert_int_cmp(__LINE__, 4,  len_int(-999));
+		assert_sizet_cmp(__LINE__,  9, len_int( 123456789));
+		assert_sizet_cmp(__LINE__, 10, len_int(-123456789));
+		assert_sizet_cmp(__LINE__,  1, len_int(   0));
+		assert_sizet_cmp(__LINE__,  1, len_int(   1));
+		assert_sizet_cmp(__LINE__,  2, len_int(  -1));
+		assert_sizet_cmp(__LINE__,  3, len_int( 999));
+		assert_sizet_cmp(__LINE__,  4, len_int(-999));
+	}
+
+	// test len_sizet()
+	{
+		assert_sizet_cmp(__LINE__, 19, len_sizet(LONG_MAX       ));
+		assert_sizet_cmp(__LINE__, 18, len_sizet(LONG_MAX / 10LU));
+		assert_sizet_cmp(__LINE__, 19, len_sizet( -1));
+		assert_sizet_cmp(__LINE__,  1, len_sizet(  0));
+		assert_sizet_cmp(__LINE__,  1, len_sizet(  1));
+		assert_sizet_cmp(__LINE__,  3, len_sizet(999));
 	}
 
 	// test i_to_str()
