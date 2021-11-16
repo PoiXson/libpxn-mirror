@@ -67,9 +67,13 @@ size_t tpl_alloc_node(TPL_Node **nodes, size_t *nodes_size) {
 		}
 		return 0;
 	}
-	for (size_t index=0; index<*nodes_size; index++) {
-		if ((*nodes)[index].used == false)
-			return index;
+	// search from end to maintain order
+	for (size_t index=(*nodes_size)-1; index>=0; index--) {
+		if ((*nodes)[index].used != false) {
+			if (index < (*nodes_size)-1)
+				return index + 1;
+			break;
+		}
 	}
 	size_t old_size = *nodes_size;
 	size_t new_size = (*nodes_size) * 2;
