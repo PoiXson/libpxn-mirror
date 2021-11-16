@@ -26,7 +26,7 @@
 #define PARAMS_LONG_MAX     3
 #define PARAMS_LONG_SIZE   10
 #define PARAMS_DESC_SIZE  200
-#define PARAMS_FLAGS_SPACE 25
+#define PARAMS_FLAGS_SPACE 20
 
 
 
